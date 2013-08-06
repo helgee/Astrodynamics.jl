@@ -1,4 +1,4 @@
-function rvtokepler(rv::Vector, mu::Float64)
+function elements(rv::Vector, mu::Float64)
     r, v = rv[1:3], rv[4:6]
     rm = norm(r)
     vm = norm(v)
@@ -33,7 +33,7 @@ function rvtokepler(rv::Vector, mu::Float64)
     return [sma, ecc, inc, node, peri, ano]
 end
 
-function rvtokepler(rv::Matrix, mu::Float64)
+function elements(rv::Matrix, mu::Float64)
     m, n = size(rv)
     if m != 6 && n != 6
         error("'rv' must be a 6xN or Nx6 matrix.")
@@ -43,12 +43,26 @@ function rvtokepler(rv::Matrix, mu::Float64)
     end
     ele = zeros(m,n)
     for i = 1:m
-        ele[i,:] = rvtokepler(vec(rv[i,:]), mu)
+        ele[i,:] = elements(vec(rv[i,:]), mu)
     end
     return ele
 end
 
-function keplertorv(ele::Vector, mu::Float64)
+function elements(s::State)
+    return elements(s.rv, planets[s.body].mu)
+end
+
+function elements(s::State, deg::Bool)
+    ele = elements(s)
+    if deg
+        ele[3:end] = ele[3:end]*180/pi
+        return ele
+    else
+        return ele
+    end
+end
+
+function cartesian(ele::Vector, mu::Float64)
     sma, ecc, inc, lan, per, ano = ele
     u = per + ano
     if ecc == 1
@@ -63,14 +77,14 @@ function keplertorv(ele::Vector, mu::Float64)
     vr = sqrt(mu/p)*ecc*sin(ano)
     vf = sqrt(mu*p)/r
     vx = ((vr*(cos(lan)*cos(u) - sin(lan)*cos(inc)*sin(u))
-    - vf*(cos(lan)*sin(u) + sin(lan)*cos(u)*cos(inc))))
+        - vf*(cos(lan)*sin(u) + sin(lan)*cos(u)*cos(inc))))
     vy = ((vr*(sin(lan)*cos(u) + cos(lan)*cos(inc)*sin(u))
-    - vf*(sin(lan)*sin(u) - cos(lan)*cos(u)*cos(inc))))
+        - vf*(sin(lan)*sin(u) - cos(lan)*cos(u)*cos(inc))))
     vz = vr*sin(inc)*sin(u) + vf*cos(u)*sin(inc)
     return [x, y, z, vx, vy, vz]
 end
 
-function keplertorv(ele::Matrix, mu::Float64)
+function cartesian(ele::Matrix, mu::Float64)
     m, n = size(ele)
     if m != 6 && n != 6
         error("'ele' must be a 6xN or Nx6 matrix.")
@@ -80,7 +94,7 @@ function keplertorv(ele::Matrix, mu::Float64)
     end
     rv = zeros(m,n)
     for i = 1:m
-        rv[i,:] = keplertorv(vec(ele[i,:]), mu)
+        rv[i,:] = cartesian(vec(ele[i,:]), mu)
     end
     return rv
 end
