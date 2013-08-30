@@ -1,26 +1,32 @@
-function meantoecc(M::Float64, ecc::Float64)
+function meantoecc(M::FloatingPoint, ecc::FloatingPoint)
     kepler(E) = E - ecc*sin(E) - M
     kepler_der(E) = 1 - ecc*cos(E)
     return newton(M, kepler, kepler_der)
 end
 
-function ecctomean(E::Float64, ecc::Float64)
+function ecctomean(E::FloatingPoint, ecc::FloatingPoint)
     return E - ecc*sin(E)
 end
 
-function ecctotrue(E::Float64, ecc::Float64)
+function ecctotrue(E::FloatingPoint, ecc::FloatingPoint)
     return 2*atan2(sqrt(1 + ecc)*sin(E/2), sqrt(1 - ecc)*cos(E/2))
 end
 
-function truetoecc(T::Float64, ecc::Float64)
+function truetoecc(T::FloatingPoint, ecc::FloatingPoint)
     return 2*atan2(sqrt(1 - ecc)*sin(T/2), sqrt(1 + ecc)*cos(T/2))
 end
 
-function period(a, mu)
+function period(a::FloatingPoint, mu::FloatingPoint)
     return sqrt(4*a^3*pi^2/mu)
 end
 
-function kepler(ele::Vector, dt::Float64, mu::Float64)
+function period(s::State)
+    mu = planets[s.body]["mu"]
+    ele = elements(s)
+    return period(ele[1], mu)
+end
+
+function kepler(ele::Vector, dt::FloatingPoint, mu::FloatingPoint)
     E0 = truetoecc(ele[6], ele[2])
     M0 = ecctomean(E0, ele[2])
     n = 2*pi/period(ele[1], mu)
@@ -30,8 +36,8 @@ function kepler(ele::Vector, dt::Float64, mu::Float64)
     return [ele[1:5], T]
 end
 
-function kepler(ele::Vector, dt::Vector, mu::Float64)
-    out = Array(Float64, length(dt), 6)
+function kepler(ele::Vector, dt::Vector, mu::FloatingPoint)
+    out = Array(FloatingPoint, length(dt), 6)
     for i = 1:length(dt)
         out[i,:] = kepler(ele, dt[i], mu)
     end

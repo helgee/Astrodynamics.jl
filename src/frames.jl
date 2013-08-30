@@ -1,4 +1,4 @@
-function elements(rv::Vector, mu::Float64)
+function elements(rv::Vector, mu::FloatingPoint)
     r, v = rv[1:3], rv[4:6]
     rm = norm(r)
     vm = norm(v)
@@ -33,7 +33,7 @@ function elements(rv::Vector, mu::Float64)
     return [sma, ecc, inc, node, peri, ano]
 end
 
-function elements(rv::Matrix, mu::Float64)
+function elements(rv::Matrix, mu::FloatingPoint)
     m, n = size(rv)
     if m != 6 && n != 6
         error("'rv' must be a 6xN or Nx6 matrix.")
@@ -49,7 +49,7 @@ function elements(rv::Matrix, mu::Float64)
 end
 
 function elements(s::State)
-    return elements(s.rv, planets[s.body].mu)
+    return elements(s.rv, planets[s.body]["mu"])
 end
 
 function elements(s::State, deg::Bool)
@@ -62,7 +62,7 @@ function elements(s::State, deg::Bool)
     end
 end
 
-function cartesian(ele::Vector, mu::Float64)
+function cartesian(ele::Vector, mu::FloatingPoint)
     sma, ecc, inc, lan, per, ano = ele
     u = per + ano
     if ecc == 1
@@ -84,7 +84,7 @@ function cartesian(ele::Vector, mu::Float64)
     return [x, y, z, vx, vy, vz]
 end
 
-function cartesian(ele::Matrix, mu::Float64)
+function cartesian(ele::Matrix, mu::FloatingPoint)
     m, n = size(ele)
     if m != 6 && n != 6
         error("'ele' must be a 6xN or Nx6 matrix.")

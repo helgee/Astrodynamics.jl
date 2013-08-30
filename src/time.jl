@@ -10,7 +10,7 @@ function julian(year::Int, month::Int, day::Int, hour::Int, minute::Int, second:
     return julian(year, month, day, hour, minute, float(second), base)
 end
 
-function julian(year::Int, month::Int, day::Int, hour::Int, minute::Int, second::Float64, base::String="2000")
+function julian(year::Int, month::Int, day::Int, hour::Int, minute::Int, second::FloatingPoint, base::String="2000")
     jd = (367.0 * year - floor((7.0 * (year + floor((month + 9.0) / 12.0))) * 0.25) + floor(275.0 * month / 9.0) + day + 1721013.5 + ((second / 60.0 + minute) / 60.0 + hour) / 24.0)
     if base == "2000"
         jd -= JD2000
@@ -25,7 +25,7 @@ function julian(year::Int, month::Int, day::Int, hour::Int, minute::Int, second:
     return jd
 end
 
-function gregorian(jd::Float64, base::String="2000")
+function gregorian(jd::FloatingPoint, base::String="2000")
     if base == "2000"
         jd += JD2000
     elseif base == "1950"
@@ -33,6 +33,7 @@ function gregorian(jd::Float64, base::String="2000")
     elseif lowercase(base) == "mjd"
         jd += MJD
     elseif lowercase(base) == "jd"
+        #pass
     else
         error("Unknown base epoch.")
     end
