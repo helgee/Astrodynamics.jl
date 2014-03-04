@@ -6,7 +6,7 @@ module Astrodynamics
 
     export State
     export julian, gregorian, JD2000, JD1950, MJD
-    export ecctomea, meantoecc, ecctotrue, truetoecc
+    export ecctomean, meantoecc, ecctotrue, truetoecc
     export propagate
     export planets
 
