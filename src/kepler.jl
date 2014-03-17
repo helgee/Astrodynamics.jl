@@ -17,7 +17,7 @@ function truetoecc(T::FloatingPoint, ecc::FloatingPoint)
 end
 
 function period(a::FloatingPoint, mu::FloatingPoint)
-    return sqrt(4*a^3*pi^2/mu)
+    return 2pi*sqrt(a^3/mu)
 end
 
 function period(s::State)

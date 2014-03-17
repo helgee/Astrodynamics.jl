@@ -2,6 +2,14 @@ const JD2000 = 2451544.5
 const JD1950 = 2433282.5
 const MJD = 2400000.5
 
+#immutable Epoch
+#    day::Int64
+#    decimal::Int64
+#end
+
+#function -(a::julianday, b::julianday)
+#end
+
 function julian(dt::DateTime, base::String="2000")
     return julian(year(dt), month(dt), day(dt), hour(dt), minute(dt), second(dt), base)
 end
@@ -64,3 +72,5 @@ end
 function gregorian(jd::Int, base::String="2000")
     return gregorian(float(jd))
 end
+
+
