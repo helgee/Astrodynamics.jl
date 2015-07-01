@@ -1,3 +1,3 @@
 # Astrodynamics.jl
 
-![logo](docs/Astrodynamics-jl-logo.png)
+![logo](docs/logo/Astrodynamics-jl-logo.png)
