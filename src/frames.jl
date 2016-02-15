@@ -1,4 +1,17 @@
-function elements(rv::Vector, mu::FloatingPoint)
+abstract AbstractFrame
+abstract InertialFrame <: AbstractFrame
+abstract TerrestialFrame <: AbstractFrame
+abstract ECI <: TerrestialFrame
+abstract ECEF <: TerrestialFrame
+abstract GCRF <: TerrestialFrame
+abstract ICRF <: InertialFrame
+
+abstract IAURotating{T<:Planet} <: AbstractFrame
+abstract IAUInertial{T<:Planet} <: AbstractFrame
+
+
+
+function elements(rv::Vector, mu::Float64)
     r, v = rv[1:3], rv[4:6]
     rm = norm(r)
     vm = norm(v)
@@ -33,7 +46,7 @@ function elements(rv::Vector, mu::FloatingPoint)
     return [sma, ecc, inc, node, peri, ano]
 end
 
-function elements(rv::Matrix, mu::FloatingPoint)
+function elements(rv::Matrix, mu::Float64)
     m, n = size(rv)
     if m != 6 && n != 6
         error("'rv' must be a 6xN or Nx6 matrix.")
@@ -48,21 +61,7 @@ function elements(rv::Matrix, mu::FloatingPoint)
     return ele
 end
 
-function elements(s::State)
-    return elements(s.rv, planets[s.body]["mu"])
-end
-
-function elements(s::State, deg::Bool)
-    ele = elements(s)
-    if deg
-        ele[3:end] = ele[3:end]*180/pi
-        return ele
-    else
-        return ele
-    end
-end
-
-function cartesian(ele::Vector, mu::FloatingPoint)
+function cartesian(ele::Vector, mu::Float64)
     sma, ecc, inc, lan, per, ano = ele
     u = per + ano
     if ecc == 1
@@ -84,7 +83,7 @@ function cartesian(ele::Vector, mu::FloatingPoint)
     return [x, y, z, vx, vy, vz]
 end
 
-function cartesian(ele::Matrix, mu::FloatingPoint)
+function cartesian(ele::Matrix, mu::Float64)
     m, n = size(ele)
     if m != 6 && n != 6
         error("'ele' must be a 6xN or Nx6 matrix.")
