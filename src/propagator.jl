@@ -30,6 +30,11 @@ type Propagator
     events::Vector{AbstractEvent}
     tend::Float64
     stop::Function
+    gravity::Function
+    solar::Function
+    drag::Function
+    thirdbody::Function
+    other::Vector{Function}
 end
 
 function signchange(f::Function, s1::AbstractState, s2::AbstractState)
@@ -62,4 +67,3 @@ end
 #=        return cartesian(kepler(ele, dt, mu), mu) =#
 #=    end =#
 #= end =#
-
