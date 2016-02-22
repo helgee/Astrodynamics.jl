@@ -1,3 +1,6 @@
+using ERFA
+using TypeUtils
+
 export AbstractFrame, IAURotating, IAUInertial
 export ECI, ECEF, SEZ
 export GCRF, CIRF, TIRF, ITRF
@@ -16,49 +19,13 @@ abstract SEZ <: ECI
 abstract IAURotating{T<:Planet} <: GCRF
 abstract IAUInertial{T<:Planet} <: GCRF
 
-function neighbors(t::DataType)
-    supertype = super(t)
-    if supertype == AbstractFrame
-        return subtypes(t)
-    else
-        return push!(subtypes(t), supertype)
-    end
-end
-
-function findpath(origin::DataType, target::DataType)
-    queue = [origin]
-    links = Dict{DataType, DataType}()
-    while !isempty(queue)
-        node = shift!(queue)
-        if node == target
-            break
-        end
-        for n in neighbors(node)
-            if !haskey(links, n)
-                push!(queue, n)
-                merge!(links, Dict{DataType, DataType}(n=>node))
-            end
-        end
-    end
-    if !haskey(links, target)
-        error("No frame conversion path '$origin' -> '$target' found.")
-    end
-    path = [target]
-    node = target
-    while node != origin
-        push!(path, links[node])
-        node = links[node]
-    end
-    return reverse(path)
-end
-
 function elements(rv::Vector, mu::Float64)
     r, v = rv[1:3], rv[4:6]
     rm = norm(r)
     vm = norm(v)
     h = cross(r, v)
     hm = norm(h)
-    k = [0, 0, 1]
+    k = [0.0, 0.0, 1.0]
     n = cross(k, h)
     nm = norm(n)
     xi = vm^2/2 - mu/rm
