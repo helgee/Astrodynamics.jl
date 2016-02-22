@@ -1,6 +1,6 @@
 using Base.Dates: year, month, day, hour, minute, second, millisecond, datetime2julian
 using ERFA
-using TypeUtils
+using ConversionUtils
 
 import Base.convert, Base.promote_rule
 
@@ -24,7 +24,7 @@ abstract TAI <: TT
 abstract UTC <: TAI
 abstract UT1 <: UTC
 
-type Epoch{T<:Timescale}
+type Epoch{T<:Timescale} <: Convertible{T}
     scale::Type{T}
     jd::Float64
     jd1::Float64
@@ -48,11 +48,9 @@ end
 
 function Epoch{T<:Timescale}(scale::Type{T}, dt::DateTime;
     dat::Int=-1, dut1::Float64=NaN)
-    # Julia's DateTime type is UT1
-    ut1 = Epoch(UT1, year(dt), month(dt), day(dt),
+    Epoch(scale, year(dt), month(dt), day(dt),
         hour(dt), minute(dt), second(dt) + millisecond(dt)/1000,
         dat=dat, dut1=dut1)
-    return convert(scale, ut1)
 end
 
 function setleapseconds!(ep::Epoch, dat::Int)
@@ -98,7 +96,7 @@ end
 # Constructor for typealiases
 Base.call{T<:Timescale}(::Type{Epoch{T}}, args...; kwargs...) = Epoch(T, args...; kwargs...)
 
-#= Epoch{T<:Timescale}(::Type{T}, ep::Epoch) = convert(ep, T) =#
+Epoch{T<:Timescale}(::Type{T}, ep::Epoch) = generated_convert(Epoch, Epoch{T}, ep)
 
 function deltat(ep::Epoch)
     dat = getleapseconds(ep)
@@ -111,83 +109,82 @@ function deltatr(ep::Epoch)
 end
 
 # TAI <-> UTC
-function convert(::Type{TAI}, ep::UTCEpoch)
+function convert(::Type{TAIEpoch}, ep::UTCEpoch)
     date, date1 = eraUtctai(jd(ep), jd1(ep))
     TAIEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
-function convert(::Type{UTC}, ep::TAIEpoch)
+function convert(::Type{UTCEpoch}, ep::TAIEpoch)
     date, date1 = eraTaiutc(jd(ep), jd1(ep))
     UTCEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
 # UTC <-> UT1
-function convert(::Type{UTC}, ep::UT1Epoch)
+function convert(::Type{UTCEpoch}, ep::UT1Epoch)
     dut1 = getdut1(ep)
     date, date1 = eraUt1utc(jd(ep), jd1(ep), dut1)
     UTCEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
-function convert(::Type{UT1}, ep::UTCEpoch)
+function convert(::Type{UT1Epoch}, ep::UTCEpoch)
     dut1 = getdut1(ep)
     date, date1 = eraUtcut1(jd(ep), jd1(ep), dut1)
     UT1Epoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
 # TAI <-> UT1
-function convert(::Type{TAI}, ep::UT1Epoch)
+function convert(::Type{TAIEpoch}, ep::UT1Epoch)
     dat = getleapseconds(ep)
     date, date1 = eraUt1tai(jd(ep), jd1(ep), dat)
     TAIEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
-function convert(::Type{UT1}, ep::TAIEpoch)
+function convert(::Type{UT1Epoch}, ep::TAIEpoch)
     dat = getleapseconds(ep)
     date, date1 = eraTaiut1(jd(ep), jd1(ep), dat)
     UT1Epoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
 # TT <-> UT1
-function convert(::Type{TT}, ep::UT1Epoch)
+function convert(::Type{TTEpoch}, ep::UT1Epoch)
     dt = deltat(ep)
     date, date1 = eraUt1tt(jd(ep), jd1(ep), dt)
     TTEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
-function convert(::Type{UT1}, ep::TTEpoch)
+function convert(::Type{UT1Epoch}, ep::TTEpoch)
     dt = deltat(ep)
     date, date1 = eraTtut1(jd(ep), jd1(ep), dt)
     UT1Epoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
 # TAI <-> TT
-function convert(::Type{TAI}, ep::TTEpoch)
+function convert(::Type{TAIEpoch}, ep::TTEpoch)
     date, date1 = eraTttai(jd(ep), jd1(ep))
-    println(typeof(dat(ep)))
     TAIEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
-function convert(::Type{TT}, ep::TAIEpoch)
+function convert(::Type{TTEpoch}, ep::TAIEpoch)
     date, date1 = eraTaitt(jd(ep), jd1(ep))
     UTCEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
 # TT <-> TCG
-function convert(::Type{TT}, ep::TCGEpoch)
+function convert(::Type{TTEpoch}, ep::TCGEpoch)
     date, date1 = eraTcgtt(jd(ep), jd1(ep))
     TTEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
-function convert(::Type{TCG}, ep::TTEpoch)
+function convert(::Type{TCGEpoch}, ep::TTEpoch)
     date, date1 = eraTttcg(jd(ep), jd1(ep))
     TCGEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
 # TT <-> TDB
-function convert(::Type{TT}, ep::TDBEpoch)
+function convert(::Type{TTEpoch}, ep::TDBEpoch)
     dtr = deltatr(ep)
     date, date1 = eraTdbtt(jd(ep), jd1(ep), dtr)
     TTEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
-function convert(::Type{TDB}, ep::TTEpoch)
+function convert(::Type{TDBEpoch}, ep::TTEpoch)
     dtr = deltatr(ep)
     date, date1 = eraTttdb(jd(ep), jd1(ep), dtr)
     TDBEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
 # TDB <-> TCB
-function convert(::Type{TDB}, ep::TCBEpoch)
+function convert(::Type{TDBEpoch}, ep::TCBEpoch)
     date, date1 = eraTdbtcb(jd(ep), jd1(ep))
     TDBEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
-function convert(::Type{TCB}, ep::TDBEpoch)
+function convert(::Type{TCBEpoch}, ep::TDBEpoch)
     date, date1 = eraTcbtdb(jd(ep), jd1(ep))
     TCBEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
 end
