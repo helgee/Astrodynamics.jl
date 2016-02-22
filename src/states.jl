@@ -1,8 +1,9 @@
 abstract AbstractState
 
 immutable State{T} <: AbstractState
+    frame::Type{T}
     rv::Vector{Float64}
-    epoch::AbstractEpoch
+    epoch::Epoch
     body::AbstractBody
 end
 

@@ -45,22 +45,22 @@ max_elevation(p::Planet) = p.max_elevation
 max_depression(p::Planet) = p.max_depression
 id(p::Planet) = p.id
 
-function rightascension(p::AbstractBody, ep::AbstractEpoch)
+function rightascension(p::AbstractBody, ep::Epoch)
     centuries = (juliandate(ep) - J2000)/JULIAN_CENTURY
     rightascension(p, centuries)
 end
 
-function declination(p::AbstractBody, ep::AbstractEpoch)
+function declination(p::AbstractBody, ep::Epoch)
     centuries = (juliandate(ep) - J2000)/JULIAN_CENTURY
     declination(p, centuries)
 end
 
-function rotation_angle(p::AbstractBody, ep::AbstractEpoch)
+function rotation_angle(p::AbstractBody, ep::Epoch)
     days = juliandate(ep) - J2000
     rotation_angle(p, days)
 end
 
-function rotation_rate(p::AbstractBody, ep::AbstractEpoch)
+function rotation_rate(p::AbstractBody, ep::Epoch)
     days = juliandate(ep) - J2000
     rotation_rate(p, days)
 end
