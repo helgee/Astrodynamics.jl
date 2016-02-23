@@ -97,7 +97,7 @@ end
 # Constructor for typealiases
 Base.call{T<:Timescale}(::Type{Epoch{T}}, args...; kwargs...) = Epoch(T, args...; kwargs...)
 
-Epoch{T<:Timescale}(::Type{T}, ep::Epoch) = generated_convert(Epoch, Epoch{T}, ep)
+Epoch{T<:Timescale}(::Type{T}, ep::Epoch) = convert(Epoch{T}, ep)
 
 function deltat(ep::Epoch)
     dat = getleapseconds(ep)
