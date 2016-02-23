@@ -65,7 +65,7 @@ function setdut1!(ep::Epoch, dut1::Float64)
 end
 
 function getleapseconds(ep::Epoch)
-    if ep.dat == -1
+    if ep.dat < 0
         error("Leap seconds not set. Conversion failed.")
     else
         return get(ep.dat)
