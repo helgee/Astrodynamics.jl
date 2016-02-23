@@ -5,8 +5,8 @@ export EARTH
 export μ, mu, j2, mean_radius, polar_radius, equatorial_radius
 export deviation, max_elevation, max_depression, id
 
-abstract AbstractBody
-abstract Planet <: AbstractBody
+abstract Body
+abstract Planet <: Body
 
 planets = (
     :Mercury,
@@ -45,22 +45,22 @@ max_elevation(p::Planet) = p.max_elevation
 max_depression(p::Planet) = p.max_depression
 id(p::Planet) = p.id
 
-function rightascension(p::AbstractBody, ep::Epoch)
+function rightascension(p::Body, ep::Epoch)
     centuries = (juliandate(ep) - J2000)/JULIAN_CENTURY
     rightascension(p, centuries)
 end
 
-function declination(p::AbstractBody, ep::Epoch)
+function declination(p::Body, ep::Epoch)
     centuries = (juliandate(ep) - J2000)/JULIAN_CENTURY
     declination(p, centuries)
 end
 
-function rotation_angle(p::AbstractBody, ep::Epoch)
+function rotation_angle(p::Body, ep::Epoch)
     days = juliandate(ep) - J2000
     rotation_angle(p, days)
 end
 
-function rotation_rate(p::AbstractBody, ep::Epoch)
+function rotation_rate(p::Body, ep::Epoch)
     days = juliandate(ep) - J2000
     rotation_rate(p, days)
 end

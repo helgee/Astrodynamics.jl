@@ -1,5 +1,4 @@
 using ERFA
-using ConversionUtils
 
 export AbstractFrame, IAURotating, IAUInertial
 export ECI, ECEF, SEZ

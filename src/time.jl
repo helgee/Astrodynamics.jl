@@ -1,6 +1,5 @@
 using Base.Dates: year, month, day, hour, minute, second, millisecond, datetime2julian
 using ERFA
-using ConversionUtils
 
 import Base.convert, Base.promote_rule
 
@@ -24,13 +23,15 @@ abstract TAI <: TT
 abstract UTC <: TAI
 abstract UT1 <: UTC
 
-type Epoch{T<:Timescale} <: Convertible{T}
+type Epoch{T<:Timescale}
     scale::Type{T}
     jd::Float64
     jd1::Float64
     dat::Int
     dut1::Float64
 end
+
+Base.eltype{T}(::Type{Epoch{T}}) = T
 
 function Epoch{T<:Timescale}(scale::Type{T}, jd::Float64, jd1::Float64;
     dat::Int=-1, dut1::Float64=NaN)
@@ -65,7 +66,7 @@ end
 
 function getleapseconds(ep::Epoch)
     if ep.dat == -1
-        error("Leapseconds not set. Conversion failed.")
+        error("Leap seconds not set. Conversion failed.")
     else
         return get(ep.dat)
     end
@@ -187,4 +188,13 @@ end
 function convert(::Type{TCBEpoch}, ep::TDBEpoch)
     date, date1 = eraTcbtdb(jd(ep), jd1(ep))
     TCBEpoch(date, date1, dat=dat(ep), dut1=dut1(ep))
+end
+
+@generated function convert{T<:Epoch,S}(::Type{T}, obj::Epoch{S})
+    ex = :(obj)
+    path = findpath(S, eltype(T))
+    for t in path[2:end]
+        ex = :(convert(Epoch{$t}, $ex))
+    end
+    return :($ex)
 end

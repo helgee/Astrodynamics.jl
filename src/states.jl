@@ -4,7 +4,7 @@ immutable State{T} <: AbstractState
     frame::Type{T}
     rv::Vector{Float64}
     epoch::Epoch
-    body::AbstractBody
+    body::Body
 end
 
 type StateSpace <: AbstractState
