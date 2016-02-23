@@ -1,12 +1,12 @@
 using ERFA
 
-export AbstractFrame, IAURotating, IAUInertial
+export Frame, IAURotating, IAUInertial
 export ECI, ECEF, SEZ
 export GCRF, CIRF, TIRF, ITRF
 
-abstract AbstractFrame
+abstract Frame
 
-abstract GCRF <: AbstractFrame
+abstract GCRF <: Frame
 abstract CIRF <: GCRF
 abstract TIRF <: CIRF
 abstract ITRF <: TIRF

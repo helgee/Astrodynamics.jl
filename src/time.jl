@@ -192,6 +192,9 @@ end
 
 @generated function convert{T<:Epoch,S}(::Type{T}, obj::Epoch{S})
     ex = :(obj)
+    if eltype(T) == S
+        return :($ex)
+    end
     path = findpath(S, eltype(T))
     for t in path[2:end]
         ex = :(convert(Epoch{$t}, $ex))
