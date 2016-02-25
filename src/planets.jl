@@ -4,6 +4,7 @@
 export EARTH
 export μ, mu, j2, mean_radius, polar_radius, equatorial_radius
 export deviation, max_elevation, max_depression, id
+export rightascension, declination, rotation_angle, rotation_rate
 
 abstract Body
 abstract Planet <: Body
