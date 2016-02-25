@@ -6,6 +6,7 @@ import Base.convert, Base.promote_rule
 export Epoch, AbstractTimescale
 export juliandate, jd2000, jd1950#, mjd
 export JULIAN_CENTURY, J2000, J1950
+export rad2dms, dms2rad
 
 const JULIAN_CENTURY = 36525
 const J2000 = Dates.datetime2julian(DateTime(2000, 1, 1, 12, 0, 0))
@@ -24,9 +25,14 @@ abstract TAI <: TT
 abstract UTC <: TAI
 abstract UT1 <: UTC
 
-function name{T<:Timescale}(scale::Type{T})
-    convert(ASCIIString, split(string(scale), '.')[end])
-end
+names = Dict{DataType, ASCIIString}(
+    TT => "TT",
+    TDB => "TDB",
+    TCB => "TCB",
+    TAI => "TAI",
+    UTC => "UTC",
+    UT1 => "UT1",
+)
 
 type Epoch{T<:Timescale}
     scale::Type{T}
@@ -46,7 +52,7 @@ end
 function Epoch{T<:Timescale}(scale::Type{T}, year::Int, month::Int, day::Int,
     hour::Int, minute::Int, seconds::Float64;
     dat::Int=-1, dut1::Float64=NaN)
-    jd, jd1 = eraDtf2d(name(scale),
+    jd, jd1 = eraDtf2d(names[scale],
     year, month, day, hour, minute, seconds)
     Epoch(scale, jd, jd1, dat=dat, dut1=dut1)
 end
@@ -109,9 +115,6 @@ end
 # Constructor for typealiases
 Base.call{T<:Timescale}(::Type{Epoch{T}}, args...; kwargs...) = Epoch(T, args...; kwargs...)
 
-# Use Epoch{TT} by default
-Epoch(args...; kwargs...) = Epoch(TT, args...; kwargs...)
-
 Epoch{T<:Timescale}(::Type{T}, ep::Epoch) = convert(Epoch{T}, ep)
 
 function deltat(ep::Epoch)
@@ -125,7 +128,7 @@ function deltatr(ep::Epoch)
 end
 
 function convert{T}(::Type{DateTime}, ep::Epoch{T})
-    dt = eraD2dtf(name(T), 2, jd(ep), jd1(ep))
+    dt = eraD2dtf(names[T], 2, jd(ep), jd1(ep))
     DateTime(dt...)
 end
 Base.DateTime(ep::Epoch) = convert(DateTime, ep)
@@ -221,4 +224,16 @@ end
         ex = :(convert(Epoch{$t}, $ex))
     end
     return :($ex)
+end
+
+function dms2rad(deg::Real, arcmin::Real, arcsec::Real)
+    deg2rad(deg + arcmin/60 + arcsec/3600)
+end
+
+function rad2dms(rad::Real)
+    d = rad2deg(rad)
+    deg = trunc(d)
+    arcmin = trunc((d-deg)*60)
+    arcsec = (d-deg-arcmin/60)*3600
+    return deg, arcmin, arcsec
 end
