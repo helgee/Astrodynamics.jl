@@ -44,7 +44,7 @@ end
 
 Base.eltype{T}(::Type{Epoch{T}}) = T
 
-function Epoch{T<:Timescale}(scale::Type{T}, jd::Float64, jd1::Float64;
+function Epoch{T<:Timescale}(scale::Type{T}, jd::Float64, jd1::Float64=0.0;
     dat::Int=-1, dut1::Float64=NaN)
     Epoch(scale, jd, jd1, dat, dut1)
 end
