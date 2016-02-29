@@ -1,11 +1,15 @@
-export euler2dcm
+export euler2dcm, euler2dcm!
 
 function euler2dcm(sequence::Int, ang1::Float64, ang2::Float64, ang3::Float64)
-    euler2dcm(Val{sequence}, ang1, ang2, ang3)
+    m = Array(Float64, 3, 3)
+    euler2dcm!(Val{sequence}, m, ang1, ang2, ang3)
 end
 
-function euler2dcm(::Type{Val{321}}, ang1::Float64, ang2::Float64, ang3::Float64)
-    m = Array(Float64, 3, 3)
+function euler2dcm!(sequence::Int, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
+    euler2dcm!(Val{sequence}, m, ang1, ang2, ang3)
+end
+
+function euler2dcm!(::Type{Val{321}}, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
     c1 = cos(ang1)
     s1 = sin(ang1)
     c2 = cos(ang2)
@@ -25,8 +29,7 @@ function euler2dcm(::Type{Val{321}}, ang1::Float64, ang2::Float64, ang3::Float64
     return m
 end
 
-function euler2dcm(::Type{Val{121}}, ang1::Float64, ang2::Float64, ang3::Float64)
-    m = Array(Float64, 3, 3)
+function euler2dcm!(::Type{Val{121}}, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
     c1 = cos(ang1)
     s1 = sin(ang1)
     c2 = cos(ang2)
@@ -46,8 +49,7 @@ function euler2dcm(::Type{Val{121}}, ang1::Float64, ang2::Float64, ang3::Float64
     return m
 end
 
-function euler2dcm(::Type{Val{123}}, ang1::Float64, ang2::Float64, ang3::Float64)
-    m = Array(Float64, 3, 3)
+function euler2dcm!(::Type{Val{123}}, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
     c1 = cos(ang1)
     s1 = sin(ang1)
     c2 = cos(ang2)
@@ -67,8 +69,7 @@ function euler2dcm(::Type{Val{123}}, ang1::Float64, ang2::Float64, ang3::Float64
     return m
 end
 
-function euler2dcm(::Type{Val{131}}, ang1::Float64, ang2::Float64, ang3::Float64)
-    m = Array(Float64, 3, 3)
+function euler2dcm!(::Type{Val{131}}, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
     c1 = cos(ang1)
     s1 = sin(ang1)
     c2 = cos(ang2)
@@ -88,8 +89,7 @@ function euler2dcm(::Type{Val{131}}, ang1::Float64, ang2::Float64, ang3::Float64
     return m
 end
 
-function euler2dcm(::Type{Val{132}}, ang1::Float64, ang2::Float64, ang3::Float64)
-    m = Array(Float64, 3, 3)
+function euler2dcm!(::Type{Val{132}}, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
     c1 = cos(ang1)
     s1 = sin(ang1)
     c2 = cos(ang2)
@@ -109,8 +109,7 @@ function euler2dcm(::Type{Val{132}}, ang1::Float64, ang2::Float64, ang3::Float64
     return m
 end
 
-function euler2dcm(::Type{Val{212}}, ang1::Float64, ang2::Float64, ang3::Float64)
-    m = Array(Float64, 3, 3)
+function euler2dcm!(::Type{Val{212}}, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
     c1 = cos(ang1)
     s1 = sin(ang1)
     c2 = cos(ang2)
@@ -130,8 +129,7 @@ function euler2dcm(::Type{Val{212}}, ang1::Float64, ang2::Float64, ang3::Float64
     return m
 end
 
-function euler2dcm(::Type{Val{213}}, ang1::Float64, ang2::Float64, ang3::Float64)
-    m = Array(Float64, 3, 3)
+function euler2dcm!(::Type{Val{213}}, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
     c1 = cos(ang1)
     s1 = sin(ang1)
     c2 = cos(ang2)
@@ -151,8 +149,7 @@ function euler2dcm(::Type{Val{213}}, ang1::Float64, ang2::Float64, ang3::Float64
     return m
 end
 
-function euler2dcm(::Type{Val{231}}, ang1::Float64, ang2::Float64, ang3::Float64)
-    m = Array(Float64, 3, 3)
+function euler2dcm!(::Type{Val{231}}, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
     c1 = cos(ang1)
     s1 = sin(ang1)
     c2 = cos(ang2)
@@ -172,8 +169,7 @@ function euler2dcm(::Type{Val{231}}, ang1::Float64, ang2::Float64, ang3::Float64
     return m
 end
 
-function euler2dcm(::Type{Val{232}}, ang1::Float64, ang2::Float64, ang3::Float64)
-    m = Array(Float64, 3, 3)
+function euler2dcm!(::Type{Val{232}}, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
     c1 = cos(ang1)
     s1 = sin(ang1)
     c2 = cos(ang2)
@@ -193,8 +189,7 @@ function euler2dcm(::Type{Val{232}}, ang1::Float64, ang2::Float64, ang3::Float64
     return m
 end
 
-function euler2dcm(::Type{Val{312}}, ang1::Float64, ang2::Float64, ang3::Float64)
-    m = Array(Float64, 3, 3)
+function euler2dcm!(::Type{Val{312}}, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
     c1 = cos(ang1)
     s1 = sin(ang1)
     c2 = cos(ang2)
@@ -214,8 +209,7 @@ function euler2dcm(::Type{Val{312}}, ang1::Float64, ang2::Float64, ang3::Float64
     return m
 end
 
-function euler2dcm(::Type{Val{313}}, ang1::Float64, ang2::Float64, ang3::Float64)
-    m = Array(Float64, 3, 3)
+function euler2dcm!(::Type{Val{313}}, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
     c1 = cos(ang1)
     s1 = sin(ang1)
     c2 = cos(ang2)
@@ -235,8 +229,7 @@ function euler2dcm(::Type{Val{313}}, ang1::Float64, ang2::Float64, ang3::Float64
     return m
 end
 
-function euler2dcm(::Type{Val{323}}, ang1::Float64, ang2::Float64, ang3::Float64)
-    m = Array(Float64, 3, 3)
+function euler2dcm!(::Type{Val{323}}, m::Matrix{Float64}, ang1::Float64, ang2::Float64, ang3::Float64)
     c1 = cos(ang1)
     s1 = sin(ang1)
     c2 = cos(ang2)
