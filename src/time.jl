@@ -5,10 +5,13 @@ import Base.convert, Base.promote_rule
 
 export Epoch, AbstractTimescale
 export juliandate, jd2000, jd1950#, mjd
-export JULIAN_CENTURY, J2000, J1950
+export JULIAN_CENTURY, SEC_PER_DAY, SEC_PER_CENTURY
+export J2000, J1950
 export rad2dms, dms2rad
 
 const JULIAN_CENTURY = 36525
+const SEC_PER_DAY = 86400
+const SEC_PER_CENTURY = SEC_PER_DAY*JULIAN_CENTURY
 const J2000 = Dates.datetime2julian(DateTime(2000, 1, 1, 12, 0, 0))
 const J1950 = Dates.datetime2julian(DateTime(1950, 1, 1, 12, 0, 0))
 
@@ -237,3 +240,6 @@ function rad2dms(rad::Real)
     arcsec = (d-deg-arcmin/60)*3600
     return deg, arcmin, arcsec
 end
+
+centuries(ep::Epoch, base::Float64=J2000) = (juliandate(ep) - base)/JULIAN_CENTURY
+days(ep::Epoch, base::Float64=J2000) = juliandate(ep) - base
