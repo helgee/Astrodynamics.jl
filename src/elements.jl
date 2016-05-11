@@ -16,6 +16,7 @@ function keplerian(r, v, µ)
     circular = ecc ≈ 0
 
     if circular
+        # Semi-latus rectum
         sma = hm^2/µ
     else
         sma = -µ/(2*xi)
