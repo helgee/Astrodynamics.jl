@@ -1,4 +1,6 @@
-function newton(x0::Float64, func::Function, derivative::Function, maxiter::Int=50, tol::Float64=sqrt(eps()))
+export newton, rotate_x, rotate_y, rotate_z
+
+function newton(x0, func, derivative, maxiter=50, tol=sqrt(eps()))
     p0 = x0
     for i = 1:maxiter
         i += 1
@@ -11,7 +13,7 @@ function newton(x0::Float64, func::Function, derivative::Function, maxiter::Int=
     error("Not converged.")
 end
 
-function rotate_x(angle::Float64)
+function rotate_x(angle)
     mat = zeros(3, 3)
     mat[1,1] = 1
     mat[2,2] = cos(angle)
@@ -21,7 +23,7 @@ function rotate_x(angle::Float64)
     return mat
 end
 
-function rotate_y(angle::Float64)
+function rotate_y(angle)
     mat = zeros(3, 3)
     mat[1,1] = cos(angle)
     mat[1,3] = -sin(angle)
@@ -31,7 +33,7 @@ function rotate_y(angle::Float64)
     return mat
 end
 
-function rotate_z(angle::Float64)
+function rotate_z(angle)
     mat = zeros(3, 3)
     mat[1,1] = cos(angle)
     mat[1,2] = -sin(angle)
