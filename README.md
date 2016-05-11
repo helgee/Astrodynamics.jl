@@ -1,7 +1,8 @@
 ![Astrodynamics.jl](docs/logo/Astrodynamics-jl-logo.png)
-[![Build Status](https://travis-ci.org/helgee/Astrodynamics.jl.svg?branch=master)](https://travis-ci.org/helgee/Astrodynamics.jl)
-[![Coverage Status](https://coveralls.io/repos/github/helgee/Astrodynamics.jl/badge.svg?branch=master)](https://coveralls.io/github/helgee/Astrodynamics.jl?branch=master)
-[![codecov](https://codecov.io/gh/helgee/Astrodynamics.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/helgee/Astrodynamics.jl)
+
+[![Travis](https://img.shields.io/travis/helgee/Astrodynamics.jl/master.svg?style=flat)](https://travis-ci.org/helgee/Astrodynamics.jl)
+[![Coveralls](https://img.shields.io/coveralls/helgee/Astrodynamics.jl/master.svg?style=flat)](https://coveralls.io/github/helgee/Astrodynamics.jl?branch=master)
+[![Codecov](https://img.shields.io/codecov/c/github/helgee/Astrodynamics.jl/master.svg?style=flat&label=Codecov)](https://codecov.io/gh/helgee/Astrodynamics.jl)
 
 Astrodynamics.jl is an MIT-licensed library for the development of astrodynamics software tools in Julia.
 
