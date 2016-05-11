@@ -1,7 +1,8 @@
-julia 0.4-
+julia 0.4
+BaseTestNext
 Dopri
 ERFA
 JPLEphemeris
+JSON
 NLopt
 Roots
-JSON
