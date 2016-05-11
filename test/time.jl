@@ -1,1 +1,3 @@
-@test isapprox(round(dms2rad(-35, -15, -53.63), 7),-0.6154886)
+@testset "Time" begin
+    @test isapprox(round(dms2rad(-35, -15, -53.63), 7),-0.6154886)
+end
