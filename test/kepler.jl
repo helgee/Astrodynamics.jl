@@ -12,5 +12,8 @@
     r₀, v₀ = kepler(μ, r₁, v₁, -Δt)
     @test r₀ ≈ r₀exp
     @test v₀ ≈ v₀exp
+    r₁, v₁ = kepler(μ, r₀exp, v₀exp, eps())
+    @test r₁ == r₀exp
+    @test v₁ == v₀exp
     @test_throws ErrorException kepler(μ, r₀exp, v₀exp, Δt, 1)
 end

@@ -1,6 +1,7 @@
 @testset "Math" begin
     @testset "Newton" begin
         @test newton(1.5, x -> 1-2/x^2, x -> 4/x^3) ≈ √2
+        @test_throws ErrorException newton(1.5, x -> 1-2/x^2, x -> 4/x^3, 1)
     end
     @testset "Rotations" begin
         @test rotate_x(2π) ≈ eye(3)
