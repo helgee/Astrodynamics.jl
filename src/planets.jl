@@ -33,6 +33,7 @@ for planet in planets
             max_depression::Float64
             id::Int
         end
+        export $planet
     end)
 end
 
@@ -46,25 +47,30 @@ max_elevation(p::Planet) = p.max_elevation
 max_depression(p::Planet) = p.max_depression
 id(p::Planet) = p.id
 
-function rightascension(p::Body, ep::Epoch)
-    centuries = (juliandate(ep) - J2000)/JULIAN_CENTURY
-    rightascension(p, centuries)
+function rightascension{T<:Body}(p::Type{T}, ep::Epoch)
+    rightascension(p, centuries(ep))
 end
+rightascension(b::Body, ep::Epoch) = rightascension(typeof(b), ep)
 
-function declination(p::Body, ep::Epoch)
-    centuries = (juliandate(ep) - J2000)/JULIAN_CENTURY
-    declination(p, centuries)
+function rightascension_rate{T<:Body}(p::Type{T}, ep::Epoch)
+    rightascension_rate(p, centuries(ep))
 end
+rightascension(b::Body, ep::Epoch) = rightascension(typeof(b), ep)
 
-function rotation_angle(p::Body, ep::Epoch)
-    days = juliandate(ep) - J2000
-    rotation_angle(p, days)
+function declination{T<:Body}(p::Type{T}, ep::Epoch)
+    declination(p, centuries(ep))
 end
+declination(b::Body, ep::Epoch) = declination(typeof(b), ep)
 
-function rotation_rate(p::Body, ep::Epoch)
-    days = juliandate(ep) - J2000
-    rotation_rate(p, days)
+function rotation_angle{T<:Body}(p::Type{T}, ep::Epoch)
+    rotation_angle(p, days(ep))
 end
+rotation_angle(b::Body, ep::Epoch) = rotation_angle(typeof(b), ep)
+
+function rotation_rate{T<:Body}(p::Type{T}, ep::Epoch)
+    rotation_rate(p, days(ep))
+end
+rotation_rate(b::Body, ep::Epoch) = rotation_rate(typeof(b), ep)/SEC_PER_DAY
 
 const EARTH = Earth(
     3.986004418e5, # [1]
@@ -79,7 +85,7 @@ const EARTH = Earth(
 )
 
 # [2]
-rightascension(p::Earth, T::Float64) = mod2pi(deg2rad(0.0-0.641T))
-declination(p::Earth, T::Float64) = mod2pi(deg2rad(90.0-0.557T))
-rotation_angle(p::Earth, d::Float64) = mod2pi(deg2rad(190.147 + 360.9856235d))
-rotation_rate(p::Earth, d::Float64) = deg2rad(360.9856235)
+rightascension(p::Type{Earth}, T::Float64) = mod2pi(deg2rad(0.0-0.641*T))
+declination(p::Type{Earth}, T::Float64) = mod2pi(deg2rad(90.0-0.557*T))
+rotation_angle(p::Type{Earth}, d::Float64) = mod2pi(deg2rad(190.147 + 360.9856235*d))
+rotation_rate(p::Type{Earth}, d::Float64) = deg2rad(360.9856235)
