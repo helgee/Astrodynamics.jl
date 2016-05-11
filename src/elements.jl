@@ -1,56 +1,66 @@
 export keplerian, cartesian
 
-function keplerian(r, v, µ::Float64)
+function keplerian(r, v, µ)
     rm = norm(r)
     vm = norm(v)
     h = cross(r, v)
     hm = norm(h)
-    k = [0.0, 0.0, 1.0]
-    n = cross(k, h)
+    n = cross([0.0, 0.0, 1.0], h)
     nm = norm(n)
     xi = vm^2/2 - µ/rm
     ec = ((vm^2 - µ/rm)*r - v*dot(r, v))/µ
     ecc = norm(ec)
-    if ecc ≈ 1
+    inc = acos(h[3]/hm)
+
+    equatorial = abs(inc) ≈ 0
+    circular = ecc ≈ 0
+
+    if circular
         sma = hm^2/µ
     else
         sma = -µ/(2*xi)
     end
-    inc = acos(h[3]/hm)
-    node = acos(n[1]/nm)
-    peri = acos(dot(n, ec)/(ecc*nm))
-    ano = acos(dot(ec, r)/(ecc*rm))
-    if n[2] < 0
-        node = mod2pi(node)
+
+    if equatorial && !circular
+        node = 0.0
+        # Longitude of pericenter
+        peri = mod2pi(atan2(ec[2], ec[1]))
+        ano = mod2pi(atan2(h⋅cross(ec, r) / hm, r⋅ec))
+    elseif !equatorial && circular
+        node = mod2pi(atan2(n[2], n[1]))
+        peri = 0.0
+        # Argument of latitude
+        ano = mod2pi(atan2(r⋅cross(h, n) / hm, r⋅n))
+    elseif equatorial && circular
+        node = 0.0
+        peri = 0.0
+        # True longitude
+        ano = mod2pi(atan2(r[2], r[1]))
+    else
+        node = mod2pi(atan2(n[2], n[1]))
+        peri = mod2pi(atan2(ec⋅cross(h, n) / hm, ec⋅n))
+        ano = mod2pi(atan2(r⋅cross(h, ec) / hm, r⋅ec))
     end
-    if ec[3] < 0
-        peri = mod2pi(peri)
-    end
-    if dot(r, v) < 0
-        ano = mod2pi(ano)
-    end
+
     [sma, ecc, inc, node, peri, ano]
 end
 
-function cartesian(sma, ecc, inc, lan, per, ano, mu)
-    u = per + ano
-    if ecc == 1
+function cartesian(sma, ecc, inc, node, peri, ano, μ)
+    if ecc ≈ 0
         p = sma
     else
         p = sma*(1 - ecc^2)
     end
-    r = p/(1 + ecc*cos(ano))
-    x = r*(cos(lan)*cos(u) - sin(lan)*cos(inc)*sin(u))
-    y = r*(sin(lan)*cos(u) + cos(lan)*cos(inc)*sin(u))
-    z = r*sin(inc)*sin(u)
-    vr = sqrt(mu/p)*ecc*sin(ano)
-    vf = sqrt(mu*p)/r
-    vx = ((vr*(cos(lan)*cos(u) - sin(lan)*cos(inc)*sin(u))
-        - vf*(cos(lan)*sin(u) + sin(lan)*cos(u)*cos(inc))))
-    vy = ((vr*(sin(lan)*cos(u) + cos(lan)*cos(inc)*sin(u))
-        - vf*(sin(lan)*sin(u) - cos(lan)*cos(u)*cos(inc))))
-    vz = vr*sin(inc)*sin(u) + vf*cos(u)*sin(inc)
-    return [x, y, z], [vx, vy, vz]
+
+    r_pqw, v_pqw = perifocal(p, ecc, ano, μ)
+    M = euler_dcm(313, -peri, -inc, -node)
+    return M * r_pqw, M * v_pqw
+end
+
+function perifocal(p, ecc, ano, μ)
+    r_pqw = [p * cos(ano) / (1 + ecc * cos(ano)), p * sin(ano) / (1 + ecc * cos(ano)), 0.0]
+    v_pqw = [-sqrt(μ/p) * sin(ano), sqrt(μ/p) * (ecc + cos(ano)), 0.0]
+    return r_pqw, v_pqw
 end
 
 cartesian(el, mu) = cartesian(el..., mu)
