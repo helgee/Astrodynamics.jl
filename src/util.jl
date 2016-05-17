@@ -1,4 +1,4 @@
-function neighbors(t::DataType, root::DataType=Any)
+function neighbors(t, root=Any)
     supertype = super(t)
     if supertype == root
         return subtypes(t)
@@ -7,7 +7,7 @@ function neighbors(t::DataType, root::DataType=Any)
     end
 end
 
-function findpath(origin::DataType, target::DataType, root::DataType=Any)
+function findpath(origin, target, root=Any)
     queue = [origin]
     links = Dict{DataType, DataType}()
     while !isempty(queue)
