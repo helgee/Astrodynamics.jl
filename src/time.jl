@@ -1,4 +1,5 @@
 using Base.Dates
+using Compat
 using ERFA
 
 import Base.convert
@@ -58,7 +59,7 @@ function Epoch{T<:Timescale}(scale::Type{T}, dt::DateTime, leapseconds=-1, ΔUT1
 end
 
 function Base.isapprox{T<:Timescale}(a::Epoch{T}, b::Epoch{T})
-    return juliandate(a) ≈ juliandate(b) && a.leapseconds == b.leapseconds && a.ΔUT1 ≈ b.ΔUT1
+    return juliandate(a) ≈ juliandate(b) && a.leapseconds == b.leapseconds && isequal(a.ΔUT1, b.ΔUT1)
 end
 
 function leapseconds!(ep::Epoch, leapsec)
@@ -100,9 +101,10 @@ for scale in scales
     end
 end
 # Constructor for typealiases
-Base.call{T<:Timescale}(::Type{Epoch{T}}, args...) = Epoch(T, args...)
+@compat (::Type{Epoch{T}}){T<:Timescale}(a::Union{Real, DateTime, Epoch}, args...) = Epoch(T, a, args...)
 
-Epoch{T<:Timescale}(::Type{T}, ep::Epoch) = convert(Epoch{T}, ep)
+Epoch{T<:Timescale, S<:Timescale}(::Type{T}, ep::Epoch{S}) = convert(Epoch{T}, ep)
+Epoch{T<:Timescale}(::Type{T}, ep::Epoch{T}) = ep
 
 function deltat(ep::Epoch)
     leapsec = leapseconds(ep)
@@ -201,17 +203,19 @@ function convert(::Type{TCBEpoch}, ep::TDBEpoch)
     TCBEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
 
-@generated function convert{T<:Epoch,S}(::Type{T}, obj::Epoch{S})
+@generated function convert{T<:Epoch,S<:Timescale}(::Type{T}, obj::Epoch{S})
+    convert_generator(T, S, obj)
+end
+
+function convert_generator(T, S, obj)
     ex = :(obj)
-    if eltype(T) == S
-        return :($ex)
-    end
-    path = findpath(S, eltype(T))
+    path = findpath(S, eltype(T), Timescale)
     for t in path[2:end]
         ex = :(convert(Epoch{$t}, $ex))
     end
     return :($ex)
 end
+
 
 function dms2rad(deg, arcmin, arcsec)
     deg2rad(deg + arcmin/60 + arcsec/3600)

@@ -1,3 +1,5 @@
+abstract Orphan <: Timescale
+
 @testset "Time" begin
     @testset "Angles" begin
         @test round(dms2rad(-35, -15, -53.63), 7) == -0.6154886
@@ -9,13 +11,16 @@
     @testset "Epoch" begin
         dt = DateTime(2000, 1, 1, 12, 0, 0)
         tt = Epoch(TT, 2000, 1, 1, 12, 0, 0.0, 0, 0.0)
-        t1 = Epoch(TT, 2000, 1, 1, 12, 0, 0.0)
+        t1 = TTEpoch(2000, 1, 1, 12, 0, 0.0)
         tdb = TDBEpoch(tt)
         tcb = TCBEpoch(tt)
         tcg = TCGEpoch(tt)
         tai = TAIEpoch(tt)
         utc = UTCEpoch(tt)
         ut1 = UT1Epoch(tt)
+
+        @test t1 ≈ TTEpoch(dt)
+        @test dt == DateTime(t1)
 
         @test leapseconds(tt) == 0
         @test dut1(tt) == 0.0
@@ -48,6 +53,10 @@
 
         @test tt ≈ TTEpoch(tcb)
         @test tcb ≈ TCBEpoch(tt)
+
+        @test tt == TTEpoch(tt)
+
+        @test_throws ErrorException Epoch(Orphan, tt)
     end
 end
 
