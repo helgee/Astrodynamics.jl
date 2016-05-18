@@ -26,6 +26,7 @@ abstract Orphan <: Timescale
         @test dut1(tt) == 0.0
         @test_throws ErrorException leapseconds(t1)
         @test_throws ErrorException dut1(t1)
+        @test Epoch(TT, J2000) ≈ t1
         @test jd2000(tt) ≈ 0
         @test jd1950(Epoch(TT, 1950, 1, 1, 12, 0, 0, 0)) ≈ 0
         @test centuries(Epoch(TT, 2100, 1, 1, 12, 0, 0, 0)) == 1
