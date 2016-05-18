@@ -28,15 +28,6 @@ abstract TAI <: TT
 abstract UTC <: TAI
 abstract UT1 <: UTC
 
-names = Dict{DataType, ASCIIString}(
-    TT => "TT",
-    TDB => "TDB",
-    TCB => "TCB",
-    TAI => "TAI",
-    UTC => "UTC",
-    UT1 => "UT1",
-)
-
 type Epoch{T<:Timescale}
     scale::Type{T}
     jd::Float64
@@ -55,7 +46,7 @@ end
 function Epoch{T<:Timescale}(scale::Type{T}, year::Int, month::Int, day::Int,
     hour::Int, minute::Int, seconds::Float64;
     dat::Int=-1, dut1::Float64=NaN)
-    jd, jd1 = eraDtf2d(names[scale],
+    jd, jd1 = eraDtf2d(string(T),
     year, month, day, hour, minute, seconds)
     Epoch(scale, jd, jd1, dat=dat, dut1=dut1)
 end
@@ -131,7 +122,7 @@ function deltatr(ep::Epoch)
 end
 
 function convert{T}(::Type{DateTime}, ep::Epoch{T})
-    dt = eraD2dtf(names[T], 2, jd(ep), jd1(ep))
+    dt = eraD2dtf(string(T), 2, jd(ep), jd1(ep))
     DateTime(dt...)
 end
 Base.DateTime(ep::Epoch) = convert(DateTime, ep)
