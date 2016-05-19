@@ -7,7 +7,6 @@ end
 using Astrodynamics
 
 include("elements.jl")
-include("euler.jl")
 include("kepler.jl")
 include("math.jl")
 include("time.jl")

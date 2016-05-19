@@ -1,6 +1,5 @@
 module Astrodynamics
 
-include("euler.jl")
 include("elements.jl")
 include("time.jl")
 include("planets.jl")
@@ -12,6 +11,7 @@ include("rotations.jl")
 include("stumpff.jl")
 #= include("propagator.jl") =#
 include("propagators.jl")
+include("trajectories.jl")
 include("util.jl")
 
 end
