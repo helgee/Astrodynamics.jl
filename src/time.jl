@@ -104,7 +104,8 @@ end
 @compat (::Type{Epoch{T}}){T<:Timescale}(a::Union{Real, DateTime, Epoch}, args...) = Epoch(T, a, args...)
 
 Epoch{T<:Timescale, S<:Timescale}(::Type{T}, ep::Epoch{S}) = convert(Epoch{T}, ep)
-Epoch{T<:Timescale}(::Type{T}, ep::Epoch{T}) = ep
+
+convert{T<:Timescale}(::Type{Epoch{T}}, ep::Epoch{T}) = ep
 
 function deltat(ep::Epoch)
     leapsec = leapseconds(ep)
@@ -127,95 +128,112 @@ function convert(::Type{TAIEpoch}, ep::UTCEpoch)
     date, date1 = eraUtctai(ep.jd, ep.jd1)
     TAIEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
+
 function convert(::Type{UTCEpoch}, ep::TAIEpoch)
     date, date1 = eraTaiutc(ep.jd, ep.jd1)
     UTCEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
+
 # UTC <-> UT1
 function convert(::Type{UTCEpoch}, ep::UT1Epoch)
     ΔUT1 = dut1(ep)
     date, date1 = eraUt1utc(ep.jd, ep.jd1, ΔUT1)
     UTCEpoch(date, date1, ep.leapseconds, ΔUT1)
 end
+
 function convert(::Type{UT1Epoch}, ep::UTCEpoch)
     ΔUT1 = dut1(ep)
     date, date1 = eraUtcut1(ep.jd, ep.jd1, ΔUT1)
     UT1Epoch(date, date1, ep.leapseconds, ΔUT1)
 end
+
 # TAI <-> UT1
 function convert(::Type{TAIEpoch}, ep::UT1Epoch)
     leapsec = leapseconds(ep)
     date, date1 = eraUt1tai(ep.jd, ep.jd1, float(leapsec))
     TAIEpoch(date, date1, leapsec, ep.ΔUT1)
 end
+
 function convert(::Type{UT1Epoch}, ep::TAIEpoch)
     leapsec = leapseconds(ep)
     date, date1 = eraTaiut1(ep.jd, ep.jd1, float(leapsec))
     UT1Epoch(date, date1, leapsec, ep.ΔUT1)
 end
+
 # TT <-> UT1
 function convert(::Type{TTEpoch}, ep::UT1Epoch)
     dt = deltat(ep)
     date, date1 = eraUt1tt(ep.jd, ep.jd1, dt)
     TTEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
+
 function convert(::Type{UT1Epoch}, ep::TTEpoch)
     dt = deltat(ep)
     date, date1 = eraTtut1(ep.jd, ep.jd1, dt)
     UT1Epoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
+
 # TAI <-> TT
 function convert(::Type{TAIEpoch}, ep::TTEpoch)
     date, date1 = eraTttai(ep.jd, ep.jd1)
     TAIEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
+
 function convert(::Type{TTEpoch}, ep::TAIEpoch)
     date, date1 = eraTaitt(ep.jd, ep.jd1)
     TTEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
+
 # TT <-> TCG
 function convert(::Type{TTEpoch}, ep::TCGEpoch)
     date, date1 = eraTcgtt(ep.jd, ep.jd1)
     TTEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
+
 function convert(::Type{TCGEpoch}, ep::TTEpoch)
     date, date1 = eraTttcg(ep.jd, ep.jd1)
     TCGEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
+
 # TT <-> TDB
 function convert(::Type{TTEpoch}, ep::TDBEpoch)
     Δtr = deltatr(ep)
     date, date1 = eraTdbtt(ep.jd, ep.jd1, Δtr)
     TTEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
+
 function convert(::Type{TDBEpoch}, ep::TTEpoch)
     Δtr = deltatr(ep)
     date, date1 = eraTttdb(ep.jd, ep.jd1, Δtr)
     TDBEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
+
 # TDB <-> TCB
 function convert(::Type{TDBEpoch}, ep::TCBEpoch)
     date, date1 = eraTdbtcb(ep.jd, ep.jd1)
     TDBEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
+
 function convert(::Type{TCBEpoch}, ep::TDBEpoch)
     date, date1 = eraTcbtdb(ep.jd, ep.jd1)
     TCBEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
 
-@generated function convert{T<:Epoch,S<:Timescale}(::Type{T}, obj::Epoch{S})
+@generated function convert{T<:Timescale,S<:Timescale}(::Type{Epoch{T}}, obj::Epoch{S})
     convert_generator(T, S, obj)
 end
 
 function convert_generator(T, S, obj)
     ex = :(obj)
-    path = findpath(S, eltype(T), Timescale)
+    path = findpath(S, T, Timescale)
+    if length(path) == 2
+        error("Please provide a method Base.convert(::Type{Astrodynamics.Epoch{$T}}, ::Astrodynamics.Epoch{$S}).")
+    end
     for t in path[2:end]
         ex = :(convert(Epoch{$t}, $ex))
     end
     return :($ex)
 end
-
 
 function dms2rad(deg, arcmin, arcsec)
     deg2rad(deg + arcmin/60 + arcsec/3600)

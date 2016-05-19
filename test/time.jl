@@ -1,4 +1,5 @@
 abstract Orphan <: Timescale
+abstract NoConversion <: UTC
 
 @testset "Time" begin
     @testset "Angles" begin
@@ -58,6 +59,7 @@ abstract Orphan <: Timescale
         @test tt == TTEpoch(tt)
 
         @test_throws ErrorException Epoch(Orphan, tt)
+        @test_throws ErrorException Epoch(NoConversion, tt)
     end
 end
 
