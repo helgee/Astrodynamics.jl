@@ -1,5 +1,6 @@
 julia 0.4
 BaseTestNext
+Compat
 Dopri
 ERFA
 JPLEphemeris
