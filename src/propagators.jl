@@ -1,28 +1,17 @@
 abstract Propagator
 
-type KeplerPropagator <: Propagator
-    s0::AbstractState
-    t0::Epoch
-    body::Body
+type Kepler <: Propagator
+    iteration_limit::Int
+    points::Int
+    rtol::Float64
 end
 
-type NumericalPropagator <: Propagator
-    s0::AbstractState
-    t0::Epoch
-    body::Body
+function Kepler(;iteration_limit::Int=50, points::Int=100, rtol::Float64=sqrt(eps()))
+    return Kepler(iteration_limit, points, rtol)
 end
 
-setinitalstate!(p::Propagator, s0::AbstractState) = p.s0 = s0
-setinitalepoch!(p::Propagator, t0::Epoch) = p.t0 = t0
-
-function propagate(p::Propagator, tend::Epoch; steps=false)
+type ODE <: Propagator
 end
 
-function start(p::KeplerPropagator)
-end
-
-function start(p::KeplerPropagator, s)
-end
-
-function done(p::KeplerPropagator, s)
+function propagate(s0, tend, p::Kepler, output=:orbit)
 end
