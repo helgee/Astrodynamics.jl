@@ -47,7 +47,7 @@ end
 
 EpochDelta(;days::Int=0, seconds::Int=0) = EpochDelta(days, seconds/SEC_PER_DAY)
 
-seconds(ed::EpochDelta) = (ed.jd+ed.jd1)/SEC_PER_DAY
+seconds(ed::EpochDelta) = (ed.jd+ed.jd1)*SEC_PER_DAY
 days(ed::EpochDelta) = ed.jd+ed.jd1
 isapprox(ed1::EpochDelta, ed2::EpochDelta) = days(ed1) ≈ days(ed2)
 (==)(ed1::EpochDelta, ed2::EpochDelta) = days(ed1) == days(ed2)
