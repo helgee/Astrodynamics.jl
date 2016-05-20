@@ -7,7 +7,7 @@ import Base: convert, -, +, ==, isless, isapprox, eltype
 export Epoch, Timescale
 export EpochDelta
 export dut1, dut1!, leapseconds, leapseconds!
-export days, centuries
+export days, centuries, seconds
 export juliandate, jd2000, jd1950
 export JULIAN_CENTURY, SEC_PER_DAY, SEC_PER_CENTURY
 export J2000, J1950
