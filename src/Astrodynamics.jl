@@ -1,5 +1,6 @@
 module Astrodynamics
 
+include("bodies.jl")
 include("elements.jl")
 include("time.jl")
 include("planets.jl")
