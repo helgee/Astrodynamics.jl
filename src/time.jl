@@ -2,9 +2,10 @@ using Base.Dates
 using Compat
 using ERFA
 
-import Base.convert
+import Base: convert, -, +, ==, isless, isapprox, eltype
 
 export Epoch, Timescale
+export EpochDelta
 export dut1, dut1!, leapseconds, leapseconds!
 export days, centuries
 export juliandate, jd2000, jd1950
@@ -39,14 +40,32 @@ type Epoch{T<:Timescale}
     ΔUT1::Float64
 end
 
-Base.eltype{T}(::Type{Epoch{T}}) = T
+type EpochDelta
+    jd::Float64
+    jd1::Float64
+end
+
+EpochDelta(;days::Int=0, seconds::Int=0) = EpochDelta(days, seconds/SEC_PER_DAY)
+
+seconds(ed::EpochDelta) = (ed.jd+ed.jd1)/SEC_PER_DAY
+days(ed::EpochDelta) = ed.jd+ed.jd1
+isapprox(ed1::EpochDelta, ed2::EpochDelta) = days(ed1) ≈ days(ed2)
+(==)(ed1::EpochDelta, ed2::EpochDelta) = days(ed1) == days(ed2)
+
+isless{T<:Timescale}(ep1::Epoch{T}, ep2::Epoch{T}) = juliandate(ep1) < juliandate(ep2)
+(-){T<:Timescale}(ep1::Epoch{T}, ep2::Epoch{T}) = EpochDelta(ep1.jd-ep2.jd, ep1.jd1-ep2.jd1)
+(-){T<:Timescale}(ep::Epoch{T}, ed::EpochDelta) = Epoch(T, ep.jd-ed.jd, ep.jd1-ed.jd1, ep.leapseconds, ep.ΔUT1)
+(+){T<:Timescale}(ep::Epoch{T}, ed::EpochDelta) = Epoch(T, ep.jd+ed.jd, ep.jd1+ed.jd1, ep.leapseconds, ep.ΔUT1)
+
+
+eltype{T}(::Type{Epoch{T}}) = T
 
 function Epoch{T<:Timescale}(scale::Type{T}, jd, jd1=0.0, leapseconds=-1, ΔUT1=NaN)
     Epoch(scale, jd, jd1, leapseconds, ΔUT1)
 end
 
 function Epoch{T<:Timescale}(scale::Type{T}, year, month, day,
-    hour, minute, seconds, leapseconds=-1, ΔUT1=NaN)
+    hour=0, minute=0, seconds=0.0, leapseconds=-1, ΔUT1=NaN)
     jd, jd1 = eraDtf2d(string(T),
     year, month, day, hour, minute, seconds)
     Epoch(scale, jd, jd1, leapseconds, ΔUT1)
@@ -58,7 +77,7 @@ function Epoch{T<:Timescale}(scale::Type{T}, dt::DateTime, leapseconds=-1, ΔUT1
         leapseconds, ΔUT1)
 end
 
-function Base.isapprox{T<:Timescale}(a::Epoch{T}, b::Epoch{T})
+function isapprox{T<:Timescale}(a::Epoch{T}, b::Epoch{T})
     return juliandate(a) ≈ juliandate(b) && a.leapseconds == b.leapseconds && isequal(a.ΔUT1, b.ΔUT1)
 end
 
@@ -121,7 +140,7 @@ function convert{T}(::Type{DateTime}, ep::Epoch{T})
     dt = eraD2dtf(string(T), 2, jd(ep), jd1(ep))
     DateTime(dt...)
 end
-Base.DateTime(ep::Epoch) = convert(DateTime, ep)
+DateTime(ep::Epoch) = convert(DateTime, ep)
 
 # TAI <-> UTC
 function convert(::Type{TAIEpoch}, ep::UTCEpoch)
@@ -249,3 +268,4 @@ end
 
 centuries(ep::Epoch, base=J2000) = (juliandate(ep) - base)/JULIAN_CENTURY
 days(ep::Epoch, base=J2000) = juliandate(ep) - base
+seconds(ep::Epoch, base=J2000) = (juliandate(ep) - base)*86400
