@@ -60,6 +60,16 @@ abstract NoConversion <: UTC
 
         @test_throws ErrorException Epoch(Orphan, tt)
         @test_throws ErrorException Epoch(NoConversion, tt)
+
+        @test Epoch(TT, 2000, 1, 1) < Epoch(TT, 2000, 1, 2)
+    end
+    @testset "EpochDelta" begin
+        @test EpochDelta(seconds=86400) ≈ EpochDelta(days=1)
+        @test EpochDelta(seconds=86400) == EpochDelta(days=1)
+        @test Epoch(TT, 2000, 1, 1) + EpochDelta(days=1) ≈ Epoch(TT, 2000, 1, 2)
+        @test Epoch(TT, 2000, 1, 1) - EpochDelta(days=1) ≈ Epoch(TT, 1999, 12, 31)
+        @test Epoch(TT, 2000, 1, 2) - Epoch(TT, 2000, 1, 1) == EpochDelta(days=1)
+        @test Epoch(TT, 2000, 1, 1) - Epoch(TT, 2000, 1, 2) == EpochDelta(days=-1)
+        @test seconds(EpochDelta(days=1)) == 86400
     end
 end
-
