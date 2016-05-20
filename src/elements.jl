@@ -54,7 +54,7 @@ function cartesian(sma, ecc, inc, node, peri, ano, μ)
     end
 
     r_pqw, v_pqw = perifocal(p, ecc, ano, μ)
-    M = euler_dcm(313, -peri, -inc, -node)
+    M = rotation_matrix(313, -peri, -inc, -node)
     return M * r_pqw, M * v_pqw
 end
 

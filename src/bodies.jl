@@ -34,43 +34,43 @@ immutable Planet <: CelestialBody
     theta1::Vector{Float64}
 end
 
-theta(t, theta0, theta1) = theta0 + theta1 * t/SEC_PER_CENTURY
+theta(t, b) = b.theta0 + b.theta1 * t/SEC_PER_CENTURY
 
 function right_ascension(b::CelestialBody, ep)
     t = seconds(ep)
     mod2pi(b.ra0 + b.ra1*t/SEC_PER_CENTURY
         + b.ra2*t^2/SEC_PER_CENTURY^2
-        + sum(b.a .* sin(theta(t, b.theta0, b.theta1))))
-end
-
-function right_ascension_rate(b::CelestialBody, ep)
-    t = seconds(ep)
-    (b.ra1/SEC_PER_CENTURY + 2*b.ra2*t/SEC_PER_CENTURY^2
-        + sum(b.a .* b.theta1./SEC_PER_CENTURY .* cos(theta(t, b.theta0, b.theta1))))
+        + sum(b.a .* sin(theta(t, b))))
 end
 
 function declination(b::CelestialBody, ep)
     t = seconds(ep)
     mod2pi(b.dec0 + b.dec1*t/SEC_PER_CENTURY
         + b.dec2*t^2/SEC_PER_CENTURY^2
-        + sum(b.d .* cos(theta(t, b.theta0, b.theta1))))
-end
-
-function declination_rate(b::CelestialBody, ep)
-    t = seconds(ep)
-    b.dec1/SEC_PER_CENTURY + 2*b.dec2*t/SEC_PER_CENTURY^2 + sum(
-        b.d .* b.theta1./SEC_PER_CENTURY .* sin(theta(t, b.theta0, b.theta1)))
+        + sum(b.d .* cos(theta(t, b))))
 end
 
 function rotation_angle(b::CelestialBody, ep)
     t = seconds(ep)
-    mod2pi(b.w0 + b.w1*t/SEC_PER_DAY + b.w2*t^2/SEC_PER_DAY^2 + sum(b.w .* sin(theta(t, b.theta0, b.theta1))))
+    mod2pi(b.w0 + b.w1*t/SEC_PER_DAY + b.w2*t^2/SEC_PER_DAY^2 + sum(b.w .* sin(theta(t, b))))
+end
+
+function right_ascension_rate(b::CelestialBody, ep)
+    t = seconds(ep)
+    (b.ra1/SEC_PER_CENTURY + 2*b.ra2*t/SEC_PER_CENTURY^2
+        + sum(b.a .* b.theta1/SEC_PER_CENTURY .* cos(theta(t, b))))
+end
+
+function declination_rate(b::CelestialBody, ep)
+    t = seconds(ep)
+    (b.dec1/SEC_PER_CENTURY + 2*b.dec2*t/SEC_PER_CENTURY^2
+        + sum(b.d .* b.theta1/SEC_PER_CENTURY .* sin(theta(t, b))))
 end
 
 function rotation_rate(b::CelestialBody, ep)
     t = seconds(ep)
-    b.w1/SEC_PER_DAY + 2*b.w2*t/SEC_PER_DAY^2 + sum(
-        b.w .* b.theta1./SEC_PER_CENTURY .* cos(theta(t, b.theta0, b.theta1)))
+    (b.w1/SEC_PER_DAY + 2*b.w2*t/SEC_PER_DAY^2
+        + sum(b.w .* b.theta1/SEC_PER_CENTURY .* cos(theta(t, b))))
 end
 
 μ(p::Planet) = p.μ

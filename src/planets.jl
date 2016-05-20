@@ -23,7 +23,7 @@ const PLANETS = Dict(
     # id
     199,
     # ra0
-    deg2rad(281.0097)
+    deg2rad(281.0097),
     # ra1
     deg2rad(-0.0328),
     # ra2
@@ -49,7 +49,7 @@ const PLANETS = Dict(
     # theta 0
     deg2rad([174.791086, 349.582171, 164.373257, 339.164343, 153.955429]),
     # theta 1
-    deg2rad([4.092335, 8.184670, 12.277005, 16.369340, 20.461675])
+    deg2rad([4.092335, 8.184670, 12.277005, 16.369340, 20.461675])*JULIAN_CENTURY
 ),
 :Venus => Planet(
     # μ
@@ -85,7 +85,7 @@ const PLANETS = Dict(
     # w0
     deg2rad(160.20),
     # w1
-    deg2rad(1.4813688),
+    deg2rad(-1.4813688),
     # w2
     0,
     # a
@@ -167,7 +167,7 @@ const PLANETS = Dict(
     # id
     499,
     # ra0
-    deg2rad(317.68143)
+    deg2rad(317.68143),
     # ra1
     deg2rad(-0.1061),
     # ra2
@@ -215,7 +215,7 @@ const PLANETS = Dict(
     # id
     599,
     # ra0
-    deg2rad(268.056595)
+    deg2rad(268.056595),
     # ra1
     deg2rad(-0.006499),
     # ra2
@@ -365,7 +365,7 @@ const PLANETS = Dict(
     # ra2
     0,
     # dec0
-    deg2rad(90),
+    deg2rad(43.46),
     # dec1
     0,
     # dec2
@@ -377,11 +377,11 @@ const PLANETS = Dict(
     # w2
     0.0,
     # a
-    [0.7],
+    deg2rad([0.7]),
     # d
-    [-0.51],
+    deg2rad([-0.51]),
     # w
-    [-0.48],
+    deg2rad([-0.48]),
     # theta 0
     deg2rad([357.85]),
     # theta 1
