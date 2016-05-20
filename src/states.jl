@@ -6,7 +6,7 @@ immutable State{T<:Frame, S<:Timescale} <: AbstractState
     frame::Type{T}
     epoch::Epoch{S}
     rv::Vector{Float64}
-    body::Body
+    body::Symbol
 end
 
 Base.eltype{T,S}(::Type{State{T,S}}) = T
