@@ -5,4 +5,5 @@ type Spacecraft <: AbstractSpacecraft
 end
 
 type SCModule
+    name::AbstractString
 end
