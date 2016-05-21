@@ -3,7 +3,6 @@ using JPLEphemeris
 const EPHEMERIS_URL = "http://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de430.bsp"
 const EPHEMERIS_FILE = normpath(joinpath(splitdir(@__FILE__)[1],"..","data","de430.bsp"))
 
-
 function __init__()
     if !isfile(EPHEMERIS_FILE)
         println("[Astrodynamics.jl] Downloading ephemeris file.")
@@ -15,4 +14,3 @@ function __init__()
     end
     global const EPHEMERIS = SPK(EPHEMERIS_FILE)
 end
-
