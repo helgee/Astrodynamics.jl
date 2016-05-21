@@ -1,37 +1,51 @@
-# [1] Luzum, Brian, et al. "The IAU 2009 system of astronomical constants: the report of the IAU working group on numerical standards for Fundamental Astronomy." Celestial Mechanics and Dynamical Astronomy 110.4 (2011): 293-304.
-# [2] Archinal, Brent Allen, et al. "Report of the IAU working group on cartographic coordinates and rotational elements: 2009." Celestial Mechanics and Dynamical Astronomy 109.2 (2011): 101-135.
-
 export EARTH
 export μ, mu, j2, mean_radius, polar_radius, equatorial_radius
 export deviation, max_elevation, max_depression, id
 export right_ascension, declination, rotation_angle, rotation_rate
 
 abstract CelestialBody
+abstract Planet <: CelestialBody
 
-immutable Planet <: CelestialBody
-    μ::Float64
-    j2::Float64
-    mean_radius::Float64
-    equatorial_radius::Float64
-    polar_radius::Float64
-    deviation::Float64
-    max_elevation::Float64
-    max_depression::Float64
-    id::Int
-    ra0::Float64
-    ra1::Float64
-    ra2::Float64
-    dec0::Float64
-    dec1::Float64
-    dec2::Float64
-    w0::Float64
-    w1::Float64
-    w2::Float64
-    a::Vector{Float64}
-    d::Vector{Float64}
-    w::Vector{Float64}
-    theta0::Vector{Float64}
-    theta1::Vector{Float64}
+const PLANETS = (
+    "Mercury",
+    "Venus",
+    "Earth",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+)
+
+for planet in PLANETS
+    @eval begin
+        immutable $(symbol(planet)) <: Planet
+            μ::Float64
+            j2::Float64
+            mean_radius::Float64
+            equatorial_radius::Float64
+            polar_radius::Float64
+            deviation::Float64
+            max_elevation::Float64
+            max_depression::Float64
+            id::Int
+            ra0::Float64
+            ra1::Float64
+            ra2::Float64
+            dec0::Float64
+            dec1::Float64
+            dec2::Float64
+            w0::Float64
+            w1::Float64
+            w2::Float64
+            a::Vector{Float64}
+            d::Vector{Float64}
+            w::Vector{Float64}
+            theta0::Vector{Float64}
+            theta1::Vector{Float64}
+        end
+        constants(::Type{$(symbol(planet))}) = $(symbol(uppercase(planet)))
+    end
 end
 
 theta(t, b) = b.theta0 + b.theta1 * t/SEC_PER_CENTURY

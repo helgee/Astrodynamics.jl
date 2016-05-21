@@ -1,9 +1,9 @@
-export PLANETS, planets
+# [1] Luzum, Brian, et al. "The IAU 2009 system of astronomical constants: the report of the IAU working group on numerical standards for Fundamental Astronomy." Celestial Mechanics and Dynamical Astronomy 110.4 (2011): 293-304.
+# [2] Archinal, Brent Allen, et al. "Report of the IAU working group on cartographic coordinates and rotational elements: 2009." Celestial Mechanics and Dynamical Astronomy 109.2 (2011): 101-135.
 
-planets(s) = PLANETS[s]
+export MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE
 
-const PLANETS = Dict(
-:Mercury => Planet(
+const MERCURY = Mercury(
     # μ
     2.2032e13,
     # j2
@@ -50,8 +50,8 @@ const PLANETS = Dict(
     deg2rad([174.791086, 349.582171, 164.373257, 339.164343, 153.955429]),
     # theta 1
     deg2rad([4.092335, 8.184670, 12.277005, 16.369340, 20.461675])*JULIAN_CENTURY
-),
-:Venus => Planet(
+)
+const VENUS = Venus(
     # μ
     3.24859e14,
     # j2
@@ -98,8 +98,8 @@ const PLANETS = Dict(
     [0.0],
     # theta 1
     [0.0],
-),
-:Earth => Planet(
+)
+const EARTH = Earth(
     # μ
     3.986004418e14,
     # j2
@@ -146,8 +146,8 @@ const PLANETS = Dict(
     [0.0],
     # theta 1
     [0.0],
-),
-:Mars => Planet(
+)
+const MARS = Mars(
     # μ
     4.282837e13,
     # j2
@@ -194,8 +194,8 @@ const PLANETS = Dict(
     [0.0],
     # theta 1
     [0.0],
-),
-:Jupiter => Planet(
+)
+const JUPITER = Jupiter(
     # μ
     1.26686534e17,
     # j2
@@ -242,8 +242,8 @@ const PLANETS = Dict(
     deg2rad([99.360714, 175.895369, 300.323162, 114.012305, 49.511251]),
     # theta 1
     deg2rad([4850.4046, 1191.9605, 262.5475, 6070.2476, 64.3]),
-),
-:Saturn => Planet(
+)
+const SATURN = Saturn(
     # μ
     3.7931187e16,
     # j2
@@ -290,8 +290,8 @@ const PLANETS = Dict(
     [0.0],
     # theta 1
     [0.0],
-),
-:Uranus => Planet(
+)
+const URANUS = Uranus(
     # μ
     5.793939e15,
     # j2
@@ -338,8 +338,8 @@ const PLANETS = Dict(
     [0.0],
     # theta 1
     [0.0],
-),
-:Neptune => Planet(
+)
+const NEPTUNE = Neptune(
     # μ
     6.836529e15,
     # j2
@@ -386,5 +386,4 @@ const PLANETS = Dict(
     deg2rad([357.85]),
     # theta 1
     deg2rad([52.316]),
-),
 )

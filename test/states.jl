@@ -1,4 +1,4 @@
-@testset "Frames" begin
+@testset "States" begin
     @testset "IAU rotations" begin
         # Reference data form WebGeocalc (http://wgc.jpl.nasa.gov/)
         ep = Epoch(TT, 2000, 1, 1, 12) + EpochDelta(seconds=1000)
@@ -40,7 +40,7 @@
             -0.46966636
             0.87810242
         ], (6, 6))'
-        @test rotation_matrix(planets(:Mercury), ep) ≈ M_Mercury
+        @test rotation_matrix(MERCURY, ep) ≈ M_Mercury
         M_Venus = reshape([
             -0.95473270
             0.26677448
@@ -79,7 +79,7 @@
             -0.38770881
             0.92159239
         ], (6, 6))'
-        @test rotation_matrix(planets(:Venus), ep) ≈ M_Venus
+        @test rotation_matrix(VENUS, ep) ≈ M_Venus
         M_Earth = reshape([
             0.24742306
             -0.96890755
@@ -118,7 +118,7 @@
             -1.09209406E-17
             1.00000000
         ], (6, 6))'
-        @test rotation_matrix(planets(:Earth), ep) ≈ M_Earth
+        @test rotation_matrix(EARTH, ep) ≈ M_Earth
         M_Mars = reshape([
             -0.66608963
             -0.74583619
@@ -157,7 +157,7 @@
             -0.40623761
             0.79744178
         ], (6, 6))'
-        @test rotation_matrix(planets(:Mars), ep) ≈ M_Mars
+        @test rotation_matrix(MARS, ep) ≈ M_Mars
         M_Jupiter = reshape([
             0.39505525
             -0.83169183
@@ -196,7 +196,7 @@
             -0.43032959
             0.90255380
         ], (6, 6))'
-        @test rotation_matrix(planets(:Jupiter), ep) ≈ M_Jupiter
+        @test rotation_matrix(JUPITER, ep) ≈ M_Jupiter
         M_Saturn = reshape([
             -0.99620412
             0.02275182
@@ -235,7 +235,7 @@
             0.07323576
             0.99364475
         ], (6, 6))'
-        @test rotation_matrix(planets(:Saturn), ep) ≈ M_Saturn
+        @test rotation_matrix(SATURN, ep) ≈ M_Saturn
         M_Uranus = reshape([
             -0.91000094
             0.28785233
@@ -274,7 +274,7 @@
             -0.94155916
             -0.26176809
         ], (6, 6))'
-        @test rotation_matrix(planets(:Uranus), ep) ≈ M_Uranus
+        @test rotation_matrix(URANUS, ep) ≈ M_Uranus
         M_Neptune = reshape([
             0.16782169
             -0.67394650
@@ -313,6 +313,6 @@
             -0.63809510
             0.68136446
         ], (6, 6))'
-        @test rotation_matrix(planets(:Neptune), ep) ≈ M_Neptune
+        @test rotation_matrix(NEPTUNE, ep) ≈ M_Neptune
     end
 end

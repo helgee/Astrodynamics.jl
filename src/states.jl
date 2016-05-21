@@ -2,7 +2,9 @@ export State
 
 using ERFA
 
-export Frame, IAURotating, IAUInertial
+import Base: convert
+
+export Frame, IAU
 export ECI, ECEF, SEZ
 export GCRF, CIRF, TIRF, ITRF
 
@@ -19,16 +21,15 @@ abstract ECI <: GCRF
 abstract ECEF <: ECI
 abstract SEZ <: ECI
 
-abstract IAURotating{T<:Planet} <: GCRF
-abstract IAUInertial{T<:Planet} <: GCRF
+abstract IAU{C<:CelestialBody} <: GCRF
 
 abstract AbstractState
 
-immutable State{T<:Frame, S<:Timescale} <: AbstractState
-    frame::Type{T}
-    epoch::Epoch{S}
+immutable State{F<:Frame, T<:Timescale, C<:CelestialBody} <: AbstractState
+    frame::Type{F}
+    epoch::Epoch{T}
     rv::Vector{Float64}
-    body::Symbol
+    body::C
 end
 
 const FRAMES = (
@@ -59,9 +60,11 @@ function rotation_matrix(p::Planet, ep::Epoch)
     return M
 end
 
-function rotation{T<:Planet}(from::Type{GCRF}, to::Type{IAURotating{T}}, ep::Epoch)
-    rotation(to, from, ep)'
+function convert{F<:Frame, T<:Timescale, C<:CelestialBody}(::Type{State{IAU{C}}}, s::State{F,T,C})
+    println("läuft")
 end
+
+rotation_matrix{T<:Planet}(p::Type{T}, ep::Epoch) = rotation_matrix(constants(p), ep)
 
 Base.eltype{T,S}(::Type{State{T,S}}) = T
 
