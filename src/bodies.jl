@@ -1,4 +1,3 @@
-export EARTH
 export μ, mu, j2, mean_radius, polar_radius, equatorial_radius
 export deviation, max_elevation, max_depression, id
 export right_ascension, declination, rotation_angle, rotation_rate
@@ -45,6 +44,7 @@ for planet in PLANETS
             theta1::Vector{Float64}
         end
         constants(::Type{$(symbol(planet))}) = $(symbol(uppercase(planet)))
+        export $(symbol(planet))
     end
 end
 

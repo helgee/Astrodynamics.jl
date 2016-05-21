@@ -60,10 +60,11 @@ function rotation_matrix(p::Planet, ep::Epoch)
     return M
 end
 
-function convert{F<:Frame, T<:Timescale, C<:CelestialBody}(::Type{State{IAU{C}}}, s::State{F,T,C})
-    println("läuft")
-end
+#= function convert{F<:Frame, T<:Timescale, C<:CelestialBody}(::Type{State{IAU{C}}}, s::State{F,T,C}) =#
+#= end =#
 
+rotation_matrix{C<:CelestialBody}(from::Type{GCRF}, to::Type{IAU{C}}, ep::Epoch) = rotation_matrix(C, ep)
+rotation_matrix{C<:CelestialBody}(from::Type{IAU{C}}, to::Type{GCRF}, ep::Epoch) = rotation_matrix(C, ep)'
 rotation_matrix{T<:Planet}(p::Type{T}, ep::Epoch) = rotation_matrix(constants(p), ep)
 
 Base.eltype{T,S}(::Type{State{T,S}}) = T
