@@ -2,7 +2,7 @@ using Base.Dates
 using Compat
 using ERFA
 
-import Base: convert, -, +, ==, isless, isapprox, eltype
+import Base: convert, -, +, ==, isless, isapprox
 
 export Epoch, Timescale
 export EpochDelta
@@ -56,9 +56,6 @@ isless{T<:Timescale}(ep1::Epoch{T}, ep2::Epoch{T}) = juliandate(ep1) < juliandat
 (-){T<:Timescale}(ep1::Epoch{T}, ep2::Epoch{T}) = EpochDelta(ep1.jd-ep2.jd, ep1.jd1-ep2.jd1)
 (-){T<:Timescale}(ep::Epoch{T}, ed::EpochDelta) = Epoch(T, ep.jd-ed.jd, ep.jd1-ed.jd1, ep.leapseconds, ep.ΔUT1)
 (+){T<:Timescale}(ep::Epoch{T}, ed::EpochDelta) = Epoch(T, ep.jd+ed.jd, ep.jd1+ed.jd1, ep.leapseconds, ep.ΔUT1)
-
-
-eltype{T}(::Type{Epoch{T}}) = T
 
 function Epoch{T<:Timescale}(scale::Type{T}, jd, jd1=0.0, leapseconds=-1, ΔUT1=NaN)
     Epoch(scale, jd, jd1, leapseconds, ΔUT1)

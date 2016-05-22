@@ -67,8 +67,6 @@ rotation_matrix{C<:CelestialBody}(from::Type{GCRF}, to::Type{IAU{C}}, ep::Epoch)
 rotation_matrix{C<:CelestialBody}(from::Type{IAU{C}}, to::Type{GCRF}, ep::Epoch) = rotation_matrix(C, ep)'
 rotation_matrix{T<:Planet}(p::Type{T}, ep::Epoch) = rotation_matrix(constants(p), ep)
 
-Base.eltype{T,S}(::Type{State{T,S}}) = T
-
 body(s::State) = s.body
 rv(s::State) = s.rv
 epoch(s::State) = s.epoch
