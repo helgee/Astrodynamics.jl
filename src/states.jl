@@ -36,6 +36,10 @@ function State{F<:Frame, T<:Timescale, C<:CelestialBody}(ep::Epoch{T}, rv, frame
     State(ep, rv, frame, body)
 end
 
+function State{F<:Frame, T<:Timescale, C<:CelestialBody}(ep::Epoch{T}, r, v, frame::Type{F}=GCRF, body::Type{C}=Earth)
+    State(ep, [r; v], frame, body)
+end
+
 function (==){F<:Frame, T<:Timescale, C<:CelestialBody}(a::State{F,T,C}, b::State{F,T,C})
     return a.epoch == b.epoch && a.rv == b.rv && a.frame == b.frame && a.body == a.body
 end
@@ -66,7 +70,7 @@ end
 
 # T1 -> T2
 function convert{F<:Frame, T1<:Timescale, T2<:Timescale, C<:CelestialBody}(::Type{State{F, T2, C}}, s::State{F, T1, C})
-    State(Epoch(T2, s.epoch), s.rv, F2, s.body)
+    State(Epoch(T2, s.epoch), s.rv, F, s.body)
 end
 
 # C1 -> C2
@@ -116,12 +120,28 @@ function convert{F1<:Frame, F2<:Frame, T1<:Timescale, T2<:Timescale, C1<:Celesti
 end
 
 # GCRF -> IAU
-rotation_matrix{C<:CelestialBody}(::Type{IAU{C}}, ::Type{GCRF}, ep::Epoch) = rotation_matrix(C, ep)
-# IAU -> GCRF
-rotation_matrix{C<:CelestialBody}(::Type{GCRF}, ::Type{IAU{C}}, ep::Epoch) = rotation_matrix(C, ep)'
-rotation_matrix{T<:Planet}(p::Type{T}, ep::Epoch) = rotation_matrix(constants(p), ep)
+function rotation_matrix{C<:CelestialBody}(::Type{IAU{C}}, ::Type{GCRF}, ep::Epoch)
+    m, δm = rotation_matrix(C, ep)
+    M = zeros(6, 6)
+    M[1:3,1:3] = m
+    M[4:6,4:6] = m
+    M[4:6,1:3] = δm
+    return M
+end
 
-function rotation_matrix(p::Planet, ep::Epoch)
+# IAU -> GCRF
+function rotation_matrix{C<:CelestialBody}(::Type{GCRF}, ::Type{IAU{C}}, ep::Epoch)
+    m, δm = rotation_matrix(C, ep)
+    M = zeros(6, 6)
+    M[1:3,1:3] = m'
+    M[4:6,4:6] = m'
+    M[4:6,1:3] = δm'
+    return M
+end
+
+rotation_matrix{T<:Planet}(p::Type{T}, ep::TDBEpoch) = rotation_matrix(constants(p), ep)
+
+function rotation_matrix(p::Planet, ep::TDBEpoch)
     α = right_ascension(p, ep)
     δα = right_ascension_rate(p, ep)
     δ = declination(p, ep)
@@ -131,11 +151,7 @@ function rotation_matrix(p::Planet, ep::Epoch)
     ϕ = α + π/2
     χ = π/2 - δ
 
-    M = zeros(6, 6)
     m = rotation_matrix(313, ϕ, χ, ω)
     δm = rate_matrix(313, ϕ, δα, χ, -δδ, ω, δω)
-    M[1:3,1:3] = m
-    M[4:6,4:6] = m
-    M[4:6,1:3] = δm
-    return M
+    return m, δm
 end

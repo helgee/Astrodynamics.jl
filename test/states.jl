@@ -1,10 +1,26 @@
 @testset "States" begin
     @testset "State type" begin
-        @test State(TTEpoch(2000,1,1), ones(6)) == State(TTEpoch(2000,1,1), ones(6), GCRF, Earth)
+        ep = TTEpoch(2000, 1, 1)
+        tdb = TDBEpoch(ep)
+        @test State(ep, ones(6)) == State(ep, ones(6), GCRF, Earth)
+        @test State(ep, ones(6)) ≈ State(ep, ones(6)+eps(), GCRF, Earth)
+        rv = [ones(3)*7e3; ones(3)]
+        s = State(TTEpoch(2000,1,1), ones(3)*7e3, ones(3))
+        M = rotation_matrix(IAU{Earth}, GCRF, tdb)
+        earth = state(Earth, tdb)
+        mars = state(Mars, tdb)
+        @test State(s, frame=IAU{Earth}) == State(ep, M*rv, IAU{Earth})
+        @test s ≈ State(State(s, frame=IAU{Earth}), frame=GCRF)
+        @test State(s, timescale=TDB) == State(tdb, rv)
+        @test State(s, body=Mars) == State(ep, rv+earth-mars, GCRF, Mars)
+        @test State(s, timescale=TDB, body=Mars) == State(tdb, rv+earth-mars, GCRF, Mars)
+        @test State(s, frame=IAU{Earth}, body=Mars) == State(ep, M*(rv+earth-mars), IAU{Earth}, Mars)
+        @test State(s, frame=IAU{Earth}, timescale=TDB) == State(tdb, M*rv, IAU{Earth})
+        @test State(s, frame=IAU{Earth}, timescale=TDB, body=Mars) == State(tdb, M*(rv+earth-mars), IAU{Earth}, Mars)
     end
     @testset "IAU rotations" begin
         # Reference data form WebGeocalc (http://wgc.jpl.nasa.gov/)
-        ep = Epoch(TT, 2000, 1, 1, 12) + EpochDelta(seconds=1000)
+        ep = Epoch(TDB, 2000, 1, 1, 12) + EpochDelta(seconds=1000)
         matrices = Dict("Mercury" => reshape([
             0.93161546
             -0.27117375
@@ -308,14 +324,51 @@
             0.35857651
             -0.63809510
             0.68136446
+        ], (6, 6))',
+        "GCRF" => reshape([
+            0.24742306
+            0.96890755
+            3.08055248E-09
+            0.00000000E+00
+            0.00000000E+00
+            0.00000000E+00
+            -0.96890755
+            0.24742306
+            -1.09209406E-17
+            0.00000000E+00
+            0.00000000E+00
+            0.00000000E+00
+            -7.62199719E-10
+            -2.98477054E-09
+            1.00000000
+            0.00000000E+00
+            0.00000000E+00
+            0.00000000E+00
+            7.06538526E-05
+            -1.80423738E-05
+            3.08055237E-12
+            0.24742306
+            0.96890755
+            3.08055248E-09
+            1.80423738E-05
+            7.06538526E-05
+            -2.18418808E-20
+            -0.96890755
+            0.24742306
+            -1.09209406E-17
+            -9.79852602E-13
+            -2.92918995E-12
+            -9.48980323E-21
+            -7.62199719E-10
+            -2.98477054E-09
+            1.00000000
         ], (6, 6))')
         for planet in Astrodynamics.PLANETS
             p = symbol(planet)
             @eval begin
-                @test rotation_matrix($p, $ep) ≈ $matrices[$planet]
-                @test rotation_matrix(GCRF, IAU{$p}, $ep) ≈ $matrices[$planet]'
                 @test rotation_matrix(IAU{$p}, GCRF, $ep) ≈ $matrices[$planet]
             end
         end
+        @test rotation_matrix(GCRF, IAU{Earth}, ep) ≈ matrices["GCRF"]
     end
 end
