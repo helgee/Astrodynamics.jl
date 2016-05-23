@@ -1,6 +1,6 @@
 @testset "States" begin
     @testset "State type" begin
-        #= @test State(ECEF, TTEpoch(2000,1,1), EARTH, zeros(6)) == ECEFState(TTEpoch(2000,1,1), EARTH, zeros(6)) =#
+        @test State(TTEpoch(2000,1,1), ones(6)) == State(TTEpoch(2000,1,1), ones(6), GCRF, Earth)
     end
     @testset "IAU rotations" begin
         # Reference data form WebGeocalc (http://wgc.jpl.nasa.gov/)
