@@ -2,6 +2,7 @@ using JPLEphemeris
 
 import JPLEphemeris: state
 
+export CelestialBody, Planet
 export μ, mu, j2, mean_radius, polar_radius, equatorial_radius
 export deviation, max_elevation, max_depression, naif_id
 export right_ascension, declination, rotation_angle, rotation_rate
@@ -66,6 +67,7 @@ function state(b::CelestialBody, jd)
             end
         end
     end
+    error("Ephemeris does not contain data for NAIF id $(b.id).")
 end
 
 theta(t, b) = b.theta0 + b.theta1 * t/SEC_PER_CENTURY

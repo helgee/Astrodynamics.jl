@@ -165,7 +165,7 @@ const MARS = Mars(
     # maximum depression
     7.55,
     # id
-    499,
+    4,
     # ra0
     deg2rad(317.68143),
     # ra1
