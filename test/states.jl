@@ -1,3 +1,5 @@
+using ERFA
+
 @testset "States" begin
     @testset "State type" begin
         ep = TTEpoch(2000, 1, 1)
@@ -370,5 +372,26 @@
             end
         end
         @test rotation_matrix(GCRF, IAU{Earth}, ep) ≈ matrices["GCRF"]
+    end
+    @testset "Terrestial Rotations" begin
+        ep = UTCEpoch(2007, 4, 5, 12, 0, 0.0, 0, -0.072073685)
+        tt = TTEpoch(ep)
+        ut1 = UT1Epoch(ep)
+        xp = dms2rad(0, 0, 0.0349282)
+        yp = dms2rad(0, 0, 0.4833163)
+        dx = dms2rad(0, 0, 0.0001750)
+        dy = dms2rad(0, 0, -0.0002259)
+        x, y = eraXy06(tt.jd, tt.jd1)
+        s = eraS06(tt.jd, tt.jd1, x, y)
+        x += dx
+        y += dy
+        rc2i = reshape(eraC2ixys(x, y, s), (3,3))'
+        era = eraEra00(ut1.jd, ut1.jd1)
+        rpom = reshape(eraPom00(xp, yp, eraSp00(tt.jd, tt.jd1)), (3,3))'
+        M = rpom*rotation_matrix(3, era)*rc2i
+        R = [0.973104317697536 0.230363826239128 -0.000703163481769;
+            -0.230363800456036 0.973104570632801 0.000118545368117;
+            0.000711560162594 0.000046626402444 0.999999745754024]
+        @test M ≈ R
     end
 end
