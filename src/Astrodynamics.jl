@@ -2,9 +2,9 @@ module Astrodynamics
 
 include("init.jl")
 
+include("time.jl")
 include("bodies.jl")
 include("elements.jl")
-include("time.jl")
 include("planets.jl")
 include("states.jl")
 include("math.jl")

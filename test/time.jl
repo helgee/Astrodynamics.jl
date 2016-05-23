@@ -10,7 +10,7 @@ abstract NoConversion <: UTC
         @test round(s, 2) == -53.64
     end
     @testset "Epoch" begin
-        dt = DateTime(2000, 1, 1, 12, 0, 0)
+        dt = DateTime(2000, 1, 1, 12, 0, 0.0)
         tt = Epoch(TT, 2000, 1, 1, 12, 0, 0.0, 0, 0.0)
         t1 = TTEpoch(2000, 1, 1, 12, 0, 0.0)
         tdb = TDBEpoch(tt)
@@ -29,9 +29,9 @@ abstract NoConversion <: UTC
         @test_throws ErrorException dut1(t1)
         @test Epoch(TT, J2000) ≈ t1
         @test jd2000(tt) ≈ 0
-        @test jd1950(Epoch(TT, 1950, 1, 1, 12, 0, 0, 0)) ≈ 0
-        @test centuries(Epoch(TT, 2100, 1, 1, 12, 0, 0, 0)) == 1
-        @test days(Epoch(TT, 2000, 1, 2, 12, 0, 0, 0)) == 1
+        @test jd1950(Epoch(TT, 1950, 1, 1, 12)) ≈ 0
+        @test centuries(Epoch(TT, 2100, 1, 1, 12)) == 1
+        @test days(Epoch(TT, 2000, 1, 2, 12)) == 1
         leapseconds!(t1, 0)
         dut1!(t1, 0.0)
         @test tt ≈ t1
