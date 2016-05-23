@@ -1,6 +1,11 @@
+using JPLEphemeris
+
+import JPLEphemeris: state
+
 export μ, mu, j2, mean_radius, polar_radius, equatorial_radius
-export deviation, max_elevation, max_depression, id
+export deviation, max_elevation, max_depression, naif_id
 export right_ascension, declination, rotation_angle, rotation_rate
+export state
 
 abstract CelestialBody
 abstract Planet <: CelestialBody
@@ -45,6 +50,21 @@ for planet in PLANETS
         end
         constants(::Type{$(symbol(planet))}) = $(symbol(uppercase(planet)))
         export $(symbol(planet))
+    end
+end
+
+state{T<:CelestialBody}(b::Type{T}, ep::TDBEpoch) = state(constants(b), juliandate(ep))
+
+function state(b::CelestialBody, jd)
+    seg = segments(EPHEMERIS)
+    for (origin, target) in seg
+        if b.id in keys(target)
+            if origin != 0
+                return state(EPHEMERIS, origin, jd) + state(EPHEMERIS, origin, b.id, jd)
+            else
+                return state(EPHEMERIS, b.id, jd)
+            end
+        end
     end
 end
 
@@ -95,4 +115,4 @@ equatorial_radius(p::Planet) = p.equatorial_radius
 deviation(p::Planet) = p.deviation
 max_elevation(p::Planet) = p.max_elevation
 max_depression(p::Planet) = p.max_depression
-id(p::Planet) = p.id
+naif_id(p::Planet) = p.id

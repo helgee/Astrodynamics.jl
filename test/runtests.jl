@@ -7,6 +7,7 @@ end
 using Astrodynamics
 
 include("elements.jl")
+include("ephemeris.jl")
 include("states.jl")
 include("kepler.jl")
 include("math.jl")
