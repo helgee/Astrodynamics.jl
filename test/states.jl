@@ -1,4 +1,7 @@
 @testset "States" begin
+    @testset "State type" begin
+        #= @test State(ECEF, TTEpoch(2000,1,1), EARTH, zeros(6)) == ECEFState(TTEpoch(2000,1,1), EARTH, zeros(6)) =#
+    end
     @testset "IAU rotations" begin
         # Reference data form WebGeocalc (http://wgc.jpl.nasa.gov/)
         ep = Epoch(TT, 2000, 1, 1, 12) + EpochDelta(seconds=1000)
@@ -310,8 +313,8 @@
             p = symbol(planet)
             @eval begin
                 @test rotation_matrix($p, $ep) ≈ $matrices[$planet]
-                @test rotation_matrix(GCRF, IAU{$p}, $ep) ≈ $matrices[$planet]
-                @test rotation_matrix(IAU{$p}, GCRF, $ep) ≈ $matrices[$planet]'
+                @test rotation_matrix(GCRF, IAU{$p}, $ep) ≈ $matrices[$planet]'
+                @test rotation_matrix(IAU{$p}, GCRF, $ep) ≈ $matrices[$planet]
             end
         end
     end

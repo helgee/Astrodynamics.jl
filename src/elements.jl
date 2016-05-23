@@ -1,5 +1,7 @@
 export keplerian, cartesian
 
+keplerian(rv, μ) = keplerian(rv[1:3], rv[4:6], μ)
+
 function keplerian(r, v, µ)
     rm = norm(r)
     vm = norm(v)
