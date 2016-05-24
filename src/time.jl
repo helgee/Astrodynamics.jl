@@ -293,3 +293,37 @@ end
 centuries(ep::Epoch, base=J2000) = (juliandate(ep) - base)/JULIAN_CENTURY
 days(ep::Epoch, base=J2000) = juliandate(ep) - base
 seconds(ep::Epoch, base=J2000) = (juliandate(ep) - base)*86400
+
+type LSK
+    t::Vector{DateTime}
+    leapseconds::Vector{Float64}
+end
+
+function LSK(file)
+    t = Vector{DateTime}()
+    leapseconds = Vector{Float64}()
+    re = r"(?<dat>[0-9]{2}),\s+@(?<date>[0-9]{4}-[A-Z]{3}-[0-9])"
+    lines = open(readlines, file)
+    for line in lines
+        s = string(line)
+        if ismatch(re, s)
+            m = match(re, s)
+            push!(leapseconds, float(m["dat"]))
+            push!(t, DateTime(m["date"], "y-u-d"))
+        end
+    end
+    LSK(t, leapseconds)
+end
+
+function fractionofday(dt)
+    hour(dt)/24 + minute(dt)/(24*60) + second(dt)/86400 + millisecond(dt)/8.64e7
+end
+
+function leapseconds(lsk::LSK, dt::DateTime)
+    if dt < lsk.t[1]
+        return eraDat(year(dt), month(dt), day(dt), fractionofday(dt))
+    else
+        return lsk.leapseconds[findlast(dt .>= lsk.t)]
+    end
+end
+leapseconds(dt::DateTime) = leapseconds(DATA[:leapseconds], dt)

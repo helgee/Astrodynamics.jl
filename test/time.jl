@@ -72,4 +72,9 @@ abstract NoConversion <: UTC
         @test Epoch(TT, 2000, 1, 1) - Epoch(TT, 2000, 1, 2) == EpochDelta(days=-1)
         @test seconds(EpochDelta(days=1)) == 86400
     end
+    @testset "Leap Seconds" begin
+        for year = 1970:2016
+            @test leapseconds(DateTime(year, 4, 1)) == eraDat(year, 4, 1, 0.0)
+        end
+    end
 end
