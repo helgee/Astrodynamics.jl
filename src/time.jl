@@ -2,7 +2,7 @@ using Base.Dates
 using Compat
 using ERFA
 
-import Base: convert, -, +, ==, isless, isapprox
+import Base: convert, -, +, ==, isless, isapprox, show
 
 export Epoch, Timescale
 export EpochDelta
@@ -10,7 +10,7 @@ export dut1, dut1!, leapseconds, leapseconds!
 export days, centuries, seconds
 export juliandate, jd2000, jd1950
 export JULIAN_CENTURY, SEC_PER_DAY, SEC_PER_CENTURY
-export J2000, J1950
+export J2000, J1950, MJD
 export rad2dms, dms2rad
 
 const JULIAN_CENTURY = 36525
@@ -18,6 +18,7 @@ const SEC_PER_DAY = 86400
 const SEC_PER_CENTURY = SEC_PER_DAY*JULIAN_CENTURY
 const J2000 = Dates.datetime2julian(DateTime(2000, 1, 1, 12, 0, 0))
 const J1950 = Dates.datetime2julian(DateTime(1950, 1, 1, 12, 0, 0))
+const MJD = 2400000.5
 
 abstract Timescale
 
@@ -43,6 +44,10 @@ end
 type EpochDelta
     jd::Float64
     jd1::Float64
+end
+
+function show{T}(io::IO, ep::Epoch{T})
+    print(io, "$(DateTime(ep)) ($T)")
 end
 
 EpochDelta(;days::Int=0, seconds::Int=0) = EpochDelta(days, seconds/SEC_PER_DAY)
@@ -135,9 +140,11 @@ jd1(epoch::Epoch) = epoch.jd1
 scales = (:TT, :TDB, :TCB, :TCG, :TAI, :UTC, :UT1)
 for scale in scales
     sym = symbol(scale, "Epoch")
+    name = string(scale)
     @eval begin
         typealias $sym Epoch{$scale}
         export $sym, $scale
+        show(io::IO, ::Type{$scale}) = print(io, $name)
     end
 end
 # Constructor for typealiases
