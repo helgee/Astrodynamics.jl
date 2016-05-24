@@ -33,3 +33,5 @@ function findpath(origin, target, root=Any)
     end
     return reverse(path)
 end
+
+log(str) = println("[Astrodynamics.jl] $str")
