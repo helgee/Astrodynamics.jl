@@ -1,6 +1,7 @@
 using JPLEphemeris
 
 import JPLEphemeris: state
+import Base: show
 
 export CelestialBody, Planet
 export μ, mu, j2, mean_radius, polar_radius, equatorial_radius
@@ -23,8 +24,10 @@ const PLANETS = (
 )
 
 for planet in PLANETS
+    typ = symbol(planet)
+    con = symbol(uppercase(planet))
     @eval begin
-        immutable $(symbol(planet)) <: Planet
+        immutable $typ <: Planet
             μ::Float64
             j2::Float64
             mean_radius::Float64
@@ -49,8 +52,9 @@ for planet in PLANETS
             theta0::Vector{Float64}
             theta1::Vector{Float64}
         end
-        constants(::Type{$(symbol(planet))}) = $(symbol(uppercase(planet)))
-        export $(symbol(planet))
+        constants(::Type{$typ}) = $con
+        export $typ
+        show(io::IO, ::Type{$typ}) = print(io, $planet)
     end
 end
 
