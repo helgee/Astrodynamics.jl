@@ -1,7 +1,7 @@
 using ERFA
 using Compat
 
-import Base: convert, isapprox, ==
+import Base: convert, isapprox, ==, show
 
 export State
 export Frame, IAU
@@ -23,6 +23,24 @@ abstract SEZ <: ECI
 
 abstract IAU{C<:CelestialBody} <: GCRF
 
+const FRAMES = (
+    "GCRF",
+    "CIRF",
+    "TIRF",
+    "ITRF",
+    "ECI",
+    "ECEF",
+    "SEZ",
+)
+
+for frame in FRAMES
+    sym = symbol(frame)
+    @eval begin
+        show(io::IO, ::Type{$sym}) = print(io, $frame)
+    end
+end
+show{C<:CelestialBody}(io::IO, ::Type{IAU{C}}) = print(io, "IAU{$C}")
+
 abstract AbstractState
 
 immutable State{F<:Frame, T<:Timescale, C<:CelestialBody} <: AbstractState
@@ -30,6 +48,19 @@ immutable State{F<:Frame, T<:Timescale, C<:CelestialBody} <: AbstractState
     rv::Vector{Float64}
     frame::Type{F}
     body::Type{C}
+end
+
+function show(io::IO, s::State)
+    println(io, "State{$(s.frame),$(s.epoch.scale),$(s.body)}:")
+    println(io, " Epoch: $(s.epoch)")
+    println(io, " Frame: $(s.frame)")
+    println(io, " Body:  $(s.body)")
+    println(io, " x: $(s.rv[1])")
+    println(io, " y: $(s.rv[2])")
+    println(io, " z: $(s.rv[3])")
+    println(io, " u: $(s.rv[4])")
+    println(io, " v: $(s.rv[5])")
+    print(io, " w: $(s.rv[6])")
 end
 
 function State{F<:Frame, T<:Timescale, C<:CelestialBody}(ep::Epoch{T}, rv, frame::Type{F}=GCRF, body::Type{C}=Earth)
@@ -154,4 +185,7 @@ function rotation_matrix(p::Planet, ep::TDBEpoch)
     m = rotation_matrix(313, ϕ, χ, ω)
     δm = rate_matrix(313, ϕ, δα, χ, -δδ, ω, δω)
     return m, δm
+end
+
+function rotation_matrix(::Type{CIRF}, ::Type{GCRF}, s::State)
 end
