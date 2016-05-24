@@ -213,7 +213,7 @@ const JUPITER = Jupiter(
     # maximum depression
     102,
     # id
-    599,
+    5,
     # ra0
     deg2rad(268.056595),
     # ra1
@@ -261,7 +261,7 @@ const SATURN = Saturn(
     # maximum depression
     205,
     # id
-    699,
+    6,
     # ra0
     deg2rad(40.589),
     # ra1
@@ -309,7 +309,7 @@ const URANUS = Uranus(
     # maximum depression
     0,
     # id
-    799,
+    7,
     # ra0
     deg2rad(257.311),
     # ra1
@@ -357,7 +357,7 @@ const NEPTUNE = Neptune(
     # maximum depression
     0,
     # id
-    899,
+    8,
     # ra0
     deg2rad(299.36),
     # ra1
