@@ -187,5 +187,72 @@ function rotation_matrix(p::Planet, ep::TDBEpoch)
     return m, δm
 end
 
-function rotation_matrix(::Type{CIRF}, ::Type{GCRF}, s::State)
+function rotation_matrix(::Type{CIRF}, ::Type{GCRF}, ep::Epoch)
+    m = rotation_matrix(DATA.iau2000, TTEpoch(ep))
+    M = zeros(6,6)
+    M[1:3,1:3] = m'
+    M[4:6,4:6] = m'
+    return M
+end
+
+function rotation_matrix(::Type{GCRF}, ::Type{CIRF}, ep::Epoch)
+    m = rotation_matrix(DATA.iau2000, TTEpoch(ep))
+    M = zeros(6,6)
+    M[1:3,1:3] = m
+    M[4:6,4:6] = m
+    return M
+end
+
+function rotation_matrix(data::IAU2000, ep::TTEpoch)
+    dx, dy = interpolate(data, ep)
+    x, y = eraXy06(ep.jd, ep.jd1)
+    s = eraS06(ep.jd, ep.jd1, x, y)
+    x += dx
+    y += dy
+    reshape(eraC2ixys(x, y, s), (3,3))
+end
+
+function rotation_matrix(ep::UT1Epoch)
+    era = eraEra00(ep.jd, ep.jd1)
+    rate = rotation_rate(EARTH, TDBEpoch(ep))
+    rotation_matrix(3, -era), rate_matrix(3, -era, -rate)
+end
+
+function rotation_matrix(::Type{TIRF}, ::Type{CIRF}, ep::Epoch)
+    m, δm = rotation_matrix(UT1Epoch(ep))
+    M = zeros(6,6)
+    M[1:3,1:3] = m'
+    M[4:6,4:6] = m'
+    M[4:6,1:3] = δm'
+    return M
+end
+
+function rotation_matrix(::Type{CIRF}, ::Type{TIRF}, ep::Epoch)
+    m, δm = rotation_matrix(UT1Epoch(ep))
+    M = zeros(6,6)
+    M[1:3,1:3] = m
+    M[4:6,4:6] = m
+    M[4:6,1:3] = δm
+    return M
+end
+
+function rotation_matrix(data::PolarMotion, ep::TTEpoch)
+    xp, yp = interpolate(data, ep)
+    reshape(eraPom00(xp, yp, eraSp00(ep.jd, ep.jd1)), (3,3))
+end
+
+function rotation_matrix(::Type{ITRF}, ::Type{TIRF}, ep::Epoch)
+    m = rotation_matrix(DATA.polarmotion, TTEpoch(ep))
+    M = zeros(6,6)
+    M[1:3,1:3] = m'
+    M[4:6,4:6] = m'
+    return M
+end
+
+function rotation_matrix(::Type{TIRF}, ::Type{ITRF}, ep::Epoch)
+    m = rotation_matrix(DATA.polarmotion, TTEpoch(ep))
+    M = zeros(6,6)
+    M[1:3,1:3] = m'
+    M[4:6,4:6] = m'
+    return M
 end

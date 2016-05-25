@@ -11,8 +11,7 @@ abstract NoConversion <: UTC
     end
     @testset "Epoch" begin
         dt = DateTime(2000, 1, 1, 12, 0, 0.0)
-        tt = Epoch(TT, 2000, 1, 1, 12, 0, 0.0, 0, 0.0)
-        t1 = TTEpoch(2000, 1, 1, 12, 0, 0.0)
+        tt = Epoch(TT, 2000, 1, 1, 12, 0, 0.0)
         tdb = TDBEpoch(tt)
         tcb = TCBEpoch(tt)
         tcg = TCGEpoch(tt)
@@ -20,21 +19,14 @@ abstract NoConversion <: UTC
         utc = UTCEpoch(tt)
         ut1 = UT1Epoch(tt)
 
-        @test t1 ≈ TTEpoch(dt)
-        @test dt == DateTime(t1)
+        @test tt ≈ TTEpoch(dt)
+        @test dt == DateTime(tt)
 
-        @test leapseconds(tt) == 0
-        @test dut1(tt) == 0.0
-        @test_throws ErrorException leapseconds(t1)
-        @test_throws ErrorException dut1(t1)
-        @test Epoch(TT, J2000) ≈ t1
+        @test Epoch(TT, J2000) ≈ tt
         @test jd2000(tt) ≈ 0
         @test jd1950(Epoch(TT, 1950, 1, 1, 12)) ≈ 0
         @test centuries(Epoch(TT, 2100, 1, 1, 12)) == 1
         @test days(Epoch(TT, 2000, 1, 2, 12)) == 1
-        leapseconds!(t1, 0)
-        dut1!(t1, 0.0)
-        @test tt ≈ t1
 
         @test tai ≈ TAIEpoch(utc)
         @test utc ≈ UTCEpoch(tai)

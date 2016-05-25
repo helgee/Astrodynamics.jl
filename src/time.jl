@@ -6,7 +6,7 @@ import Base: convert, -, +, ==, isless, isapprox, show
 
 export Epoch, Timescale
 export EpochDelta
-export dut1, dut1!, leapseconds, leapseconds!
+export dut1, leapseconds
 export days, centuries, seconds
 export juliandate, jd2000, jd1950
 export JULIAN_CENTURY, SEC_PER_DAY, SEC_PER_CENTURY
@@ -37,8 +37,8 @@ type Epoch{T<:Timescale}
     scale::Type{T}
     jd::Float64
     jd1::Float64
-    leapseconds::Nullable{Int}
-    ΔUT1::Nullable{Float64}
+    leapseconds::Float64
+    ΔUT1::Float64
 end
 
 type EpochDelta
@@ -59,44 +59,23 @@ isapprox(ed1::EpochDelta, ed2::EpochDelta) = days(ed1) ≈ days(ed2)
 
 isless{T<:Timescale}(ep1::Epoch{T}, ep2::Epoch{T}) = juliandate(ep1) < juliandate(ep2)
 (-){T<:Timescale}(ep1::Epoch{T}, ep2::Epoch{T}) = EpochDelta(ep1.jd-ep2.jd, ep1.jd1-ep2.jd1)
-(-){T<:Timescale}(ep::Epoch{T}, ed::EpochDelta) = Epoch(T, ep.jd-ed.jd, ep.jd1-ed.jd1, ep.leapseconds, ep.ΔUT1)
-(+){T<:Timescale}(ep::Epoch{T}, ed::EpochDelta) = Epoch(T, ep.jd+ed.jd, ep.jd1+ed.jd1, ep.leapseconds, ep.ΔUT1)
+(-){T<:Timescale}(ep::Epoch{T}, ed::EpochDelta) = Epoch(T, ep.jd-ed.jd, ep.jd1-ed.jd1)
+(+){T<:Timescale}(ep::Epoch{T}, ed::EpochDelta) = Epoch(T, ep.jd+ed.jd, ep.jd1+ed.jd1)
 
 function Epoch{T<:Timescale}(scale::Type{T}, jd::Float64, jd1::Float64=0.0)
-    Epoch(scale, jd, jd1, Nullable{Int}(), Nullable{Float64}())
-end
-
-function Epoch{T<:Timescale}(scale::Type{T}, jd::Float64, jd1::Float64, leapseconds::Int, ΔUT1::Float64)
-    Epoch(scale, jd, jd1, Nullable(leapseconds), Nullable(ΔUT1))
+    Epoch(scale, jd, jd1, leapseconds(jd+jd1), dut1(jd+jd1))
 end
 
 function Epoch{T<:Timescale}(scale::Type{T}, year::Int, month::Int, day::Int,
     hour::Int=0, minute::Int=0, seconds::Float64=0.0)
-    Epoch(scale, year, month, day, hour, minute, seconds, Nullable{Int}(), Nullable{Float64}())
-end
-
-function Epoch{T<:Timescale}(scale::Type{T}, year::Int, month::Int, day::Int,
-    hour::Int, minute::Int, seconds::Float64, leapseconds::Nullable{Int}, ΔUT1::Nullable{Float64})
     jd, jd1 = eraDtf2d(string(T),
     year, month, day, hour, minute, seconds)
-    Epoch(scale, jd, jd1, leapseconds, ΔUT1)
-end
-
-function Epoch{T<:Timescale}(scale::Type{T}, year::Int, month::Int, day::Int,
-    hour::Int, minute::Int, seconds::Float64, leapseconds::Int, ΔUT1::Float64)
-    Epoch(scale, year, month, day, hour, minute, seconds, Nullable(leapseconds), Nullable(ΔUT1))
+    Epoch(scale, jd, jd1)
 end
 
 function Epoch{T<:Timescale}(scale::Type{T}, dt::DateTime)
     Epoch(scale, year(dt), month(dt), day(dt),
-        hour(dt), minute(dt), second(dt) + millisecond(dt)/1000,
-        Nullable{Int}(), Nullable{Float64}())
-end
-
-function Epoch{T<:Timescale}(scale::Type{T}, dt::DateTime, leapseconds::Int, ΔUT1::Float64)
-    Epoch(scale, year(dt), month(dt), day(dt),
-        hour(dt), minute(dt), second(dt) + millisecond(dt)/1000,
-        Nullable(leapseconds), Nullable(ΔUT1))
+        hour(dt), minute(dt), second(dt) + millisecond(dt)/1000)
 end
 
 function isapprox{T<:Timescale}(a::Epoch{T}, b::Epoch{T})
@@ -107,35 +86,14 @@ function (==){T<:Timescale}(a::Epoch{T}, b::Epoch{T})
     return juliandate(a) == juliandate(b) && isequal(a.leapseconds, b.leapseconds) && isequal(a.ΔUT1, b.ΔUT1)
 end
 
-function leapseconds!(ep::Epoch, leapsec)
-    ep.leapseconds = Nullable(leapsec)
-    return ep
-end
-
-function dut1!(ep::Epoch, ΔUT1)
-    ep.ΔUT1 = Nullable(ΔUT1)
-    return ep
-end
-
-function leapseconds(ep::Epoch)
-    if isnull(ep.leapseconds)
-        error("Leap seconds not set.")
-    end
-    return get(ep.leapseconds)
-end
-
-function dut1(ep::Epoch)
-    if isnull(ep.ΔUT1)
-        error("ΔUT1 not set.")
-    end
-    return get(ep.ΔUT1)
-end
-
-juliandate(epoch::Epoch) = epoch.jd + epoch.jd1
-jd2000(epoch::Epoch) = juliandate(epoch) - J2000
-jd1950(epoch::Epoch) = juliandate(epoch) - J1950
-jd(epoch::Epoch) = epoch.jd
-jd1(epoch::Epoch) = epoch.jd1
+leapseconds(ep::Epoch) = ep.leapseconds
+dut1(ep::Epoch) = ep.ΔUT1
+juliandate(ep::Epoch) = ep.jd + ep.jd1
+mjd(ep::Epoch) = juliandate(ep) - MJD
+jd2000(ep::Epoch) = juliandate(ep) - J2000
+jd1950(ep::Epoch) = juliandate(ep) - J1950
+jd(ep::Epoch) = ep.jd
+jd1(ep::Epoch) = ep.jd1
 
 scales = (:TT, :TDB, :TCB, :TCG, :TAI, :UTC, :UT1)
 for scale in scales
@@ -320,10 +278,14 @@ function fractionofday(dt)
 end
 
 function leapseconds(lsk::LSK, dt::DateTime)
-    if dt < lsk.t[1]
+    if dt < DateTime(1960, 1, 1)
+        return 0.0
+    elseif dt < lsk.t[1]
         return eraDat(year(dt), month(dt), day(dt), fractionofday(dt))
     else
         return lsk.leapseconds[findlast(dt .>= lsk.t)]
     end
 end
-leapseconds(dt::DateTime) = leapseconds(DATA[:leapseconds], dt)
+leapseconds(dt::DateTime) = leapseconds(DATA.leapseconds, dt)
+leapseconds(jd::Float64) = leapseconds(DATA.leapseconds, julian2datetime(jd))
+dut1(jd::Float64) = interpolate(DATA.dut1, jd - MJD)

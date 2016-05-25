@@ -61,13 +61,13 @@ end
 state{T<:CelestialBody}(b::Type{T}, ep::TDBEpoch) = state(constants(b), juliandate(ep))
 
 function state(b::CelestialBody, jd)
-    seg = segments(DATA[:ephemeris])
+    seg = segments(DATA.ephemeris)
     for (origin, target) in seg
         if b.id in keys(target)
             if origin != 0
-                return state(DATA[:ephemeris], origin, jd) + state(DATA[:ephemeris], origin, b.id, jd)
+                return state(DATA.ephemeris, origin, jd) + state(DATA.ephemeris, origin, b.id, jd)
             else
-                return state(DATA[:ephemeris], b.id, jd)
+                return state(DATA.ephemeris, b.id, jd)
             end
         end
     end

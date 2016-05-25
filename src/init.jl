@@ -1,5 +1,14 @@
 using JPLEphemeris
 
+type AstrodynamicsData
+    ephemeris::SPK
+    leapseconds::LSK
+    polarmotion::PolarMotion
+    dut1::DUT1
+    iau1980::IAU1980
+    iau2000::IAU2000
+end
+
 const PATH = normpath(joinpath(splitdir(@__FILE__)[1],"..","data"))
 const DATA_FILES = Dict(
     :ephemeris  =>  Dict(:name => "DE430 ephemeris", :url => "http://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de430.bsp", :path => joinpath(PATH, "de430.bsp")),
@@ -20,14 +29,10 @@ end
 
 function __init__()
     download_data()
-    pm, dut1, iau1980, iau2000 = load_iers(DATA_FILES[:iau1980][:path], DATA_FILES[:iau2000][:path])
-    global const DATA = Dict(
-        :ephemeris => SPK(DATA_FILES[:ephemeris][:path]),
-        :leapseconds => LSK(DATA_FILES[:leapseconds][:path]),
-        :polarmotion => pm,
-        :dut1 => dut1,
-        :iau1980 => iau1980,
-        :iau2000 => iau2000,
+    global const DATA = AstrodynamicsData(
+        SPK(DATA_FILES[:ephemeris][:path]),
+        LSK(DATA_FILES[:leapseconds][:path]),
+        load_iers(DATA_FILES[:iau1980][:path], DATA_FILES[:iau2000][:path])...
     )
     return nothing
 end
