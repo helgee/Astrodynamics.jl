@@ -17,10 +17,6 @@ abstract CIRF <: GCRF
 abstract TIRF <: CIRF
 abstract ITRF <: TIRF
 
-abstract ECI <: GCRF
-abstract ECEF <: ECI
-abstract SEZ <: ECI
-
 abstract IAU{C<:CelestialBody} <: GCRF
 
 const FRAMES = (
@@ -30,7 +26,6 @@ const FRAMES = (
     "ITRF",
     "ECI",
     "ECEF",
-    "SEZ",
 )
 
 for frame in FRAMES
