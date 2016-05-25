@@ -16,6 +16,10 @@ function findpath(origin, target, root=Any)
             break
         end
         for n in neighbors(node, root)
+            # Handle parametric types like IAU{Earth}
+            if target <: n && isempty(subtypes(n))
+                n = target
+            end
             if !haskey(links, n)
                 push!(queue, n)
                 merge!(links, Dict{DataType, DataType}(n=>node))

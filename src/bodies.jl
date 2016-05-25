@@ -58,7 +58,7 @@ for planet in PLANETS
     end
 end
 
-state{T<:CelestialBody}(b::Type{T}, ep::TDBEpoch) = state(constants(b), juliandate(ep))
+state{T<:CelestialBody}(b::Type{T}, ep::Epoch) = state(constants(b), juliandate(TDBEpoch(ep)))
 
 function state(b::CelestialBody, jd)
     seg = segments(DATA.ephemeris)

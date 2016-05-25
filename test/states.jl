@@ -16,9 +16,12 @@ using ERFA
         @test State(s, timescale=TDB) == State(tdb, rv)
         @test State(s, body=Mars) == State(ep, rv+earth-mars, GCRF, Mars)
         @test State(s, timescale=TDB, body=Mars) == State(tdb, rv+earth-mars, GCRF, Mars)
-        @test State(s, frame=IAU{Earth}, body=Mars) == State(ep, M*(rv+earth-mars), IAU{Earth}, Mars)
+        @test State(s, frame=IAU{Earth}, body=Mars) ≈ State(ep, M*(rv+earth-mars), IAU{Earth}, Mars)
         @test State(s, frame=IAU{Earth}, timescale=TDB) == State(tdb, M*rv, IAU{Earth})
-        @test State(s, frame=IAU{Earth}, timescale=TDB, body=Mars) == State(tdb, M*(rv+earth-mars), IAU{Earth}, Mars)
+        mars_rot = State(tdb, rv, IAU{Mars}, Mars)
+        @test State(State(mars_rot, body=Earth), body=Mars) ≈ mars_rot
+        @test State(State(mars_rot, frame=ITRF, body=Earth), frame=IAU{Mars}, body=Mars) ≈ mars_rot
+        @test State(State(mars_rot, frame=ITRF, timescale=UT1, body=Earth), frame=IAU{Mars}, timescale=TDB, body=Mars) ≈ mars_rot
     end
     @testset "IAU rotations" begin
         # Reference data form WebGeocalc (http://wgc.jpl.nasa.gov/)

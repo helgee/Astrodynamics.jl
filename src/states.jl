@@ -5,7 +5,6 @@ import Base: convert, isapprox, ==, show
 
 export State
 export Frame, IAU
-export ECI, ECEF, SEZ
 export GCRF, CIRF, TIRF, ITRF
 
 export rotation_matrix, body, rv_array, epoch, reference_frame, keplerian
@@ -24,8 +23,6 @@ const FRAMES = (
     "CIRF",
     "TIRF",
     "ITRF",
-    "ECI",
-    "ECEF",
 )
 
 for frame in FRAMES
@@ -101,53 +98,49 @@ end
 
 # C1 -> C2
 function convert{F<:Frame, T<:Timescale, C1<:CelestialBody, C2<:CelestialBody}(::Type{State{F, T, C2}}, s::State{F, T, C1})
-    tdb = TDBEpoch(s.epoch)
-    gcrf1 = State(s, frame=GCRF)
-    body1 = state(C1, tdb)
-    body2 = state(C2, tdb)
-    gcrf2 = State(s.epoch, s.rv + body1 - body2, GCRF, C2)
-    State(gcrf2, frame=F)
+    M = rotation_matrix(F, GCRF, s.epoch)
+    body1 = state(C1, s.epoch)
+    body2 = state(C2, s.epoch)
+    State(s.epoch, s.rv + M*body1 - M*body2, F, C2)
 end
 
 # F1 -> F2, T1 -> T2
 function convert{F1<:Frame, F2<:Frame, T1<:Timescale, T2<:Timescale, C<:CelestialBody}(::Type{State{F2, T2, C}}, s::State{F1, T1, C})
-    M = rotation_matrix(F2, F1, TDBEpoch(s.epoch))
+    M = rotation_matrix(F2, F1, s.epoch)
     State(Epoch(T2, s.epoch), M * s.rv, F2, s.body)
 end
 
 # F1 -> F2, C1 -> C2
 function convert{F1<:Frame, F2<:Frame, T<:Timescale, C1<:CelestialBody, C2<:CelestialBody}(::Type{State{F2, T, C2}}, s::State{F1, T, C1})
-    tdb = TDBEpoch(s.epoch)
-    gcrf1 = State(s, frame=GCRF)
-    body1 = state(C1, tdb)
-    body2 = state(C2, tdb)
-    gcrf2 = State(s.epoch, s.rv + body1 - body2, GCRF, C2)
-    State(gcrf2, frame=F2)
+    M1 = rotation_matrix(F2, F1, s.epoch)
+    M2 = rotation_matrix(F2, GCRF, s.epoch)
+    body1 = state(C1, s.epoch)
+    body2 = state(C2, s.epoch)
+    State(s.epoch, M1*s.rv + M2*body1 - M2*body2, F2, C2)
 end
 
 # T1 -> T2, C1 -> C2
 function convert{F<:Frame, T1<:Timescale, T2<:Timescale, C1<:CelestialBody, C2<:CelestialBody}(::Type{State{F, T2, C2}}, s::State{F, T1, C1})
-    tdb = TDBEpoch(s.epoch)
-    gcrf1 = State(s, frame=GCRF)
-    body1 = state(C1, tdb)
-    body2 = state(C2, tdb)
-    gcrf2 = State(s.epoch, s.rv + body1 - body2, GCRF, C2)
-    State(gcrf2, timescale=T2)
+    M = rotation_matrix(F, GCRF, s.epoch)
+    body1 = state(C1, s.epoch)
+    body2 = state(C2, s.epoch)
+    State(Epoch(T2, s.epoch), s.rv + M*body1 - M*body2, F, C2)
 end
 
 # F1 -> F2, T1 -> T2, C1 -> C2
 function convert{F1<:Frame, F2<:Frame, T1<:Timescale, T2<:Timescale, C1<:CelestialBody, C2<:CelestialBody}(::Type{State{F2,T2,C2}}, s::State{F1,T1,C1})
-    tdb = TDBEpoch(s.epoch)
-    gcrf1 = State(s, frame=GCRF)
-    body1 = state(C1, tdb)
-    body2 = state(C2, tdb)
-    gcrf2 = State(s.epoch, s.rv + body1 - body2, GCRF, C2)
-    State(gcrf2, frame=F2, timescale=T2)
+    M1 = rotation_matrix(F2, F1, s.epoch)
+    M2 = rotation_matrix(F2, GCRF, s.epoch)
+    body1 = state(C1, s.epoch)
+    body2 = state(C2, s.epoch)
+    State(Epoch(T2, s.epoch), M1*s.rv + M2*body1 - M2*body1, F2, C2)
 end
+
+rotation_matrix{F<:Frame}(::Type{F}, ::Type{F}, ep::Epoch) = eye(6, 6)
 
 # GCRF -> IAU
 function rotation_matrix{C<:CelestialBody}(::Type{IAU{C}}, ::Type{GCRF}, ep::Epoch)
-    m, δm = rotation_matrix(C, ep)
+    m, δm = rotation_matrix(C, TDBEpoch(ep))
     M = zeros(6, 6)
     M[1:3,1:3] = m
     M[4:6,4:6] = m
@@ -157,7 +150,7 @@ end
 
 # IAU -> GCRF
 function rotation_matrix{C<:CelestialBody}(::Type{GCRF}, ::Type{IAU{C}}, ep::Epoch)
-    m, δm = rotation_matrix(C, ep)
+    m, δm = rotation_matrix(C, TDBEpoch(ep))
     M = zeros(6, 6)
     M[1:3,1:3] = m'
     M[4:6,4:6] = m'
