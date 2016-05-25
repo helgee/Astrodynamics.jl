@@ -19,6 +19,20 @@ abstract NoConversion <: UTC
         utc = UTCEpoch(tt)
         ut1 = UT1Epoch(tt)
 
+        ref = Epoch(TDB, 2013, 3, 18, 12)
+        @test UT1Epoch(ref) == UT1Epoch("2013-03-18T11:58:52.994")
+        @test UTCEpoch(ref) == UTCEpoch("2013-03-18T11:58:52.814")
+        @test TAIEpoch(ref) == TAIEpoch("2013-03-18T11:59:27.814")
+        @test TTEpoch(ref) == TTEpoch("2013-03-18T11:59:59.998")
+        @test TCBEpoch(ref) == TCBEpoch("2013-03-18T12:00:17.718")
+        @test TCGEpoch(ref) == TCGEpoch("2013-03-18T12:00:00.795")
+        @test ref == TDBEpoch(UT1Epoch("2013-03-18T11:58:52.994"))
+        @test ref == TDBEpoch(UTCEpoch("2013-03-18T11:58:52.814"))
+        @test ref == TDBEpoch(TAIEpoch("2013-03-18T11:59:27.814"))
+        @test ref == TDBEpoch(TTEpoch("2013-03-18T11:59:59.998"))
+        @test ref == TDBEpoch(TCBEpoch("2013-03-18T12:00:17.718"))
+        @test ref == TDBEpoch(TCGEpoch("2013-03-18T12:00:00.795"))
+
         @test tt ≈ TTEpoch(dt)
         @test dt == DateTime(tt)
 

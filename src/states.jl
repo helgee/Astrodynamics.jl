@@ -212,27 +212,27 @@ function rotation_matrix(data::IAU2000, ep::TTEpoch)
     reshape(eraC2ixys(x, y, s), (3,3))
 end
 
-function rotation_matrix(ep::UT1Epoch)
-    era = eraEra00(ep.jd, ep.jd1)
-    rate = rotation_rate(EARTH, TDBEpoch(ep))
-    rotation_matrix(3, -era), rate_matrix(3, -era, -rate)
-end
-
 function rotation_matrix(::Type{TIRF}, ::Type{CIRF}, ep::Epoch)
-    m, δm = rotation_matrix(UT1Epoch(ep))
+    ut1 = UT1Epoch(ep)
+    era = eraEra00(ut1.jd, ut1.jd1)
+    rate = rotation_rate(EARTH, TDBEpoch(ep))
+    m = rotation_matrix(3, era)
     M = zeros(6,6)
-    M[1:3,1:3] = m'
-    M[4:6,4:6] = m'
-    M[4:6,1:3] = δm'
+    M[1:3,1:3] = m
+    M[4:6,4:6] = m
+    M[4:6,1:3] = rate_matrix(3, era, rate)
     return M
 end
 
 function rotation_matrix(::Type{CIRF}, ::Type{TIRF}, ep::Epoch)
-    m, δm = rotation_matrix(UT1Epoch(ep))
+    ut1 = UT1Epoch(ep)
+    era = eraEra00(ut1.jd, ut1.jd1)
+    rate = rotation_rate(EARTH, TDBEpoch(ep))
+    m = rotation_matrix(3, -era)
     M = zeros(6,6)
     M[1:3,1:3] = m
     M[4:6,4:6] = m
-    M[4:6,1:3] = δm
+    M[4:6,1:3] = rate_matrix(3, -era, -rate)
     return M
 end
 
@@ -252,7 +252,23 @@ end
 function rotation_matrix(::Type{TIRF}, ::Type{ITRF}, ep::Epoch)
     m = rotation_matrix(DATA.polarmotion, TTEpoch(ep))
     M = zeros(6,6)
-    M[1:3,1:3] = m'
-    M[4:6,4:6] = m'
+    M[1:3,1:3] = m
+    M[4:6,4:6] = m
     return M
+end
+
+@generated function rotation_matrix{F1<:Frame, F2<:Frame}(::Type{F2}, ::Type{F1}, ep::Epoch)
+    rotation_matrix_generator(F2, F1, ep)
+end
+
+function rotation_matrix_generator(F2, F1, ep)
+    path = findpath(F1, F2, Frame)
+    if length(path) == 2
+        error("Please provide a method rotation_matrix(::Type{$F2}, ::Type{$F1}, ::Epoch).")
+    end
+    ex = :(rotation_matrix($(path[2]), $(path[1]), ep))
+    for (origin, target) in zip(path[2:end], path[3:end])
+        ex = :(rotation_matrix($target, $origin, ep)*$ex)
+    end
+    return ex
 end

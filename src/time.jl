@@ -78,12 +78,14 @@ function Epoch{T<:Timescale}(scale::Type{T}, dt::DateTime)
         hour(dt), minute(dt), second(dt) + millisecond(dt)/1000)
 end
 
+Epoch{T<:Timescale}(scale::Type{T}, str::AbstractString) = Epoch(scale, DateTime(str))
+
 function isapprox{T<:Timescale}(a::Epoch{T}, b::Epoch{T})
-    return juliandate(a) ≈ juliandate(b) && isequal(a.leapseconds, b.leapseconds) && isequal(a.ΔUT1, b.ΔUT1)
+    return juliandate(a) ≈ juliandate(b)
 end
 
 function (==){T<:Timescale}(a::Epoch{T}, b::Epoch{T})
-    return juliandate(a) == juliandate(b) && isequal(a.leapseconds, b.leapseconds) && isequal(a.ΔUT1, b.ΔUT1)
+    return DateTime(a) == DateTime(b)
 end
 
 leapseconds(ep::Epoch) = ep.leapseconds
@@ -106,7 +108,7 @@ for scale in scales
     end
 end
 # Constructor for typealiases
-@compat (::Type{Epoch{T}}){T<:Timescale}(a::Union{Real, DateTime, Epoch}, args...) = Epoch(T, a, args...)
+@compat (::Type{Epoch{T}}){T<:Timescale}(a::Union{Real, DateTime, Epoch, AbstractString}, args...) = Epoch(T, a, args...)
 
 Epoch{T<:Timescale, S<:Timescale}(::Type{T}, ep::Epoch{S}) = convert(Epoch{T}, ep)
 
@@ -123,7 +125,7 @@ function deltatr(ep::Epoch)
 end
 
 function convert{T}(::Type{DateTime}, ep::Epoch{T})
-    dt = eraD2dtf(string(T), 2, jd(ep), jd1(ep))
+    dt = eraD2dtf(string(T), 3, jd(ep), jd1(ep))
     DateTime(dt...)
 end
 DateTime(ep::Epoch) = convert(DateTime, ep)
@@ -152,12 +154,12 @@ end
 
 # TAI <-> UT1
 function convert(::Type{TAIEpoch}, ep::UT1Epoch)
-    date, date1 = eraUt1tai(ep.jd, ep.jd1, float(leapseconds(ep)))
+    date, date1 = eraUt1tai(ep.jd, ep.jd1, dut1(ep)-leapseconds(ep))
     TAIEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
 
 function convert(::Type{UT1Epoch}, ep::TAIEpoch)
-    date, date1 = eraTaiut1(ep.jd, ep.jd1, float(leapseconds(ep)))
+    date, date1 = eraTaiut1(ep.jd, ep.jd1, dut1(ep)-leapseconds(ep))
     UT1Epoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
 
@@ -211,12 +213,12 @@ end
 
 # TDB <-> TCB
 function convert(::Type{TDBEpoch}, ep::TCBEpoch)
-    date, date1 = eraTdbtcb(ep.jd, ep.jd1)
+    date, date1 = eraTcbtdb(ep.jd, ep.jd1)
     TDBEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
 
 function convert(::Type{TCBEpoch}, ep::TDBEpoch)
-    date, date1 = eraTcbtdb(ep.jd, ep.jd1)
+    date, date1 = eraTdbtcb(ep.jd, ep.jd1)
     TCBEpoch(date, date1, ep.leapseconds, ep.ΔUT1)
 end
 

@@ -402,6 +402,13 @@ using ERFA
             6.9019216369452225, 2.537348963579269, 0.4495970248578132]
         @test tirf_itrf[1:3,1:3] ≈ ref_tirf_itrf
         @test tirf_itrf*rv_tirf ≈ rv_itrf
-        s = State(tdb, rv)
+        s_gcrf = State(tdb, rv)
+        s_cirf = State(tdb, rv_cirf, CIRF)
+        s_tirf = State(tdb, rv_tirf, TIRF)
+        s_itrf = State(tdb, rv_itrf, ITRF)
+        @test s_gcrf ≈ State(State(s_gcrf, frame=CIRF), frame=GCRF)
+        @test s_cirf ≈ State(State(s_cirf, frame=TIRF), frame=CIRF)
+        @test s_tirf ≈ State(State(s_tirf, frame=ITRF), frame=TIRF)
+        @test s_gcrf ≈ State(State(s_gcrf, frame=ITRF), frame=GCRF)
     end
 end
