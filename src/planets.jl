@@ -5,7 +5,7 @@ export MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE
 
 const MERCURY = Mercury(
     # μ
-    2.2032e13,
+    2.2032e4,
     # j2
     2.027e-4,
     # mean radius
@@ -53,7 +53,7 @@ const MERCURY = Mercury(
 )
 const VENUS = Venus(
     # μ
-    3.24859e14,
+    3.24859e5,
     # j2
     6e-5,
     # mean radius
@@ -101,7 +101,7 @@ const VENUS = Venus(
 )
 const EARTH = Earth(
     # μ
-    3.986004418e14,
+    3.986004418e5,
     # j2
     1.08262668e-3,
     # mean radius
@@ -149,7 +149,7 @@ const EARTH = Earth(
 )
 const MARS = Mars(
     # μ
-    4.282837e13,
+    4.282837e4,
     # j2
     1.964e-3,
     # mean radius
@@ -197,7 +197,7 @@ const MARS = Mars(
 )
 const JUPITER = Jupiter(
     # μ
-    1.26686534e17,
+    1.26686534e8,
     # j2
     1.475e-2,
     # mean radius
@@ -245,7 +245,7 @@ const JUPITER = Jupiter(
 )
 const SATURN = Saturn(
     # μ
-    3.7931187e16,
+    3.7931187e7,
     # j2
     1.645e-2,
     # mean radius
@@ -293,7 +293,7 @@ const SATURN = Saturn(
 )
 const URANUS = Uranus(
     # μ
-    5.793939e15,
+    5.793939e6,
     # j2
     1.2e-2,
     # mean radius
@@ -341,7 +341,7 @@ const URANUS = Uranus(
 )
 const NEPTUNE = Neptune(
     # μ
-    6.836529e15,
+    6.836529e6,
     # j2
     4e-3,
     # mean radius
