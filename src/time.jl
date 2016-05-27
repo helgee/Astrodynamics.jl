@@ -50,7 +50,7 @@ function show{T}(io::IO, ep::Epoch{T})
     print(io, "$(DateTime(ep)) ($T)")
 end
 
-EpochDelta(;days::Int=0, seconds::Int=0) = EpochDelta(days, seconds/SEC_PER_DAY)
+EpochDelta(;days::Int=0, seconds::Real=0) = EpochDelta(days, seconds/SEC_PER_DAY)
 
 seconds(ed::EpochDelta) = (ed.jd+ed.jd1)*SEC_PER_DAY
 days(ed::EpochDelta) = ed.jd+ed.jd1

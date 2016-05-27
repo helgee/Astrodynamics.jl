@@ -1,6 +1,7 @@
 julia 0.4
 BaseTestNext
 Compat
+Dierckx
 Dopri
 ERFA
 JPLEphemeris

@@ -63,6 +63,10 @@ function State{F<:Frame, T<:Timescale, C<:CelestialBody}(ep::Epoch{T}, r, v, fra
     State(ep, [r; v], frame, body)
 end
 
+function State{F<:Frame, T<:Timescale, C<:CelestialBody}(ep::Epoch{T}, x, y, z, vx, vy, vz, frame::Type{F}=GCRF, body::Type{C}=Earth)
+    State(ep, [x, y, z, vx, vy, vz], frame, body)
+end
+
 function (==){F<:Frame, T<:Timescale, C<:CelestialBody}(a::State{F,T,C}, b::State{F,T,C})
     return a.epoch == b.epoch && a.rv == b.rv && a.frame == b.frame && a.body == a.body
 end
@@ -75,6 +79,11 @@ body(s::State) = constants(s.body)
 rv_array(s::State) = s.rv
 epoch(s::State) = s.epoch
 reference_frame(s::State) = s.frame
+
+function period(s::State)
+    ele = keplerian(s)
+    period(ele[1], μ(body(s)))
+end
 
 keplerian(s::State) = keplerian(rv_array(s), μ(body(s)))
 

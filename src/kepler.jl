@@ -1,4 +1,4 @@
-export kepler
+export kepler, period
 
 function meantoecc(M::Float64, ecc::Float64)
     kepler(E) = E - ecc*sin(E) - M
@@ -20,12 +20,6 @@ end
 
 function period(a::Float64, μ::Float64)
     return 2π*sqrt(abs(a)^3/μ)
-end
-
-function period(s::State)
-    mu = planets[s.body]["mu"]
-    ele = elements(s)
-    return period(ele[1], mu)
 end
 
 function kepler(μ, r₀, v₀, Δt, numiter=50, rtol=sqrt(eps()))
