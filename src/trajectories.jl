@@ -1,10 +1,21 @@
 using Dierckx
+using PlotlyJS
+using UnicodePlots
 
-import Base: getindex, endof
+import Base: getindex, endof, show
+import PlotlyJS: plot
 
-export Trajectory
+export Trajectory, plot
 
-type Trajectory{F<:Frame, T<:Timescale, C<:CelestialBody}
+abstract AbstractTrajectory
+
+type Trajectory{
+        F<:Frame,
+        T<:Timescale,
+        C<:CelestialBody,
+        P<:Propagator,
+    } <: AbstractTrajectory
+    propagator::Type{P}
     s0::State{F,T,C}
     t::Vector{Float64}
     x::Vector{Float64}
@@ -21,8 +32,16 @@ type Trajectory{F<:Frame, T<:Timescale, C<:CelestialBody}
     vzspl::Spline1D
 end
 
-function Trajectory{F<:Frame, T<:Timescale, C<:CelestialBody}(s0::State{F,T,C}, t, x, y, z, vx, vy, vz)
-    Trajectory(s0,
+function Trajectory{
+        F<:Frame,
+        T<:Timescale,
+        C<:CelestialBody,
+        P<:Propagator,
+    }(p::Type{P}, s0::State{F,T,C},
+    t, x, y, z, vx, vy, vz)
+    Trajectory(
+        p,
+        s0,
         collect(t),
         x, y, z, vx, vy, vz,
         Spline1D(t, x, bc="error"),
@@ -32,6 +51,24 @@ function Trajectory{F<:Frame, T<:Timescale, C<:CelestialBody}(s0::State{F,T,C}, 
         Spline1D(t, vy, bc="error"),
         Spline1D(t, vz, bc="error"),
     )
+end
+
+function show{
+        F<:Frame,
+        T<:Timescale,
+        C<:CelestialBody,
+        P<:Propagator,
+    }(io::IO, tra::Trajectory{F,T,C,P})
+    println(io, "Trajectory{$F, $T, $C, $P}")
+    println(io, " Start date: $(tra.s0.epoch)")
+    println(io, " End date:   $(tra.s0.epoch + EpochDelta(seconds=tra.t[end]))")
+    println(io, " Frame: $F")
+    println(io, " Body: $C")
+    println(io, " Propagator: $P")
+    plt = lineplot(tra.x, tra.y, color=:red, title="XY")
+    print(io, plt)
+    plt = lineplot(tra.x, tra.z, color=:red, title="XZ")
+    print(io, plt)
 end
 
 function interpolate(tra::Trajectory, time)
@@ -62,3 +99,17 @@ function getindex{F<:Frame, T1<:Timescale, T2<:Timescale, C<:CelestialBody}(tra:
 end
 
 endof(tra::Trajectory) = tra.t[end]
+
+function plot{F<:Frame, T<:Timescale, C<:CelestialBody}(tra::Trajectory{F,T,C})
+    re = equatorial_radius(constants(C))
+    rp = polar_radius(constants(C))
+    n = 100
+    θ = linspace(-π/2, π/2, n)
+    ϕ = linspace(0, 2π, n)
+    x = [re * cos(i) * cos(j) for i in θ, j in ϕ]
+    y = [re * cos(i) * sin(j) for i in θ, j in ϕ]
+    z = [rp * sin(i) for i in θ, j in ϕ];
+    s = surface(x=x, y=y, z=z, colorscale="Blues")
+    p = scatter3d(;x=tra.x, y=tra.y, z=tra.z, mode="lines", line=attr(color="rgb(255,0,0)"))
+    plot([s, p])
+end
