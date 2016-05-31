@@ -83,6 +83,7 @@ function isapprox{F<:Frame, T<:Timescale, C<:CelestialBody}(a::State{F,T,C}, b::
 end
 
 body(s::State) = constants(s.body)
+μ(s::State) = μ(constants(s.body))
 rv_array(s::State) = s.rv
 epoch(s::State) = s.epoch
 reference_frame(s::State) = s.frame
