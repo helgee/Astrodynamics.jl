@@ -14,9 +14,9 @@ addons:
     packages:
       - gfortran
 # uncomment the following lines to override the default test script
-# script:
-#  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-#  - julia -e 'Pkg.clone(pwd()); Pkg.build("Astrodynamics"); Pkg.test("Astrodynamics"; coverage=true)'
+script:
+ - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+ - julia -e 'Pkg.clone(pwd()); Pkg.build("Astrodynamics"); Pkg.checkout("Dopri"); Pkg.checkout("JPLEphemeris"); Pkg.test("Astrodynamics"; coverage=true)'
 
 after_success:
   - julia -e 'cd(Pkg.dir("Astrodynamics")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder()); Coveralls.submit(process_folder())'
