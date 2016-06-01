@@ -1,3 +1,5 @@
+__precompile__()
+
 module Astrodynamics
 
 include("time.jl")
@@ -11,8 +13,9 @@ include("math.jl")
 include("kepler.jl")
 include("rotations.jl")
 include("stumpff.jl")
-include("forces.jl")
 include("propagators.jl")
+include("thirdbody.jl")
+include("gravity.jl")
 include("trajectories.jl")
 include("util.jl")
 

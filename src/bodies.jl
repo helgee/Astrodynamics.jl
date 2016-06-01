@@ -1,6 +1,6 @@
 using JPLEphemeris
 
-import JPLEphemeris: state
+import JPLEphemeris: state, position, velocity
 import Base: show
 
 export CelestialBody, Planet
@@ -58,20 +58,24 @@ for planet in PLANETS
     end
 end
 
-state{T<:CelestialBody}(b::Type{T}, ep::Epoch) = state(constants(b), juliandate(TDBEpoch(ep)))
-
-function state(b::CelestialBody, jd)
-    seg = segments(DATA.ephemeris)
-    for (origin, target) in seg
-        if b.id in keys(target)
-            if origin != 0
-                return state(DATA.ephemeris, origin, jd) + state(DATA.ephemeris, origin, b.id, jd)
-            else
-                return state(DATA.ephemeris, b.id, jd)
+for func in (:state, :position, :velocity)
+    @eval begin
+        $func{T<:CelestialBody}(b::Type{T}, ep::Epoch) = $func(constants(b), juliandate(TDBEpoch(ep)))
+        $func{T<:CelestialBody}(b::Type{T}, date::Float64) = $func(constants(b), date)
+        function $func(b::CelestialBody, jd)
+            seg = segments(DATA.ephemeris)
+            for (origin, target) in seg
+                if b.id in keys(target)
+                    if origin != 0
+                        return $func(DATA.ephemeris, origin, jd) + $func(DATA.ephemeris, origin, b.id, jd)
+                    else
+                        return $func(DATA.ephemeris, b.id, jd)
+                    end
+                end
             end
+            error("Ephemeris does not contain data for NAIF id $(b.id).")
         end
     end
-    error("Ephemeris does not contain data for NAIF id $(b.id).")
 end
 
 theta(t, b) = b.theta0 + b.theta1 * t/SEC_PER_CENTURY
@@ -122,3 +126,7 @@ deviation(p::Planet) = p.deviation
 max_elevation(p::Planet) = p.max_elevation
 max_depression(p::Planet) = p.max_depression
 naif_id(p::Planet) = p.id
+j2(p::Planet) = p.j2
+μ{C<:CelestialBody}(c::Type{C}) = μ(constants(C))
+mean_radius{C<:CelestialBody}(c::Type{C}) = mean_radius(constants(C))
+j2{C<:CelestialBody}(c::Type{C}) = j2(constants(C))

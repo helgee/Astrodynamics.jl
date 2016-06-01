@@ -1,9 +1,9 @@
 using Dierckx
-using PlotlyJS
+#= using PlotlyJS =#
 using UnicodePlots
 
 import Base: getindex, endof, show
-import PlotlyJS: plot
+#= import PlotlyJS: plot =#
 
 export Trajectory, plot
 
@@ -100,16 +100,16 @@ end
 
 endof(tra::Trajectory) = tra.t[end]
 
-function plot{F<:Frame, T<:Timescale, C<:CelestialBody}(tra::Trajectory{F,T,C})
-    re = equatorial_radius(constants(C))
-    rp = polar_radius(constants(C))
-    n = 100
-    θ = linspace(-π/2, π/2, n)
-    ϕ = linspace(0, 2π, n)
-    x = [re * cos(i) * cos(j) for i in θ, j in ϕ]
-    y = [re * cos(i) * sin(j) for i in θ, j in ϕ]
-    z = [rp * sin(i) for i in θ, j in ϕ];
-    s = surface(x=x, y=y, z=z, colorscale="Blues")
-    p = scatter3d(;x=tra.x, y=tra.y, z=tra.z, mode="lines", line=attr(color="rgb(255,0,0)"))
-    plot([s, p])
-end
+#= function plot{F<:Frame, T<:Timescale, C<:CelestialBody}(tra::Trajectory{F,T,C}) =#
+#=     re = equatorial_radius(constants(C)) =#
+#=     rp = polar_radius(constants(C)) =#
+#=     n = 100 =#
+#=     θ = linspace(-π/2, π/2, n) =#
+#=     ϕ = linspace(0, 2π, n) =#
+#=     x = [re * cos(i) * cos(j) for i in θ, j in ϕ] =#
+#=     y = [re * cos(i) * sin(j) for i in θ, j in ϕ] =#
+#=     z = [rp * sin(i) for i in θ, j in ϕ]; =#
+#=     s = surface(x=x, y=y, z=z, colorscale="Blues") =#
+#=     p = scatter3d(;x=tra.x, y=tra.y, z=tra.z, mode="lines", line=attr(color="rgb(255,0,0)")) =#
+#=     plot([s, p]) =#
+#= end =#

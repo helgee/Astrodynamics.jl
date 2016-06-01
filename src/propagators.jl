@@ -7,6 +7,7 @@ export rhs!
 import Base: show
 
 abstract Propagator
+abstract AbstractModel
 
 type Kepler <: Propagator
     iterations::Int
@@ -53,34 +54,58 @@ end
 trajectory(s0::State, tend::EpochDelta, p::Kepler) = trajectory(s0, seconds(tend), p::Kepler)
 trajectory(s0::State, p::Kepler) = trajectory(s0, period(s0), p)
 
-type ODE <: Propagator
-    gravity::Function
-    maxstep::Float64
+type ODE{F<:Frame,C<:CelestialBody} <: Propagator
+    bodies::Vector{DataType}
+    center::Type{C}
+    frame::Type{F}
+    gravity::AbstractModel
+    integrator::Function
+    maxstep::Real
 end
 
-function ODE(;gravity::Function=gravity!,
+function ODE{F<:Frame}(;
+    bodies=DataType[],
+    frame::Type{F}=GCRF,
+    integrator::Function=dop853,
+    gravity::AbstractModel=UniformGravity(Earth),
     maxstep::Real=0.0,
 )
-    ODE(gravity, maxstep)
+    ODE(
+        bodies,
+        gravity.center,
+        frame,
+        gravity,
+        integrator,
+        maxstep,
+    )
 end
 
 show(io::IO, ::Type{ODE}) = print(io, "ODE")
 
 type ODEParameters
+    propagator::ODE
     s0::State
 end
 
+function propagate(s0::State, tend, p::ODE, output::Symbol)
+    params = ODEParameters(p, s0)
+    tout, yout = p.integrator(rhs!, s0.rv, [0, tend],
+        solout=solout!,
+        points=output,
+        params=params,
+        maxstep=p.maxstep,
+    )
+end
+
 function state(s0::State, tend, p::ODE)
-    tout, yout = dop853(rhs!, s0.rv, [0, tend],
-        points=:last, params=ODEParameters(s0), maxstep=p.maxstep)
+    tout, yout = propagate(s0, tend, p, :last)
     State(s0.epoch + EpochDelta(seconds=tout[end]), yout[end], s0.frame, s0.body)
 end
 
 state(s0::State, tend::EpochDelta, p::ODE) = state(s0, seconds(tend), p)
 
 function trajectory(s0::State, tend, p::ODE)
-    tout, yout = dop853(rhs!, s0.rv, [0, tend],
-        points=:all, params=ODEParameters(s0), maxstep=p.maxstep)
+    tout, yout = propagate(s0, tend, p, :all)
     x = map(v -> v[1], yout)
     y = map(v -> v[2], yout)
     z = map(v -> v[3], yout)
@@ -93,7 +118,12 @@ end
 trajectory(s0::State, tend::EpochDelta, p::ODE) = trajectory(s0, seconds(tend), p)
 trajectory(s0::State, p::ODE) = trajectory(s0, period(s0), p)
 
-function rhs!(f::Vector{Float64}, t::Float64, y::Vector{Float64}, params::ODEParameters)
+function rhs!(f::Vector{Float64}, t::Float64, y::Vector{Float64}, p::ODEParameters)
     fill!(f, 0.0)
-    gravity!(f, y, mu(params.s0))
+    gravity!(f, y, p.propagator.gravity)
+    thirdbody!(f, t, y, p)
+end
+
+function solout!(told, t, y, contd, params)
+    return dopricode[:nominal]
 end
