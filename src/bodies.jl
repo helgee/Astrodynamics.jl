@@ -57,6 +57,7 @@ const SUN = Sun(
     [0.0],
     [0.0],
 )
+constants(::Type{Sun}) = SUN
 
 const PLANETS = (
     "Mercury",
@@ -163,7 +164,7 @@ function rotation_rate(b::CelestialBody, ep)
         + sum(b.w .* b.theta1/SEC_PER_CENTURY .* cos(theta(t, b))))
 end
 
-μ(p::Planet) = p.μ
+μ(p::CelestialBody) = p.μ
 mu = μ
 mean_radius(p::Planet) = p.mean_radius
 polar_radius(p::Planet) = p.polar_radius
