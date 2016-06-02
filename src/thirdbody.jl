@@ -1,7 +1,4 @@
 function thirdbody!(f::Vector{Float64}, t::Float64, y::Vector{Float64}, p)
-    if isempty(p.propagator.bodies)
-        return
-    end
     date = juliandate(p.s0.epoch) + t/SEC_PER_DAY
     rc = position(p.propagator.center, date)
     for body in p.propagator.bodies

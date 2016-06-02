@@ -61,6 +61,7 @@ type ODE{F<:Frame,C<:CelestialBody} <: Propagator
     gravity::AbstractModel
     integrator::Function
     maxstep::Real
+    numstep::Int
 end
 
 function ODE{F<:Frame}(;
@@ -69,6 +70,7 @@ function ODE{F<:Frame}(;
     integrator::Function=dop853,
     gravity::AbstractModel=UniformGravity(Earth),
     maxstep::Real=0.0,
+    numstep::Int=100_000,
 )
     ODE(
         bodies,
@@ -77,6 +79,7 @@ function ODE{F<:Frame}(;
         gravity,
         integrator,
         maxstep,
+        numstep,
     )
 end
 
@@ -94,11 +97,12 @@ function propagate(s0::State, tend, p::ODE, output::Symbol)
         points=output,
         params=params,
         maxstep=p.maxstep,
+        numstep=p.numstep,
     )
 end
 
 function state(s0::State, tend, p::ODE)
-    tout, yout = propagate(s0, tend, p, :last)
+    tout, yout, stats = propagate(s0, tend, p, :last)
     State(s0.epoch + EpochDelta(seconds=tout[end]), yout[end], s0.frame, s0.body)
 end
 
@@ -121,7 +125,9 @@ trajectory(s0::State, p::ODE) = trajectory(s0, period(s0), p)
 function rhs!(f::Vector{Float64}, t::Float64, y::Vector{Float64}, p::ODEParameters)
     fill!(f, 0.0)
     gravity!(f, y, p.propagator.gravity)
-    thirdbody!(f, t, y, p)
+    if !isempty(p.propagator.bodies)
+        thirdbody!(f, t, y, p)
+    end
 end
 
 function solout!(told, t, y, contd, params)
