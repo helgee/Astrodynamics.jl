@@ -1,3 +1,4 @@
+using Compat
 using JPLEphemeris
 
 import JPLEphemeris: state, position, velocity
@@ -24,8 +25,8 @@ const PLANETS = (
 )
 
 for planet in PLANETS
-    typ = symbol(planet)
-    con = symbol(uppercase(planet))
+    typ = Symbol(planet)
+    con = Symbol(uppercase(planet))
     @eval begin
         immutable $typ <: Planet
             μ::Float64

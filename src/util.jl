@@ -1,9 +1,11 @@
+using Compat
+
 function neighbors(t, root=Any)
-    supertype = super(t)
-    if supertype == root
+    super = supertype(t)
+    if super == root
         return subtypes(t)
     else
-        return push!(subtypes(t), supertype)
+        return push!(subtypes(t), super)
     end
 end
 

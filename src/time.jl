@@ -99,7 +99,7 @@ jd1(ep::Epoch) = ep.jd1
 
 scales = (:TT, :TDB, :TCB, :TCG, :TAI, :UTC, :UT1)
 for scale in scales
-    sym = symbol(scale, "Epoch")
+    sym = Symbol(scale, "Epoch")
     name = string(scale)
     @eval begin
         typealias $sym Epoch{$scale}

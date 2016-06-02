@@ -26,7 +26,7 @@ const FRAMES = (
 )
 
 for frame in FRAMES
-    sym = symbol(frame)
+    sym = Symbol(frame)
     @eval begin
         show(io::IO, ::Type{$sym}) = print(io, $frame)
     end
