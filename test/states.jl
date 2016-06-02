@@ -1,4 +1,5 @@
 using ERFA
+using Compat
 
 @testset "States" begin
     @testset "State type" begin
@@ -369,7 +370,7 @@ using ERFA
             1.00000000
         ], (6, 6))')
         for planet in Astrodynamics.PLANETS
-            p = symbol(planet)
+            p = Symbol(planet)
             @eval begin
                 @test rotation_matrix(IAU{$p}, GCRF, $ep) ≈ $matrices[$planet]
             end
