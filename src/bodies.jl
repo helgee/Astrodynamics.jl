@@ -9,9 +9,54 @@ export μ, mu, j2, mean_radius, polar_radius, equatorial_radius
 export deviation, max_elevation, max_depression, naif_id
 export right_ascension, declination, rotation_angle, rotation_rate
 export state
+export Sun, SUN
 
 abstract CelestialBody
 abstract Planet <: CelestialBody
+
+immutable Sun <: CelestialBody
+    μ::Float64
+    mean_radius::Float64
+    equatorial_radius::Float64
+    polar_radius::Float64
+    id::Int
+    ra0::Float64
+    ra1::Float64
+    ra2::Float64
+    dec0::Float64
+    dec1::Float64
+    dec2::Float64
+    w0::Float64
+    w1::Float64
+    w2::Float64
+    a::Vector{Float64}
+    d::Vector{Float64}
+    w::Vector{Float64}
+    theta0::Vector{Float64}
+    theta1::Vector{Float64}
+end
+
+const SUN = Sun(
+    1.32712440041e11,
+    696000.0,
+    696000.0,
+    696000.0,
+    10,
+    deg2rad(286.13),
+    0.0,
+    0.0,
+    deg2rad(63.87),
+    0.0,
+    0.0,
+    deg2rad(84.176),
+    deg2rad(14.1844),
+    0.0,
+    [0.0],
+    [0.0],
+    [0.0],
+    [0.0],
+    [0.0],
+)
 
 const PLANETS = (
     "Mercury",
