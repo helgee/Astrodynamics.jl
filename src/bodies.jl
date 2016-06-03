@@ -13,6 +13,7 @@ export Sun, SUN
 
 abstract CelestialBody
 abstract Planet <: CelestialBody
+abstract Satellite <: CelestialBody
 
 immutable Sun <: CelestialBody
     μ::Float64
@@ -100,8 +101,47 @@ for planet in PLANETS
             theta1::Vector{Float64}
         end
         constants(::Type{$typ}) = $con
-        export $typ
+        export $typ, $con
         show(io::IO, ::Type{$typ}) = print(io, $planet)
+    end
+end
+
+const SATELLITES = (
+    "Moon",
+)
+
+for satellite in SATELLITES
+    typ = Symbol(satellite)
+    con = Symbol(uppercase(satellite))
+    @eval begin
+        immutable $typ <: Satellite
+            μ::Float64
+            j2::Float64
+            mean_radius::Float64
+            equatorial_radius::Float64
+            polar_radius::Float64
+            deviation::Float64
+            max_elevation::Float64
+            max_depression::Float64
+            id::Int
+            ra0::Float64
+            ra1::Float64
+            ra2::Float64
+            dec0::Float64
+            dec1::Float64
+            dec2::Float64
+            w0::Float64
+            w1::Float64
+            w2::Float64
+            a::Vector{Float64}
+            d::Vector{Float64}
+            w::Vector{Float64}
+            theta0::Vector{Float64}
+            theta1::Vector{Float64}
+        end
+        constants(::Type{$typ}) = $con
+        export $typ, $con
+        show(io::IO, ::Type{$typ}) = print(io, $satellite)
     end
 end
 
@@ -110,17 +150,12 @@ for func in (:state, :position, :velocity)
         $func{T<:CelestialBody}(b::Type{T}, ep::Epoch) = $func(constants(b), juliandate(TDBEpoch(ep)))
         $func{T<:CelestialBody}(b::Type{T}, date::Float64) = $func(constants(b), date)
         function $func(b::CelestialBody, jd)
-            seg = segments(DATA.ephemeris)
-            for (origin, target) in seg
-                if b.id in keys(target)
-                    if origin != 0
-                        return $func(DATA.ephemeris, origin, jd) + $func(DATA.ephemeris, origin, b.id, jd)
-                    else
-                        return $func(DATA.ephemeris, b.id, jd)
-                    end
-                end
+            origin = b.id ÷ 100
+            if origin == 0
+                return $func(DATA.ephemeris, b.id, jd)
+            else
+                return $func(DATA.ephemeris, origin, jd) + $func(DATA.ephemeris, origin, b.id, jd)
             end
-            error("Ephemeris does not contain data for NAIF id $(b.id).")
         end
     end
 end
