@@ -17,6 +17,7 @@ type Trajectory{
     } <: AbstractTrajectory
     propagator::Type{P}
     s0::State{F,T,C}
+    s1::State{F,T,C}
     t::Vector{Float64}
     x::Vector{Float64}
     y::Vector{Float64}
@@ -37,11 +38,14 @@ function Trajectory{
         T<:Timescale,
         C<:CelestialBody,
         P<:Propagator,
-    }(p::Type{P}, s0::State{F,T,C},
+    }(p::Type{P},
+    s0::State{F,T,C},
+    s1::State{F,T,C},
     t, x, y, z, vx, vy, vz)
     Trajectory(
         p,
         s0,
+        s1,
         collect(t),
         x, y, z, vx, vy, vz,
         Spline1D(t, x, bc="error"),
@@ -61,7 +65,7 @@ function show{
     }(io::IO, tra::Trajectory{F,T,C,P})
     println(io, "Trajectory{$F, $T, $C, $P}")
     println(io, " Start date: $(tra.s0.epoch)")
-    println(io, " End date:   $(tra.s0.epoch + EpochDelta(seconds=tra.t[end]))")
+    println(io, " End date:   $(tra.s1.epoch)")
     println(io, " Frame: $F")
     println(io, " Body: $C")
     println(io, " Propagator: $P")

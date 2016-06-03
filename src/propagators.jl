@@ -48,7 +48,10 @@ function trajectory(s0::State, tend, p::Kepler)
         push!(vy, v[2])
         push!(vz, v[3])
     end
-    Trajectory(typeof(p), s0, times, x, y, z, vx, vy, vz)
+    s1 = State(s0.epoch + EpochDelta(seconds=times[end]),
+        x[end], y[end], z[end], vx[end], vy[end], vz[end],
+        s0.frame, s0.body)
+    Trajectory(typeof(p), s0, s1, times, x, y, z, vx, vy, vz)
 end
 
 trajectory(s0::State, tend::EpochDelta, p::Kepler) = trajectory(s0, seconds(tend), p::Kepler)
@@ -102,13 +105,15 @@ function propagate(s0::State, tend, p::ODE, output::Symbol)
 end
 
 function state(s0::State, tend, p::ODE)
+    s0 = State(s0, frame=p.frame, body=p.center)
     tout, yout, stats = propagate(s0, tend, p, :last)
-    State(s0.epoch + EpochDelta(seconds=tout[end]), yout[end], s0.frame, s0.body)
+    State(s0.epoch + EpochDelta(seconds=tout[end]), yout[end], p.frame, p.center)
 end
 
 state(s0::State, tend::EpochDelta, p::ODE) = state(s0, seconds(tend), p)
 
 function trajectory(s0::State, tend, p::ODE)
+    s0 = State(s0, frame=p.frame, body=p.center)
     tout, yout = propagate(s0, tend, p, :all)
     x = map(v -> v[1], yout)
     y = map(v -> v[2], yout)
@@ -116,7 +121,8 @@ function trajectory(s0::State, tend, p::ODE)
     vx = map(v -> v[4], yout)
     vy = map(v -> v[5], yout)
     vz = map(v -> v[6], yout)
-    Trajectory(typeof(p), s0, tout, x, y, z, vx, vy, vz)
+    s1 = State(s0.epoch + EpochDelta(seconds=tout[end]), yout[end], p.frame, p.center)
+    Trajectory(typeof(p), s0, s1, tout, x, y, z, vx, vy, vz)
 end
 
 trajectory(s0::State, tend::EpochDelta, p::ODE) = trajectory(s0, seconds(tend), p)
