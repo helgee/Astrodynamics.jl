@@ -368,11 +368,56 @@ using Compat
             -7.62199719E-10
             -2.98477054E-09
             1.00000000
-        ], (6, 6))')
+        ], (6, 6))',
+        "Moon" => reshape([
+            0.78257370
+            0.55976292
+            0.27247730
+            0.00000000E+00
+            0.00000000E+00
+            0.00000000E+00
+            -0.62214730
+            0.71906872
+            0.30963351
+            0.00000000E+00
+            0.00000000E+00
+            0.00000000E+00
+            -0.02260855
+            -0.41183206
+            0.91097926
+            0.00000000E+00
+            0.00000000E+00
+            0.00000000E+00
+            -1.65612960E-06
+            1.91382763E-06
+            8.24852982E-07
+            0.78257370
+            0.55976292
+            0.27247730
+            -2.08318236E-06
+            -1.49049154E-06
+            -7.24341598E-07
+            -0.62214730
+            0.71906872
+            0.30963351
+            1.24731231E-10
+            -1.15606661E-09
+            -5.19534660E-10
+            -0.02260855
+            -0.41183206
+            0.91097926
+        ], (6, 6))',
+        )
         for planet in Astrodynamics.PLANETS
             p = Symbol(planet)
             @eval begin
                 @test rotation_matrix(IAU{$p}, GCRF, $ep) ≈ $matrices[$planet]
+            end
+        end
+        for satellite in Astrodynamics.SATELLITES
+            s = Symbol(satellite)
+            @eval begin
+                @test rotation_matrix(IAU{$s}, GCRF, $ep) ≈ $matrices[$satellite]
             end
         end
         @test rotation_matrix(GCRF, IAU{Earth}, ep) ≈ matrices["GCRF"]

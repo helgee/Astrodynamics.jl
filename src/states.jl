@@ -175,15 +175,15 @@ function rotation_matrix{C<:CelestialBody}(::Type{GCRF}, ::Type{IAU{C}}, ep::Epo
     return M
 end
 
-rotation_matrix{T<:Planet}(p::Type{T}, ep::TDBEpoch) = rotation_matrix(constants(p), ep)
+rotation_matrix{T<:CelestialBody}(p::Type{T}, ep::TDBEpoch) = rotation_matrix(constants(p), ep)
 
-function rotation_matrix(p::Planet, ep::TDBEpoch)
-    α = right_ascension(p, ep)
-    δα = right_ascension_rate(p, ep)
-    δ = declination(p, ep)
-    δδ = declination_rate(p, ep)
-    ω = rotation_angle(p, ep)
-    δω = rotation_rate(p, ep)
+function rotation_matrix(b::CelestialBody, ep::TDBEpoch)
+    α = right_ascension(b, ep)
+    δα = right_ascension_rate(b, ep)
+    δ = declination(b, ep)
+    δδ = declination_rate(b, ep)
+    ω = rotation_angle(b, ep)
+    δω = rotation_rate(b, ep)
     ϕ = α + π/2
     χ = π/2 - δ
 

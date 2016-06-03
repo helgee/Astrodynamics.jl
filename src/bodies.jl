@@ -8,7 +8,7 @@ export CelestialBody, Planet
 export μ, mu, j2, mean_radius, polar_radius, equatorial_radius
 export deviation, max_elevation, max_depression, naif_id
 export right_ascension, declination, rotation_angle, rotation_rate
-export state
+export state, position, velocity
 export Sun, SUN
 
 abstract CelestialBody
@@ -118,7 +118,8 @@ for satellite in SATELLITES
             μ::Float64
             j2::Float64
             mean_radius::Float64
-            equatorial_radius::Float64
+            subplanetary_equatorial::Float64
+            along_orbit_equatorial::Float64
             polar_radius::Float64
             deviation::Float64
             max_elevation::Float64
@@ -147,9 +148,10 @@ end
 
 for func in (:state, :position, :velocity)
     @eval begin
-        $func{T<:CelestialBody}(b::Type{T}, ep::Epoch) = $func(constants(b), juliandate(TDBEpoch(ep)))
-        $func{T<:CelestialBody}(b::Type{T}, date::Float64) = $func(constants(b), date)
-        function $func(b::CelestialBody, jd)
+        $func{C<:CelestialBody}(b::Type{C}, ep::Epoch) = $func(constants(b), juliandate(TDBEpoch(ep)))
+        $func{C<:CelestialBody}(b::Type{C}, date::Float64) = $func(constants(b), date)
+        $func(b::CelestialBody, ep::Epoch) = $func(b, juliandate(TDBEpoch(ep)))
+        function $func(b::CelestialBody, jd::Float64)
             origin = b.id ÷ 100
             if origin == 0
                 return $func(DATA.ephemeris, b.id, jd)
