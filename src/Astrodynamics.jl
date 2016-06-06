@@ -1,4 +1,4 @@
-__precompile__()
+#= __precompile__() =#
 
 module Astrodynamics
 
@@ -14,6 +14,7 @@ include("math.jl")
 include("kepler.jl")
 include("rotations.jl")
 include("stumpff.jl")
+include("events.jl")
 include("propagators.jl")
 include("thirdbody.jl")
 include("gravity.jl")

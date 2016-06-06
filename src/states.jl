@@ -6,8 +6,11 @@ import Base: convert, isapprox, ==, show
 export State
 export Frame, IAU
 export GCRF, CIRF, TIRF, ITRF
+export RAC
 
 export rotation_matrix, body, rv_array, epoch, reference_frame, keplerian
+export keplerian2state, semimajoraxis, eccentricity, inclination, argumentofpericenter
+export trueanomaly
 
 abstract Frame
 
@@ -17,6 +20,7 @@ abstract TIRF <: CIRF
 abstract ITRF <: TIRF
 
 abstract IAU{C<:CelestialBody} <: GCRF
+abstract RAC <: Frame
 
 const FRAMES = (
     "GCRF",
@@ -94,6 +98,16 @@ function period(s::State)
 end
 
 keplerian(s::State) = keplerian(rv_array(s), μ(body(s)))
+semimajoraxis(s::State) = keplerian(s)[1]
+eccentricity(s::State) = keplerian(s)[2]
+inclination(s::State) = keplerian(s)[3]
+ascendingnode(s::State) = keplerian(s)[4]
+argumentofpericenter(s::State) = keplerian(s)[5]
+trueanomaly(s::State) = keplerian(s)[6]
+
+function keplerian2state(ep, sma, ecc, inc, node, peri, ano, frame=GCRF, body=Earth)
+    State(ep, cartesian(sma, ecc, inc, node, peri, ano, μ(body))..., frame, body)
+end
 
 function State{F1<:Frame, F2<:Frame, T1<:Timescale, T2<:Timescale, C1<:CelestialBody, C2<:CelestialBody}(
     s::State{F1, T1, C1}; frame::Type{F2}=s.frame, timescale::Type{T2}=s.epoch.scale, body::Type{C2}=s.body)
@@ -276,4 +290,15 @@ function rotation_matrix_generator(F2, F1, ep)
         ex = :(rotation_matrix($target, $origin, ep)*$ex)
     end
     return ex
+end
+
+
+rotation_matrix(f1::Type{RAC}, f2::Type{GCRF}, y::Vector{Float64}) = rotation_matrix(f1, f2, y[1:3], y[4:6])
+function rotation_matrix(::Type{RAC}, ::Type{GCRF}, r::Vector{Float64}, v::Vector{Float64})
+    normal = cross(r, v)
+    normal = normal / norm(normal)
+    tangential = v / norm(v)
+    orthogonal = cross(v, normal)
+    orthogonal = orthogonal / norm(orthogonal)
+    hcat(orthogonal, tangential, normal)
 end

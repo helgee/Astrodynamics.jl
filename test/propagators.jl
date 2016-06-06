@@ -43,5 +43,16 @@
         s1 = tra[ep+Δe]
         @test s1.rv ≈ [r1; v1]
         @test tra[Δt/4] ≈ s2
+        ode = ODE(events=[PericenterEvent(Stop())], maxstep=100)
+        s1 = state(s0, period(s0), ode)
+        ano = trueanomaly(s1)
+        ano = ano > π ? abs(ano - 2π) : ano
+        @test round(ano, 10) ≈ 0.0
+        ode = ODE(events=[ApocenterEvent(Stop())], maxstep=100)
+        s1 = state(s0, period(s0), ode)
+        ano = trueanomaly(s1)
+        @test ano ≈ π
+        ode = ODE(events=[ApocenterEvent(Abort())], maxstep=100)
+        @test_throws PropagatorAbort state(s0, period(s0), ode)
     end
 end
