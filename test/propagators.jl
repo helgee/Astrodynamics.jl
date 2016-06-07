@@ -34,25 +34,33 @@
         r1 = [-4219.7527, 4363.0292, -3958.7666]
         v1 = [3.689866, -1.916735, -6.112511]
         ode = ODE(maxstep=10)
-        s2 = state(s0, Δt/4, ode)
-        s1 = state(s0, Δt, ode)
+        s2, _ = state(s0, Δt/4, ode)
+        s1, _ = state(s0, Δt, ode)
         @test s1.rv ≈ [r1; v1]
-        s1 = state(s0, Δe, ode)
+        s1, _ = state(s0, Δe, ode)
         @test s1.rv ≈ [r1; v1]
-        tra = trajectory(s0, Δe, ode)
+        tra, _ = trajectory(s0, Δe, ode)
         s1 = tra[ep+Δe]
         @test s1.rv ≈ [r1; v1]
         @test tra[Δt/4] ≈ s2
-        ode = ODE(events=[PericenterEvent(Stop())], maxstep=100)
-        s1 = state(s0, period(s0), ode)
+        ode = ODE(discontinuities=[Discontinuity(PericenterEvent(), Stop())], maxstep=100)
+        s1, _ = state(s0, period(s0), ode)
         ano = trueanomaly(s1)
         ano = ano > π ? abs(ano - 2π) : ano
         @test round(ano, 10) ≈ 0.0
-        ode = ODE(events=[ApocenterEvent(Stop())], maxstep=100)
-        s1 = state(s0, period(s0), ode)
+        ode = ODE(discontinuities=[Discontinuity(ApocenterEvent(), Stop())], maxstep=100)
+        s1, _ = state(s0, period(s0), ode)
         ano = trueanomaly(s1)
         @test ano ≈ π
-        ode = ODE(events=[ApocenterEvent(Abort())], maxstep=100)
+        ode = ODE(discontinuities=[Discontinuity(ApocenterEvent(), Abort())], maxstep=100)
         @test_throws PropagatorAbort state(s0, period(s0), ode)
+        ode = ODE(discontinuities=[Discontinuity(StartEvent(), ImpulsiveManeuver(along=-1))])
+        @test_throws PropagatorAbort state(s0, period(s0), ode)
+        ode = ODE(events=[ApocenterEvent()], maxstep=10)
+        tra, _, events = trajectory(s0, period(s0)*4, ode)
+        for t in events[:index]
+            ano = trueanomaly(tra[t])
+            @test ano ≈ π
+        end
     end
 end

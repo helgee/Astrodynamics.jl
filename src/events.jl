@@ -1,3 +1,4 @@
+export Discontinuity
 export Event, detect, haspassed, gettime
 export PericenterEvent, ApocenterEvent, StartEvent, EndEvent, ImpactEvent
 export Update, apply!
@@ -12,23 +13,20 @@ type PropagatorAbort <: Exception
 end
 Base.show(io::IO, err::PropagatorAbort) = print(io, err.msg)
 
+type Discontinuity
+    event::Event
+    update::Update
+end
+
 gettime(::Event) = Nullable{Float64}()
 
-type StartEvent <: Event
-    update::Update
-end
-
+type StartEvent <: Event; end
 gettime(::StartEvent) = Nullable(0.0)
 
-type EndEvent <: Event
-    update::Update
-end
-
+type EndEvent <: Event; end
 gettime(::EndEvent) = Nullable(-1.0)
 
-type PericenterEvent <: Event
-    update::Update
-end
+type PericenterEvent <: Event; end
 
 function haspassed(::PericenterEvent, told, t, yold, y, p)
     new = keplerian(y, μ(p.center))[6]
@@ -43,9 +41,7 @@ function detect(t, contd, p, ::PericenterEvent)
     return ano
 end
 
-type ApocenterEvent <: Event
-    update::Update
-end
+type ApocenterEvent <: Event; end
 
 function haspassed(::ApocenterEvent, told, t, yold, y, p)
     new = keplerian(y, μ(p.center))[6]
@@ -59,9 +55,7 @@ function detect(t, contd, p, ::ApocenterEvent)
     return ano - π
 end
 
-type ImpactEvent <: Event
-    update::Update
-end
+type ImpactEvent <: Event; end
 
 function haspassed(::ImpactEvent, told, t, yold, y, p)
     r = norm(y[1:3]) - mean_radius(p.center)
@@ -77,21 +71,26 @@ type ImpulsiveManeuver <: Update
     Δv::Vector{Float64}
 end
 
+ImpulsiveManeuver(;radial=0.0, along=0.0, cross=0.0) = ImpulsiveManeuver([radial, along, cross])
+
 function apply!(man::ImpulsiveManeuver, t, y, p)
-    m = rotation_matrix(RAC, GCRF, y)
+    m = rotation_matrix(RAC, p.propagator.frame, y)
     y[4:6] += m*man.Δv
 end
 
 type Stop <: Update
 end
 
-function apply!(st::Stop, t, y, p)
+function apply!(::Stop, t, y, p)
     p.stop = true
 end
 
 type Abort <: Update
+    msg::AbstractString
 end
 
-function apply!(st::Abort, t, y, p)
-    throw(PropagatorAbort("Propagation aborted at t=$t."))
+Abort() = Abort("Propagation aborted.")
+
+function apply!(ab::Abort, t, y, p)
+    throw(PropagatorAbort("$(ab.msg)\nt=$t."))
 end

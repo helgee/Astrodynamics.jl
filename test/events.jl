@@ -10,10 +10,10 @@
     va0 = [-0.5559262753378653,-0.5820026447940332,-0.5986590782336557]
     ra1 = [25010.582755919266,30624.312485596525,-53114.92092328085]
     va1 = [-0.5566131811821589,-0.5828437024206758,-0.597200786329596]
-    @test haspassed(PericenterEvent(ImpulsiveManeuver(ones(3))), 0.0, 0.0, [rp0; vp0], [rp1; vp1], p) == true
-    @test haspassed(ApocenterEvent(ImpulsiveManeuver(ones(3))), 0.0, 0.0, [ra0; va0], [ra1; va1], p) == true
-    @test haspassed(PericenterEvent(ImpulsiveManeuver(ones(3))), 0.0, 0.0, [ra0; va0], [ra1; va1], p) == false
-    @test haspassed(ApocenterEvent(ImpulsiveManeuver(ones(3))), 0.0, 0.0, [rp0; vp0], [rp1; vp1], p) == false
+    @test haspassed(PericenterEvent(), 0.0, 0.0, [rp0; vp0], [rp1; vp1], p) == true
+    @test haspassed(ApocenterEvent(), 0.0, 0.0, [ra0; va0], [ra1; va1], p) == true
+    @test haspassed(PericenterEvent(), 0.0, 0.0, [ra0; va0], [ra1; va1], p) == false
+    @test haspassed(ApocenterEvent(), 0.0, 0.0, [rp0; vp0], [rp1; vp1], p) == false
     # Retrograde
     rp0 = [-6018.471046687208,465.13013820736745,177.67920909747642]
     vp0 = [0.9453096897577892,10.955372197035555,0.24709612986091817]
@@ -23,8 +23,8 @@
     va0 = [-0.09522960990164073,-0.9983032371852885,-0.0222657165437527]
     ra1 = [65885.04343638303,-6311.188618666875,-1975.484572974316]
     va1 = [-0.09703874080166261,-0.9981302155043381,-0.022211478805857457]
-    @test haspassed(PericenterEvent(ImpulsiveManeuver(ones(3))), 0.0, 0.0, [rp0; vp0], [rp1; vp1], p) == true
-    @test haspassed(ApocenterEvent(ImpulsiveManeuver(ones(3))), 0.0, 0.0, [ra0; va0], [ra1; va1], p) == true
-    @test haspassed(PericenterEvent(ImpulsiveManeuver(ones(3))), 0.0, 0.0, [ra0; va0], [ra1; va1], p) == false
-    @test haspassed(ApocenterEvent(ImpulsiveManeuver(ones(3))), 0.0, 0.0, [rp0; vp0], [rp1; vp1], p) == false
+    @test haspassed(PericenterEvent(), 0.0, 0.0, [rp0; vp0], [rp1; vp1], p) == true
+    @test haspassed(ApocenterEvent(), 0.0, 0.0, [ra0; va0], [ra1; va1], p) == true
+    @test haspassed(PericenterEvent(), 0.0, 0.0, [ra0; va0], [ra1; va1], p) == false
+    @test haspassed(ApocenterEvent(), 0.0, 0.0, [rp0; vp0], [rp1; vp1], p) == false
 end
