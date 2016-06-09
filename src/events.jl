@@ -68,7 +68,7 @@ function detect(t, contd, p, ::ImpactEvent)
 end
 
 type ImpulsiveManeuver <: Update
-    Δv::Vector{Float64}
+    Δv::Vector{Parameter}
 end
 
 ImpulsiveManeuver(;radial=0.0, along=0.0, cross=0.0) = ImpulsiveManeuver([radial, along, cross])
