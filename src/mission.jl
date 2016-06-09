@@ -18,33 +18,32 @@ type TargetOrbit <: BoundaryCondition
 end
 
 type ThrustArc
-    alpha::Float64
-    beta::Float64
+    alpha::ParameterArray
+    beta::ParameterArray
 end
 
 type Segment
-    parameters::Vector{Parameter}
+    parameters::ParameterArray
     #= start::Nullable{BoundaryCondition} =#
     #= stop::Nullable{BoundaryCondition} =#
     #= thrust::Nullable{ThrustArc} =#
-    dt::Nullable{Real}
-    test::Vector{Discontinuity}
+    dt::Parameter
+    #= test::Vector{Discontinuity} =#
     #= stop_at::Vector{Event} =#
 end
 
 function Segment(; kwargs...)
     params = Parameter[]
-    dt = Nullable{Real}(0.0)
-    test = Discontinuity[]
-    for (key, value) in kwargs
-        if key == :dt
-            dt = Nullable{Real}(value)
-        elseif key == :test
-            test = value::Vector{Discontinuity}
-        end
-        append!(params, getparameters(value))
+    for kv in kwargs
+        append!(params, getparameters(kv[end]))
     end
-    Segment(params, dt, test)
+    Segment(params; kwargs...)
+end
+
+function Segment(params::ParameterArray;
+    dt = constant(0.0),
+)
+    Segment(params, dt)
 end
 
 type Mission
@@ -55,7 +54,7 @@ macro vary(args...)
     params = Dict{Symbol,Dict{Symbol,Float64}}()
     for ex in args[1:end-1]
         if !(ex.head in (:comparison, :(=)))
-            error("Expression '$ex' is neither a comparison nor an assignment.")
+            throw(ArgumentError("Expression '$ex' is neither a comparison nor an assignment."))
         end
         if length(ex.args) == 3
             sym, op, value = ex.args
@@ -68,7 +67,12 @@ macro vary(args...)
             sym, value = ex.args
             key = :initial
         end
-        d = Dict(key=>value)
+        if !isa(value, Number)
+            v = eval(value)
+        else
+            v = value
+        end
+        d = Dict(key=>v)
         if !(sym in keys(params))
             merge!(params, Dict(sym=>d))
         else
@@ -92,7 +96,7 @@ function replace_parameters!(expr, params)
                 upper = get(params[ex], :upper, Inf)
                 lower = get(params[ex], :lower, -Inf)
                 initial = get(params[ex], :initial, (upper-lower)/2)
-                expr.args[i] = Parameter(initial, upper, lower, true)
+                expr.args[i] = Parameter(initial, lower, upper)
             end
         end
     end
