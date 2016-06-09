@@ -1,7 +1,7 @@
 export Parameter, ParameterArray, getparameters, isparameter, push!
+export lower, upper, initial, value
 
 import Base: +, *, -, /, promote_rule, convert, push!
-import Reactive: Signal
 
 type Parameter
     value::Float64
@@ -13,18 +13,22 @@ end
 
 Parameter(v) = Parameter(v, v, -Inf, Inf, true)
 Parameter(v, lower, upper) = Parameter(v, v, lower, upper, true)
+isparameter(par::Parameter) = par.variable
+lower(par::Parameter) = par.lower
+upper(par::Parameter) = par.upper
+initial(par::Parameter) = par.initial
+value(par::Parameter) = par.value
+
+function push!(par::Parameter, v)
+    par.value = v
+    return par
+end
 
 convert{T<:Real}(::Type{Parameter}, v::T) = Parameter(v, v, 0.0, 0.0, false)
 promote_rule(::Type{Parameter}, ::Type{Float64}) = Parameter
 
 typealias ParameterArray Array{Parameter,1}
 isparameter(arr::ParameterArray) = Bool[p.variable for p in arr]
-isparameter(par::Parameter) = par.variable
-
-function push!(par::Parameter, v)
-    par.value = v
-    return par
-end
 
 getparameters(par::Parameter) = par.variable ? [par] : []
 getparameters(arr::ParameterArray) = arr.array[isparameter(data)]
