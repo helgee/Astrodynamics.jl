@@ -117,7 +117,6 @@ isapprox(x::Parameter, y::Number) = isapprox(x.value, y)
 
 (+)(lhs::ParameterArray, rhs::ParameterArray) = values(lhs) + values(rhs)
 (-)(lhs::ParameterArray, rhs::ParameterArray) = values(lhs) - values(rhs)
-(*)(lhs::ParameterArray, rhs::ParameterArray) = values(lhs) * values(rhs)
 (/)(lhs::ParameterArray, rhs::ParameterArray) = values(lhs) / values(rhs)
 (\)(lhs::ParameterArray, rhs::ParameterArray) = values(lhs) \ values(rhs)
 

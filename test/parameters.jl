@@ -10,8 +10,18 @@
     @test isparameter(c) == false
     push!(p, 1)
     @test p == 1
+    @test initial(p) == 0.0
+    @test one(p) == 1.0
+    @test norm(p) == value(p)
+    @test imag(p) == 0im
+    @test isequal(1.0, p)
+    @test isequal(p, 1.0)
+    @test isless(-1.0, p)
+    @test isapprox(p, p)
+    @test isapprox(1.0, p)
     reset!(p)
     @test p == 0
+    @test 0 == p
     arr = [p, 1.0]
     @test typeof(arr) == ParameterArray
     @test isparameter(arr) == [true, false]
@@ -20,6 +30,8 @@
     @test getparameters(c) == Parameter[]
     @test getparameters(arr) == [p]
     @test getparameters([Nullable(p), Nullable(c)]) == [p]
+    @test arr ≈ arr
+    @test [0,1] ≈ arr
 
     io = IOBuffer()
     show(io, p)
