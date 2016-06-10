@@ -1,5 +1,9 @@
 using Compat
 
+export Optional
+
+typealias Optional{T} Union{T, Nullable{T}}
+
 function neighbors(t, root=Any)
     super = supertype(t)
     if super == root
@@ -40,4 +44,4 @@ function findpath(origin, target, root=Any)
     return reverse(path)
 end
 
-log(str) = println("[Astrodynamics.jl] $str")
+message(str) = println("[Astrodynamics.jl] $str")

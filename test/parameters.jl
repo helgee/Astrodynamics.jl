@@ -19,6 +19,41 @@
     @test getparameters(p) == [p]
     @test getparameters(c) == Parameter[]
     @test getparameters(arr) == [p]
+    @test getparameters([Nullable(p), Nullable(c)]) == [p]
+
+    io = IOBuffer()
+    show(io, p)
+    str = takebuf_string(io)
+    @test str == "-Inf <= 0.0 <= Inf"
+    show(io, c)
+    str = takebuf_string(io)
+    @test str == "1.0"
+
+    @test c + c == 2
+    @test c - c == 0
+    @test c * c == 1
+    @test c / c == 1
+
+    @test c + 1 == 2
+    @test c - 1 == 0
+    @test c * 1 == 1
+    @test c / 1 == 1
+    @test 1 + c == 2
+    @test 1 - c == 0
+    @test 1 * c == 1
+    @test 1 / c == 1
+
+    a = [1.0, 2.0]
+    @test c + a == [2.0, 3.0]
+    @test c - a == [0.0, -1.0]
+    @test c * a == [1.0, 2.0]
+    @test a + c == [2.0, 3.0]
+    @test a - c == [0.0, 1.0]
+    @test a * c == [1.0, 2.0]
+    @test a / c == [1.0, 2.0]
+    @test isequal(p,p)
+    @test !isequal(p,c)
+
     @test arr+3 == [3.0, 4.0]
     @test 3+arr == [3.0, 4.0]
     @test arr-3 == [-3.0, -2.0]
@@ -28,7 +63,30 @@
     @test arr/3 == [0.0, 1/3.0]
     @test p < c
     @test c > p
-    @test 3/p == Inf
+
+    @test [c, c] + [c, c] == [1, 1] + [1, 1]
+    @test [1, 1] + [c, c] == [1, 1] + [1, 1]
+    @test [c, c] + [1, 1] == [1, 1] + [1, 1]
+    @test [c, c] - [c, c] == [1, 1] - [1, 1]
+    @test [1, 1] - [c, c] == [1, 1] - [1, 1]
+    @test [c, c] - [1, 1] == [1, 1] - [1, 1]
+    @test [c, c] * [c, c]' == [1, 1] * [1, 1]'
+    @test [1, 1] * [c, c]' == [1, 1] * [1, 1]'
+    @test [c, c] * [1, 1]' == [1, 1] * [1, 1]'
+    @test [c, c] / [c, c] == [1, 1] / [1, 1]
+    @test [1, 1] / [c, c] == [1, 1] / [1, 1]
+    @test [c, c] / [1, 1] == [1, 1] / [1, 1]
+    @test [c, c] \ [c, c] == [1, 1] \ [1, 1]
+    @test [1, 1] \ [c, c] ≈ [1, 1] \ [1, 1]
+    @test [c, c] \ [1, 1] ≈ [1, 1] \ [1, 1]
+
+    @test [c, c] .* [c, c] == [1, 1] .* [1, 1]
+    @test [1, 1] .* [c, c] == [1, 1] .* [1, 1]
+    @test [c, c] .* [1, 1] == [1, 1] .* [1, 1]
+    @test [c, c] ./ [c, c] == [1, 1] ./ [1, 1]
+    @test [1, 1] ./ [c, c] == [1, 1] ./ [1, 1]
+    @test [c, c] ./ [1, 1] == [1, 1] ./ [1, 1]
+
     const fun = (
         :abs2, :acosh, :acot, :acotd, :acoth, :acsc, :acscd, :acsch, :airy, :airyai,
         :airyaiprime, :airybi, :airybiprime, :airyprime, :asec, :asecd, :asinh,

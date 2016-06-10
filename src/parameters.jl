@@ -1,8 +1,9 @@
 export Parameter, ParameterArray, getparameters, isparameter, push!, reset!
 export lower, upper, initial, value, values, constant
-export +, *, -, /, isequal, isless
+export +, *, -, /, isequal, isless, isapprox, one, zero, norm, real, imag
 
-import Base: +, *, -, /, ==, promote_rule, convert, push!, isequal, isless, values, show
+import Base: +, *, -, /, \, ==, promote_rule, convert, push!, isequal, isless
+import Base: values, show, one, zero, norm, real, imag, isapprox
 
 type Parameter
     value::Float64
@@ -34,6 +35,13 @@ lower(par::Parameter) = par.lower
 upper(par::Parameter) = par.upper
 initial(par::Parameter) = par.initial
 value(par::Parameter) = par.value
+one(::Type{Parameter}) = 1.0
+zero(::Type{Parameter}) = 0.0
+one(::Parameter) = 1.0
+zero(::Parameter) = 0.0
+norm(p::Parameter) = p.value
+real(p::Parameter) = p.value
+imag(p::Parameter) = 0im
 
 function push!(par::Parameter, v)
     par.value = v
@@ -48,7 +56,7 @@ end
 constant(v) = Parameter(v, v, v, false)
 convert{T<:Real}(::Type{Parameter}, v::T) = Parameter(v, v, v, false)
 convert(::Type{Float64}, par::Parameter) = par.value
-promote_rule(::Type{Parameter}, ::Type{Float64}) = Parameter
+promote_rule{T<:Real}(::Type{Parameter}, ::Type{T}) = Parameter
 
 typealias ParameterArray Array{Parameter,1}
 isparameter(arr::ParameterArray) = Bool[p.variable for p in arr]
@@ -74,22 +82,28 @@ function getparameters(val)
     return params
 end
 
+(+)(lhs::Parameter, rhs::Parameter) = lhs.value + rhs.value
+(-)(lhs::Parameter, rhs::Parameter) = lhs.value - rhs.value
+(*)(lhs::Parameter, rhs::Parameter) = lhs.value * rhs.value
+(/)(lhs::Parameter, rhs::Parameter) = lhs.value / rhs.value
+
 (+)(lhs::Parameter, rhs::Number) = lhs.value + rhs
 (+)(lhs::Number, rhs::Parameter) = lhs + rhs.value
-(+)(lhs::Parameter, rhs::AbstractArray) = lhs.value + rhs
-(+)(lhs::AbstractArray, rhs::Parameter) = lhs + rhs.value
 (-)(lhs::Parameter, rhs::Number) = lhs.value - rhs
 (-)(lhs::Number, rhs::Parameter) = lhs - rhs.value
-(-)(lhs::Parameter, rhs::AbstractArray) = lhs.value - rhs
-(-)(lhs::AbstractArray, rhs::Parameter) = lhs - rhs.value
 (*)(lhs::Parameter, rhs::Number) = lhs.value * rhs
 (*)(lhs::Number, rhs::Parameter) = lhs * rhs.value
-(*)(lhs::Parameter, rhs::AbstractArray) = lhs.value * rhs
-(*)(lhs::AbstractArray, rhs::Parameter) = lhs * rhs.value
 (/)(lhs::Parameter, rhs::Number) = lhs.value / rhs
 (/)(lhs::Number, rhs::Parameter) = lhs / rhs.value
-(/)(lhs::Parameter, rhs::AbstractArray) = lhs.value / rhs
+
+(+)(lhs::Parameter, rhs::AbstractArray) = lhs.value + rhs
+(+)(lhs::AbstractArray, rhs::Parameter) = lhs + rhs.value
+(-)(lhs::Parameter, rhs::AbstractArray) = lhs.value - rhs
+(-)(lhs::AbstractArray, rhs::Parameter) = lhs - rhs.value
+(*)(lhs::Parameter, rhs::AbstractArray) = lhs.value * rhs
+(*)(lhs::AbstractArray, rhs::Parameter) = lhs * rhs.value
 (/)(lhs::AbstractArray, rhs::Parameter) = lhs / rhs.value
+
 isequal(x::Number, y::Parameter) = isequal(x, y.value)
 isequal(x::Parameter, y::Number) = isequal(x.value, y)
 ==(x::Number, y::Parameter) = ==(x, y.value)
@@ -97,6 +111,28 @@ isequal(x::Parameter, y::Number) = isequal(x.value, y)
 isless(x::Parameter, y::Parameter) = isless(x.value, y.value)
 isless(x::Number, y::Parameter) = isless(x, y.value)
 isless(x::Parameter, y::Number) = isless(x.value, y)
+isapprox(x::Parameter, y::Parameter) = isapprox(x.value, y.value)
+isapprox(x::Number, y::Parameter) = isapprox(x, y.value)
+isapprox(x::Parameter, y::Number) = isapprox(x.value, y)
+
+(+)(lhs::ParameterArray, rhs::ParameterArray) = values(lhs) + values(rhs)
+(-)(lhs::ParameterArray, rhs::ParameterArray) = values(lhs) - values(rhs)
+(*)(lhs::ParameterArray, rhs::ParameterArray) = values(lhs) * values(rhs)
+(/)(lhs::ParameterArray, rhs::ParameterArray) = values(lhs) / values(rhs)
+(\)(lhs::ParameterArray, rhs::ParameterArray) = values(lhs) \ values(rhs)
+
+isapprox(lhs::ParameterArray, rhs::ParameterArray) = all(map((x, y) -> isapprox(x, y), lhs, rhs))
+isapprox(lhs::AbstractArray, rhs::ParameterArray) = all(map((x, y) -> isapprox(x, y), lhs, rhs))
+isapprox(lhs::ParameterArray, rhs::AbstractArray) = all(map((x, y) -> isapprox(x, y), lhs, rhs))
+
+(+)(lhs::ParameterArray, rhs::Number) = values(lhs) + rhs
+(+)(lhs::Number, rhs::ParameterArray) = lhs + values(rhs)
+(-)(lhs::ParameterArray, rhs::Number) = values(lhs) - rhs
+(-)(lhs::Number, rhs::ParameterArray) = lhs - values(rhs)
+(*)(lhs::ParameterArray, rhs::Number) = values(lhs) * rhs
+(*)(lhs::Number, rhs::ParameterArray) = lhs * values(rhs)
+(/)(lhs::ParameterArray, rhs::Number) = values(lhs) / rhs
+
 const fun = (
     :abs2, :acos, :acosd, :acosh, :acot, :acotd, :acoth, :acsc, :acscd, :acsch, :airy, :airyai,
     :airyaiprime, :airybi, :airybiprime, :airyprime, :asec, :asecd, :asech, :asin, :asind, :asinh,
@@ -112,11 +148,3 @@ for f in fun
         $f(par::Parameter) = $f(par.value)
     end
 end
-
-(+)(lhs::ParameterArray, rhs::Number) = values(lhs) + rhs
-(+)(lhs::Number, rhs::ParameterArray) = lhs + values(rhs)
-(-)(lhs::ParameterArray, rhs::Number) = values(lhs) - rhs
-(-)(lhs::Number, rhs::ParameterArray) = lhs - values(rhs)
-(*)(lhs::ParameterArray, rhs::Number) = values(lhs) * rhs
-(*)(lhs::Number, rhs::ParameterArray) = lhs * values(rhs)
-(/)(lhs::ParameterArray, rhs::Number) = values(lhs) / rhs

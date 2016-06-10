@@ -21,7 +21,7 @@ function download_data(;force=false)
     !isdir(PATH) && mkdir(PATH)
     for file in values(DATA_FILES)
         if !isfile(file[:path]) || force
-            log("Downloading $(file[:name]) data.")
+            message("Downloading $(file[:name]) data.")
             download(file[:url], file[:path])
         end
     end

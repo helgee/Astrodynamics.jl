@@ -3,6 +3,7 @@
 module Astrodynamics
 
 include("time.jl")
+include("util.jl")
 include("iers.jl")
 include("init.jl")
 include("bodies.jl")
@@ -21,6 +22,5 @@ include("mission.jl")
 include("thirdbody.jl")
 include("gravity.jl")
 include("trajectories.jl")
-include("util.jl")
 
 end
