@@ -12,6 +12,7 @@ abstract NoConversion <: UTC
     @testset "Epoch" begin
         dt = DateTime(2000, 1, 1, 12, 0, 0.0)
         tt = Epoch(TT, 2000, 1, 1, 12, 0, 0.0)
+        @test string(tt) == "2000-01-01T12:00:00.000 TT"
         tdb = TDBEpoch(tt)
         tcb = TCBEpoch(tt)
         tcg = TCGEpoch(tt)

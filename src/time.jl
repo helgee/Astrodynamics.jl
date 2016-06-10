@@ -47,7 +47,7 @@ type EpochDelta
 end
 
 function show{T}(io::IO, ep::Epoch{T})
-    print(io, "$(DateTime(ep)) $T")
+    print(io, "$(Dates.format(DateTime(ep), "yyyy-mm-ddTHH:MM:SS.sss")) $T")
 end
 
 EpochDelta(;days::Int=0, seconds::Real=0) = EpochDelta(days, seconds/SEC_PER_DAY)

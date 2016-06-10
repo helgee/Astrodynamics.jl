@@ -32,13 +32,8 @@
     @test arr ≈ arr
     @test [0,1] ≈ arr
 
-    io = IOBuffer()
-    show(io, p)
-    str = takebuf_string(io)
-    @test str == "-Inf <= 0.0 <= Inf"
-    show(io, c)
-    str = takebuf_string(io)
-    @test str == "1.0"
+    @test string(p) == "-Inf <= 0.0 <= Inf"
+    @test string(c) == "1.0"
 
     @test c + c == 2
     @test c - c == 0
