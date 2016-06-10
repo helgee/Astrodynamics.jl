@@ -1,8 +1,8 @@
 export Parameter, ParameterArray, getparameters, isparameter, push!, reset!
 export lower, upper, initial, value, values, constant
-export +, *, -, /, isequal, isless, isapprox, one, zero, norm, real, imag
+export +, *, -, /, <, isequal, isapprox, one, zero, norm, real, imag
 
-import Base: +, *, -, /, \, ==, promote_rule, convert, push!, isequal, isless
+import Base: +, *, -, /, \, ==, <, promote_rule, convert, push!, isequal
 import Base: values, show, one, zero, norm, real, imag, isapprox
 
 type Parameter
@@ -108,9 +108,9 @@ isequal(x::Number, y::Parameter) = isequal(x, y.value)
 isequal(x::Parameter, y::Number) = isequal(x.value, y)
 ==(x::Number, y::Parameter) = ==(x, y.value)
 ==(x::Parameter, y::Number) = ==(x.value, y)
-isless(x::Parameter, y::Parameter) = isless(x.value, y.value)
-isless(x::Number, y::Parameter) = isless(x, y.value)
-isless(x::Parameter, y::Number) = isless(x.value, y)
+(<)(x::Parameter, y::Parameter) = x.value < y.value
+(<)(x::Number, y::Parameter) = x < y.value
+(<)(x::Parameter, y::Number) = x.value < y
 isapprox(x::Parameter, y::Parameter) = isapprox(x.value, y.value)
 isapprox(x::Number, y::Parameter) = isapprox(x, y.value)
 isapprox(x::Parameter, y::Number) = isapprox(x.value, y)

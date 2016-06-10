@@ -16,7 +16,6 @@
     @test imag(p) == 0im
     @test isequal(1.0, p)
     @test isequal(p, 1.0)
-    @test isless(-1.0, p)
     @test isapprox(p, p)
     @test isapprox(1.0, p)
     reset!(p)
