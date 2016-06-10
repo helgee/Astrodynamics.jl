@@ -69,6 +69,10 @@
     @test arr/3 == [0.0, 1/3.0]
     @test p < c
     @test c > p
+    @test -1 < c
+    @test c < 3
+    @test c > -1
+    @test 3 > c
 
     @test [c, c] + [c, c] == [1, 1] + [1, 1]
     @test [1, 1] + [c, c] == [1, 1] + [1, 1]
