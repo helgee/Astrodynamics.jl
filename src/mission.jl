@@ -1,35 +1,66 @@
 export Segment, @vary
 
-abstract BoundaryCondition
+abstract Boundary
+abstract Arc
 
-type Launch <: BoundaryCondition
+type Pass <: Boundary
 end
 
-type Rendezvous <: BoundaryCondition
+type Launch <: Boundary
+    lat::Float64
+    lon::Float64
+    alt::Float64
 end
 
-type Departure <: BoundaryCondition
+type Rendezvous <: Boundary
+    target::Symbol
+    segment::Int
 end
 
-type InitialOrbit <: BoundaryCondition
+type Departure <: Boundary
+    parent::Symbol
+    segment::Int
 end
 
-type TargetOrbit <: BoundaryCondition
+type InitialOrbit <: Boundary
+    state::State
 end
 
-type ThrustArc
+type TargetOrbit <: Boundary
+    sma::Nullable{Float64}
+    ecc::Nullable{Float64}
+    inc::Nullable{Float64}
+    node::Nullable{Float64}
+    peri::Nullable{Float64}
+    ano::Nullable{Float64}
+end
+
+function TargetOrbit(;
+    sma = Nullable{Float64}(),
+    ecc = Nullable{Float64}(),
+    inc = Nullable{Float64}(),
+    node = Nullable{Float64}(),
+    peri = Nullable{Float64}(),
+    ano = Nullable{Float64}(),
+)
+    TargetOrbit(sma, ecc, inc, node, peri, ano)
+end
+
+type ThrustArc <: Arc
     alpha::ParameterArray
     beta::ParameterArray
 end
 
+type Coast <: Arc
+end
+
 type Segment
     parameters::ParameterArray
-    #= start::Nullable{BoundaryCondition} =#
-    #= stop::Nullable{BoundaryCondition} =#
-    #= thrust::Nullable{ThrustArc} =#
     dt::Parameter
-    #= test::Vector{Discontinuity} =#
-    #= stop_at::Vector{Event} =#
+    start::Boundary
+    stop::Boundary
+    thrust::Arc
+    propagator::Propagator
 end
 
 function Segment(; kwargs...)
@@ -42,8 +73,12 @@ end
 
 function Segment(params::ParameterArray;
     dt = constant(0.0),
+    start = Pass(),
+    stop = Pass(),
+    thrust = Coast(),
+    propagator = ODE(),
 )
-    Segment(params, dt)
+    Segment(params, dt, start, stop, thrust, propagator)
 end
 
 type Mission
@@ -53,7 +88,7 @@ end
 macro vary(args...)
     params = Dict{Symbol,Dict{Symbol,Float64}}()
     for ex in args[1:end-1]
-        if !(ex.head in (:comparison, :(=)))
+        if !(ex.head in (:comparison, :(=), :kw))
             throw(ArgumentError("Expression '$ex' is neither a comparison nor an assignment."))
         end
         if length(ex.args) == 3
@@ -79,12 +114,12 @@ macro vary(args...)
             merge!(params[sym], d)
         end
     end
-    seg = args[end]
-    if seg.args[1] != :Segment
-        throw(ArgumentError("Final argument must be a Segment initialization expression."))
+    typ = args[end]
+    if typ.head != :call
+        throw(ArgumentError("The last expression must be a type instantiation."))
     end
-    replace_parameters!(seg, params)
-    return seg
+    replace_parameters!(typ, params)
+    return typ
 end
 
 function replace_parameters!(expr, params)
