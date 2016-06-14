@@ -1,85 +1,12 @@
-export Segment, @vary
+export @vary
 
-abstract Boundary
-abstract Arc
+abstract Constraint
 
-type Pass <: Boundary
-end
-
-type Launch <: Boundary
-    lat::Float64
-    lon::Float64
-    alt::Float64
-end
-
-type Rendezvous <: Boundary
-    target::Symbol
-    segment::Int
-end
-
-type Departure <: Boundary
-    parent::Symbol
-    segment::Int
-end
-
-type InitialOrbit <: Boundary
-    state::State
-end
-
-type TargetOrbit <: Boundary
-    sma::Nullable{Float64}
-    ecc::Nullable{Float64}
-    inc::Nullable{Float64}
-    node::Nullable{Float64}
-    peri::Nullable{Float64}
-    ano::Nullable{Float64}
-end
-
-function TargetOrbit(;
-    sma = Nullable{Float64}(),
-    ecc = Nullable{Float64}(),
-    inc = Nullable{Float64}(),
-    node = Nullable{Float64}(),
-    peri = Nullable{Float64}(),
-    ano = Nullable{Float64}(),
-)
-    TargetOrbit(sma, ecc, inc, node, peri, ano)
-end
-
-type ThrustArc <: Arc
-    alpha::ParameterArray
-    beta::ParameterArray
-end
-
-type Coast <: Arc
-end
-
-type Segment
-    parameters::ParameterArray
-    dt::Parameter
-    start::Boundary
-    stop::Boundary
-    thrust::Arc
-    propagator::Propagator
-end
-
-function Segment(; kwargs...)
-    params = Parameter[]
-    for kv in kwargs
-        append!(params, getparameters(kv[end]))
-    end
-    Segment(params; kwargs...)
-end
-
-function Segment(params::ParameterArray;
-    dt = constant(0.0),
-    start = Pass(),
-    stop = Pass(),
-    thrust = Coast(),
-    propagator = ODE(),
-)
-    Segment(params, dt, start, stop, thrust, propagator)
-end
+include("mission/boundaries.jl")
+include("mission/arc.jl")
+include("mission/segments.jl")
+include("mission/constraints.jl")
+include("mission/solvers.jl")
 
 type Mission
     sequences::Dict{Symbol, Vector{Segment}}

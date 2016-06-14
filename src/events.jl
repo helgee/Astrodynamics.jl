@@ -72,6 +72,7 @@ type ImpulsiveManeuver <: Update
 end
 
 ImpulsiveManeuver(;radial=0.0, along=0.0, cross=0.0) = ImpulsiveManeuver([radial, along, cross])
+deltav(man::ImpulsiveManeuver) = norm(man.Δv)
 
 function apply!(man::ImpulsiveManeuver, t, y, p)
     m = rotation_matrix(RAC, p.propagator.frame, y)
