@@ -62,6 +62,8 @@ typealias ParameterArray Array{Parameter,1}
 isparameter(arr::ParameterArray) = Bool[p.variable for p in arr]
 values(arr::ParameterArray) = map(value, arr)
 
+getparameters(::DataType) = []
+getparameters(::Function) = []
 getparameters(par::Parameter) = par.variable ? [par] : []
 getparameters(arr::ParameterArray) = arr[isparameter(arr)]
 function getparameters(arr::AbstractArray)
