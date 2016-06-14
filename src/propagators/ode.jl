@@ -52,11 +52,13 @@ type ODEParameters
     events::Vector{Event}
     detect::Bool
     stop::Bool
+    current::Int
 end
 
 function propagate(s0::State, tend, propagator::ODE, output::Symbol)
     dindex = map(d -> gettime(d.event), propagator.discontinuities)
-    params = ODEParameters(propagator, s0, tend, dindex, Float64[], Event[], true, false)
+    current = 0
+    params = ODEParameters(propagator, s0, tend, dindex, Float64[], Event[], true, false, current)
     y = s0.rv
     t0 = 0.0
     times = [t0]
@@ -65,6 +67,7 @@ function propagate(s0::State, tend, propagator::ODE, output::Symbol)
     for (i, t) in enumerate(params.dindex)
         # Detect discontinuity
         if isnull(t)
+            params.current = i
             # Do not detect transient events
             params.detect = false
             tout, yout = propagator.integrator(rhs!, y, [t0, tend],
@@ -175,9 +178,18 @@ function solout!(told, t, y, contd, params)
                 end
             end
         end
+        if params.current != 0
+            td = params.dindex[params.current]
+            discontinuity = params.propagator.discontinuities[params.current]
+            if isnull(td) && haspassed(discontinuity.event, told, t, yold, y, params.propagator)
+                f(t) = detect(t, contd, params.propagator, discontinuity.event)
+                params.dindex[params.current] = Nullable(fzero(f, told, t))
+                return dopricode[:abort]
+            end
+        end
     end
     code = :nominal
-    for ((i, tdisc), discontinuity) in zip(enumerate(params.dindex), params.propagator.discontinuities)
+    for (tdisc, discontinuity) in zip(params.dindex, params.propagator.discontinuities)
         if !isnull(tdisc) && get(tdisc) == t
             apply!(discontinuity.update, t, y, params)
             code = :altered
@@ -187,10 +199,6 @@ function solout!(told, t, y, contd, params)
         # Handle EndEvents
         elseif !isnull(tdisc) && get(tdisc) == -1 && (params.stop || t == params.tend)
             apply!(discontinuity.update, t, y, params)
-        elseif !firststep && isnull(tdisc) && haspassed(discontinuity.event, told, t, yold, y, params.propagator)
-            f(t) = detect(t, contd, params.propagator, discontinuity.event)
-            params.dindex[i] = Nullable(fzero(f, told, t))
-            return dopricode[:abort]
         end
     end
     return dopricode[code]
