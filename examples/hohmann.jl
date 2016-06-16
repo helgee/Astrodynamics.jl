@@ -37,3 +37,5 @@ seg = Segment(
     ),
     propagator = ode,
 )
+
+minimize(seg, DeltaV(), NLoptSolver())
