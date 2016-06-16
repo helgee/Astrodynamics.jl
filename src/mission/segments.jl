@@ -1,4 +1,6 @@
-export Segment, resetparameters!, setparameters!
+import Base: copy
+
+export Segment, resetparameters!, setparameters!, parameters, copy
 
 type Segment
     parameters::ParameterArray
@@ -7,7 +9,7 @@ type Segment
     stop::Boundary
     arc::Arc
     propagator::Propagator
-    constraints::Vector{Constraint}
+    constraints::Vector{AbstractConstraint}
 end
 
 type SegmentResult
@@ -31,7 +33,7 @@ function Segment(params::ParameterArray;
     stop = Pass(),
     arc = Coast(),
     propagator = ODE(),
-    constraints = Constraint[],
+    constraints = AbstractConstraint[],
 )
     Segment(params, dt, start, stop, arc, propagator, constraints)
 end
@@ -45,22 +47,18 @@ end
 
 resetparameters!(seg::Segment) = foreach(reset!, seg.parameters)
 lowerbounds(seg::Segment) = map(lower, seg.parameters)
-upperbounds(seg::Segment) = map(lower, seg.parameters)
+upperbounds(seg::Segment) = map(upper, seg.parameters)
+values(seg::Segment) = map(value, seg.parameters)
+parameters(seg::Segment) = seg.parameters
 
 function propagate(seg::Segment)
     s0 = seg.start.state
     SegmentResult(seg, trajectory(s0, seg.dt, seg.propagator)...)
 end
 
-function obj_gradient!(g, seg::Segment)
-    n = length(seg.parameters)
-end
-
-function gradient!(x, idx, seg::Segment, con::Constraint)
-    dx = sqrt(eps()) * (1.0 + abs(x[idx]))
-    push!(seg.parameters[idx], x+dx)
-    res = propagate(seg)
-    val = evaluate(con, res)
-    reset!(seg.parameters[idx])
-    return val
+function copy(seg::Segment)
+    output = deepcopy(seg)
+    empty!(output.parameters)
+    output.parameters = getparameters(seg)
+    return output
 end

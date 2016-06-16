@@ -62,6 +62,12 @@ typealias ParameterArray Array{Parameter,1}
 isparameter(arr::ParameterArray) = Bool[p.variable for p in arr]
 values(arr::ParameterArray) = map(value, arr)
 
+function push!(par::ParameterArray, v::Vector)
+    for (par, val) in zip(par, v)
+        push!(par, val)
+    end
+end
+
 getparameters(::DataType) = []
 getparameters(::Function) = []
 getparameters(par::Parameter) = par.variable ? [par] : []

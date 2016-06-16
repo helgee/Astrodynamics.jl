@@ -1,6 +1,6 @@
-export @vary
+export @vary, AbstractConstraint
 
-abstract Constraint
+abstract AbstractConstraint
 
 include("mission/boundaries.jl")
 include("mission/arc.jl")

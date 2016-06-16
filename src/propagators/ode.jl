@@ -8,7 +8,7 @@ type ODE{F<:Frame,C<:CelestialBody,E<:Event} <: Propagator
     center::Type{C}
     frame::Type{F}
     gravity::AbstractModel
-    integrator::Function
+    integrator::Symbol
     maxstep::Real
     numstep::Int
     discontinuities::Vector{Discontinuity}
@@ -19,7 +19,7 @@ end
 function ODE{F<:Frame}(;
     bodies=DataType[],
     frame::Type{F}=GCRF,
-    integrator::Function=dop853,
+    integrator::Symbol=:dop853,
     gravity::AbstractModel=UniformGravity(Earth),
     maxstep::Real=0.0,
     numstep::Int=100_000,
@@ -56,6 +56,7 @@ type ODEParameters
 end
 
 function propagate(s0::State, tend, propagator::ODE, output::Symbol)
+    integrator = eval(propagator.integrator)
     dindex = map(d -> gettime(d.event), propagator.discontinuities)
     current = 0
     params = ODEParameters(propagator, s0, tend, dindex, Float64[], Event[], true, false, current)
@@ -70,7 +71,7 @@ function propagate(s0::State, tend, propagator::ODE, output::Symbol)
             params.current = i
             # Do not detect transient events
             params.detect = false
-            tout, yout = propagator.integrator(rhs!, y, [t0, tend],
+            tout, yout = integrator(rhs!, y, [t0, tend],
                 solout=solout!,
                 points=:last,
                 params=params,
@@ -79,14 +80,15 @@ function propagate(s0::State, tend, propagator::ODE, output::Symbol)
             )
             t = params.dindex[i]
             if isnull(t)
-                error("Event $i could not be detected.")
+                #= error("Event $i could not be detected.") =#
+                continue
             end
             params.detect = true
         end
 
         t1 = get(t)
         if t1 != 0.0
-            tout, yout = propagator.integrator(rhs!, y, [t0, t1],
+            tout, yout = integrator(rhs!, y, [t0, t1],
                 solout=solout!,
                 points=output,
                 params=params,
@@ -102,7 +104,7 @@ function propagate(s0::State, tend, propagator::ODE, output::Symbol)
         end
     end
     if !params.stop && t0 != tend
-        tout, yout = propagator.integrator(rhs!, y, [t0, tend],
+        tout, yout = integrator(rhs!, y, [t0, tend],
             solout=solout!,
             points=output,
             params=params,

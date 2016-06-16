@@ -1,6 +1,5 @@
 using Dierckx
-#= using PlotlyJS =#
-using UnicodePlots
+using PyPlot
 
 import Base: getindex, endof, show
 #= import PlotlyJS: plot =#
@@ -69,10 +68,6 @@ function show{
     println(io, " Frame: $F")
     println(io, " Body: $C")
     println(io, " Propagator: $P")
-    plt = lineplot(tra.x, tra.y, color=:red, title="XY")
-    print(io, plt)
-    plt = lineplot(tra.x, tra.z, color=:red, title="XZ")
-    print(io, plt)
 end
 
 function interpolate(tra::Trajectory, time)
@@ -104,16 +99,18 @@ end
 
 endof(tra::Trajectory) = tra.t[end]
 
-#= function plot{F<:Frame, T<:Timescale, C<:CelestialBody}(tra::Trajectory{F,T,C}) =#
-#=     re = equatorial_radius(constants(C)) =#
-#=     rp = polar_radius(constants(C)) =#
-#=     n = 100 =#
-#=     θ = linspace(-π/2, π/2, n) =#
-#=     ϕ = linspace(0, 2π, n) =#
-#=     x = [re * cos(i) * cos(j) for i in θ, j in ϕ] =#
-#=     y = [re * cos(i) * sin(j) for i in θ, j in ϕ] =#
-#=     z = [rp * sin(i) for i in θ, j in ϕ]; =#
-#=     s = surface(x=x, y=y, z=z, colorscale="Blues") =#
-#=     p = scatter3d(;x=tra.x, y=tra.y, z=tra.z, mode="lines", line=attr(color="rgb(255,0,0)")) =#
-#=     plot([s, p]) =#
-#= end =#
+function plot{F<:Frame, T<:Timescale, C<:CelestialBody}(tra::Trajectory{F,T,C})
+    re = equatorial_radius(constants(C))
+    rp = polar_radius(constants(C))
+    n = 100
+    θ = linspace(-π/2, π/2, n)
+    ϕ = linspace(0, 2π, n)
+    x = [re * cos(i) * cos(j) for i in θ, j in ϕ]
+    y = [re * cos(i) * sin(j) for i in θ, j in ϕ]
+    z = [rp * sin(i) for i in θ, j in ϕ];
+    plot_surface(x, y, z, cmap="Blues")
+    times = linspace(tra.t[1], tra.t[end], length(tra.t)*10)
+    plot3D(evaluate(tra.xspl, times), evaluate(tra.yspl, times), evaluate(tra.zspl, times), color="red")
+    #= p = scatter3d(;x=tra.x, y=tra.y, z=tra.z, mode="lines", line=attr(color="rgb(255,0,0)")) =#
+    #= plot([s, p]) =#
+end
