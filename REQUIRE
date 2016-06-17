@@ -6,5 +6,6 @@ Dopri
 ERFA
 JPLEphemeris
 Interpolations
-UnicodePlots
 Roots
+NLopt
+PyPlot
