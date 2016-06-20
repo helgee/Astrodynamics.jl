@@ -13,7 +13,7 @@ type PropagatorAbort <: Exception
 end
 Base.show(io::IO, err::PropagatorAbort) = print(io, err.msg)
 
-type Discontinuity
+immutable Discontinuity
     event::Event
     update::Update
 end
@@ -74,16 +74,16 @@ end
 ImpulsiveManeuver(;radial=0.0, along=0.0, cross=0.0) = ImpulsiveManeuver([radial, along, cross])
 deltav(man::ImpulsiveManeuver) = norm(man.Δv)
 
-function apply!(man::ImpulsiveManeuver, t, y, p)
-    m = rotation_matrix(RAC, p.propagator.frame, y)
+function apply!(man::ImpulsiveManeuver, t, y, params, propagator)
+    m = rotation_matrix(RAC, propagator.frame, y)
     y[4:6] += m*man.Δv
 end
 
 type Stop <: Update
 end
 
-function apply!(::Stop, t, y, p)
-    p.stop = true
+function apply!(::Stop, t, y, params, propagator)
+    params.stop = true
 end
 
 type Abort <: Update
@@ -92,6 +92,6 @@ end
 
 Abort() = Abort("Propagation aborted.")
 
-function apply!(ab::Abort, t, y, p)
+function apply!(ab::Abort, t, y, params, propagator)
     throw(PropagatorAbort("$(ab.msg)\nt=$t."))
 end

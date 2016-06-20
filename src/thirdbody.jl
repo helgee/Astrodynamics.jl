@@ -1,7 +1,7 @@
-function thirdbody!(f::Vector{Float64}, t::Float64, y::Vector{Float64}, p)
-    date = juliandate(p.s0.epoch) + t/SEC_PER_DAY
-    rc = position(p.propagator.center, date)
-    for body in p.propagator.bodies
+function thirdbody!(f::Vector{Float64}, t::Float64, y::Vector{Float64}, params, propagator)
+    date = juliandate(params.s0.epoch) + t/SEC_PER_DAY
+    rc = position(propagator.center, date)
+    for body in propagator.bodies
         mu3 = μ(body)
         r3 = position(body, date) - rc
         rs = y[1:3] - r3

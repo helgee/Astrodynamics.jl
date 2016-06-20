@@ -14,6 +14,7 @@ type ODE{F<:Frame,C<:CelestialBody,E<:Event} <: Propagator
     discontinuities::Vector{Discontinuity}
     events::Vector{E}
     abort::Vector{Discontinuity}
+    display_warnings::Bool
 end
 
 function ODE{F<:Frame}(;
@@ -26,6 +27,7 @@ function ODE{F<:Frame}(;
     discontinuities=Discontinuity[],
     events=Event[],
     abort=[Discontinuity(ImpactEvent(), Abort("Impact detected."))],
+    display_warnings=false,
 )
     ODE(
         bodies,
@@ -38,19 +40,18 @@ function ODE{F<:Frame}(;
         discontinuities,
         events,
         abort,
+        display_warnings,
     )
 end
 
 show(io::IO, ::Type{ODE}) = print(io, "ODE")
 
 type ODEParameters
-    propagator::ODE
     s0::State
     tend::Float64
     dindex::Vector{Nullable{Float64}}
     eindex::Vector{Float64}
     events::Vector{Event}
-    detect::Bool
     stop::Bool
     current::Int
 end
@@ -58,8 +59,9 @@ end
 function propagate(s0::State, tend, propagator::ODE, output::Symbol)
     integrator = eval(propagator.integrator)
     dindex = map(d -> gettime(d.event), propagator.discontinuities)
+    stop = false
     current = 0
-    params = ODEParameters(propagator, s0, tend, dindex, Float64[], Event[], true, false, current)
+    params = ODEParameters(s0, tend, dindex, Float64[], Event[], stop, current)
     y = s0.rv
     t0 = 0.0
     times = [t0]
@@ -69,29 +71,26 @@ function propagate(s0::State, tend, propagator::ODE, output::Symbol)
         # Detect discontinuity
         if isnull(t)
             params.current = i
-            # Do not detect transient events
-            params.detect = false
-            tout, yout = integrator(rhs!, y, [t0, tend],
-                solout=solout!,
+            tout, yout = integrator((f, t, y) -> rhs!(f, t, y, params, propagator), y, [t0, tend],
+                solout=(told, t, y, contd) -> detect_discontinuities!(told, t, y, contd, params, propagator),
                 points=:last,
-                params=params,
                 maxstep=propagator.maxstep,
                 numstep=propagator.numstep,
             )
             t = params.dindex[i]
             if isnull(t)
-                #= error("Event $i could not be detected.") =#
+                if propagator.display_warnings
+                    warn("Event $i could not be detected.")
+                end
                 continue
             end
-            params.detect = true
         end
 
         t1 = get(t)
         if t1 != 0.0
-            tout, yout = integrator(rhs!, y, [t0, t1],
-                solout=solout!,
+            tout, yout = integrator((f, t, y) -> rhs!(f, t, y, params, propagator), y, [t0, t1],
+                solout=(told, t, y, contd) -> handle_events!(told, t, y, contd, params, propagator),
                 points=output,
-                params=params,
                 maxstep=propagator.maxstep,
                 numstep=propagator.numstep,
             )
@@ -104,10 +103,9 @@ function propagate(s0::State, tend, propagator::ODE, output::Symbol)
         end
     end
     if !params.stop && t0 != tend
-        tout, yout = integrator(rhs!, y, [t0, tend],
-            solout=solout!,
+        tout, yout = integrator((f, t, y) -> rhs!(f, t, y, params, propagator), y, [t0, tend],
+            solout=(told, t, y, contd) -> handle_events!(told, t, y, contd, params, propagator),
             points=output,
-            params=params,
             maxstep=propagator.maxstep,
             numstep=propagator.numstep,
         )
@@ -152,56 +150,66 @@ end
 trajectory(s0::State, tend::EpochDelta, p::ODE) = trajectory(s0, seconds(tend), p)
 trajectory(s0::State, p::ODE) = trajectory(s0, period(s0), p)
 
-function rhs!(f::Vector{Float64}, t::Float64, y::Vector{Float64}, p::ODEParameters)
+function rhs!(f::Vector{Float64}, t::Float64, y::Vector{Float64}, params, propagator)
     fill!(f, 0.0)
-    gravity!(f, y, p.propagator.gravity)
-    if !isempty(p.propagator.bodies)
-        thirdbody!(f, t, y, p)
+    gravity!(f, y, propagator.gravity)
+    if !isempty(propagator.bodies)
+        thirdbody!(f, t, y, params, propagator)
     end
 end
 
-function solout!(told, t, y, contd, params)
+function detect_abort(told::Float64, t::Float64, yold::Vector{Float64}, y::Vector{Float64}, params, propagator)
+    for discontinuity in propagator.abort
+        if haspassed(discontinuity.event, told, t, yold, y, propagator)
+            apply!(discontinuity.update, t, y, params, propagator)
+        end
+    end
+end
+
+function detect_discontinuities!(told::Float64, t::Float64, y::Vector{Float64}, contd, params, propagator)
     firststep = t == told
     if !firststep
         yold = Float64[contd(i, told) for i = 1:length(y)]
-        # Detect abort conditions
-        for discontinuity in params.propagator.abort
-            if haspassed(discontinuity.event, told, t, yold, y, params.propagator)
-                apply!(discontinuity.update, t, y, params)
-            end
-        end
-        # Detect transient events
-        if params.detect
-            for event in params.propagator.events
-                if haspassed(event, told, t, yold, y, params.propagator)
-                    f(t) = detect(t, contd, params.propagator, event)
-                    push!(params.eindex, fzero(f, told, t))
-                    push!(params.events, event)
-                end
-            end
-        end
+        detect_abort(told, t, yold, y, params, propagator)
         if params.current != 0
             td = params.dindex[params.current]
-            discontinuity = params.propagator.discontinuities[params.current]
-            if isnull(td) && haspassed(discontinuity.event, told, t, yold, y, params.propagator)
-                f(t) = detect(t, contd, params.propagator, discontinuity.event)
+            discontinuity = propagator.discontinuities[params.current]
+            if isnull(td) && haspassed(discontinuity.event, told, t, yold, y, propagator)
+                f(t) = detect(t, contd, propagator, discontinuity.event)
                 params.dindex[params.current] = Nullable(fzero(f, told, t))
                 return dopricode[:abort]
             end
         end
     end
+    dopricode[:nominal]
+end
+
+function handle_events!(told::Float64, t::Float64, y::Vector{Float64}, contd, params, propagator)
+    firststep = t == told
+    if !firststep
+        yold = Float64[contd(i, told) for i = 1:length(y)]
+        detect_abort(told, t, yold, y, params, propagator)
+        # Detect transient events
+        for event in propagator.events
+            if haspassed(event, told, t, yold, y, propagator)
+                f(t) = detect(t, contd, propagator, event)
+                push!(params.eindex, fzero(f, told, t))
+                push!(params.events, event)
+            end
+        end
+    end
     code = :nominal
-    for (tdisc, discontinuity) in zip(params.dindex, params.propagator.discontinuities)
+    for (tdisc, discontinuity) in zip(params.dindex, propagator.discontinuities)
         if !isnull(tdisc) && get(tdisc) == t
-            apply!(discontinuity.update, t, y, params)
+            apply!(discontinuity.update, t, y, params, propagator)
             code = :altered
             if params.stop
                 code = :abort
             end
         # Handle EndEvents
         elseif !isnull(tdisc) && get(tdisc) == -1 && (params.stop || t == params.tend)
-            apply!(discontinuity.update, t, y, params)
+            apply!(discontinuity.update, t, y, params, propagator)
         end
     end
-    return dopricode[code]
+    dopricode[code]
 end
