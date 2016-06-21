@@ -222,15 +222,6 @@ function rotation_matrix(::Type{GCRF}, ::Type{CIRF}, ep::Epoch)
     return M
 end
 
-function rotation_matrix(data::IAU2000, ep::TTEpoch)
-    dx, dy = interpolate(data, ep)
-    x, y = eraXy06(ep.jd, ep.jd1)
-    s = eraS06(ep.jd, ep.jd1, x, y)
-    x += dx
-    y += dy
-    reshape(eraC2ixys(x, y, s), (3,3))
-end
-
 function rotation_matrix(::Type{TIRF}, ::Type{CIRF}, ep::Epoch)
     ut1 = UT1Epoch(ep)
     era = eraEra00(ut1.jd, ut1.jd1)
@@ -255,9 +246,18 @@ function rotation_matrix(::Type{CIRF}, ::Type{TIRF}, ep::Epoch)
     return M
 end
 
-function rotation_matrix(data::PolarMotion, ep::TTEpoch)
-    xp, yp = interpolate(data, ep)
-    reshape(eraPom00(xp, yp, eraSp00(ep.jd, ep.jd1)), (3,3))
+function rotation_matrix(data::IERSData, ep::TTEpoch)
+    if data.dtype == :polarmotion
+        xp, yp = interpolate(data, ep)
+        reshape(eraPom00(xp, yp, eraSp00(ep.jd, ep.jd1)), (3,3))
+    elseif data.dtype == :iau2000
+        dx, dy = interpolate(data, ep)
+        x, y = eraXy06(ep.jd, ep.jd1)
+        s = eraS06(ep.jd, ep.jd1, x, y)
+        x += dx
+        y += dy
+        reshape(eraC2ixys(x, y, s), (3,3))
+    end
 end
 
 function rotation_matrix(::Type{ITRF}, ::Type{TIRF}, ep::Epoch)

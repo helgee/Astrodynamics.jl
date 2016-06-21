@@ -63,7 +63,8 @@ isless{T<:Timescale}(ep1::Epoch{T}, ep2::Epoch{T}) = juliandate(ep1) < juliandat
 (+){T<:Timescale}(ep::Epoch{T}, ed::EpochDelta) = Epoch(T, ep.jd+ed.jd, ep.jd1+ed.jd1)
 
 function Epoch{T<:Timescale}(scale::Type{T}, jd::Float64, jd1::Float64=0.0)
-    Epoch(scale, jd, jd1, leapseconds(jd+jd1), dut1(jd+jd1))
+    ΔUT1 = interpolate(DATA.dut1, jd - MJD + jd1, true, false)[1]
+    Epoch(scale, jd, jd1, leapseconds(jd+jd1), ΔUT1)
 end
 
 function Epoch{T<:Timescale}(scale::Type{T}, year::Int, month::Int, day::Int,
@@ -290,4 +291,3 @@ function leapseconds(lsk::LSK, dt::DateTime)
 end
 leapseconds(dt::DateTime) = leapseconds(DATA.leapseconds, dt)
 leapseconds(jd::Float64) = leapseconds(DATA.leapseconds, julian2datetime(jd))
-dut1(jd::Float64) = interpolate(DATA.dut1, jd - MJD)

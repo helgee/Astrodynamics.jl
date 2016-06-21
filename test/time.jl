@@ -42,7 +42,7 @@ abstract NoConversion <: UTC
         @test Epoch(TT, J2000) ≈ tt
         @test jd2000(tt) ≈ 0
         @test jd1950(Epoch(TT, 1950, 1, 1, 12)) ≈ 0
-        @test centuries(Epoch(TT, 2100, 1, 1, 12)) == 1
+        @test centuries(Epoch(TT, 2010, 1, 1)) == 0.1
         @test days(Epoch(TT, 2000, 1, 2, 12)) == 1
 
         @test tai ≈ TAIEpoch(utc)

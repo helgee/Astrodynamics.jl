@@ -3,10 +3,10 @@ using JPLEphemeris
 type AstrodynamicsData
     ephemeris::SPK
     leapseconds::LSK
-    polarmotion::PolarMotion
-    dut1::DUT1
-    iau1980::IAU1980
-    iau2000::IAU2000
+    polarmotion::IERSData
+    dut1::IERSData
+    iau1980::IERSData
+    iau2000::IERSData
 end
 
 const PATH = normpath(joinpath(splitdir(@__FILE__)[1],"..","data"))
