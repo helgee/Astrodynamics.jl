@@ -15,7 +15,8 @@ end
 macro vary(args...)
     params = Dict{Symbol,Dict{Symbol,Float64}}()
     for ex in args[1:end-1]
-        if !(ex.head in (:comparison, :(=), :kw))
+        if !(ex.head in (:comparison, :(=), :kw)
+             || ex.head == :call && ex.args[1] in (:(<=), :(>=)))
             throw(ArgumentError("Expression '$ex' is neither a comparison nor an assignment."))
         end
         if length(ex.args) == 3
