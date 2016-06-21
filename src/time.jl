@@ -11,7 +11,7 @@ export days, centuries, seconds
 export juliandate, jd2000, jd1950
 export JULIAN_CENTURY, SEC_PER_DAY, SEC_PER_CENTURY
 export J2000, J1950, MJD
-export rad2dms, dms2rad, show
+export rad2dms, dms2rad, string
 
 const JULIAN_CENTURY = 36525
 const SEC_PER_DAY = 86400
@@ -106,6 +106,7 @@ for scale in scales
         typealias $sym Epoch{$scale}
         export $sym, $scale
         show(io::IO, ::Type{$scale}) = print(io, $name)
+        #= string(::Type{$scale}) = $name =#
     end
 end
 # Constructor for typealiases
