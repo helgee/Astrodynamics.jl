@@ -2,7 +2,7 @@ using Base.Dates
 using Compat
 using ERFA
 
-import Base: convert, -, +, ==, isless, isapprox, show
+import Base: convert, -, +, ==, isless, isapprox, show, string
 
 export Epoch, Timescale
 export EpochDelta
@@ -106,6 +106,7 @@ for scale in scales
         typealias $sym Epoch{$scale}
         export $sym, $scale
         show(io::IO, ::Type{$scale}) = print(io, $name)
+        string(::Type{$scale}) = $name
     end
 end
 # Constructor for typealiases
