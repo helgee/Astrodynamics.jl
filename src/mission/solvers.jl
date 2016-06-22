@@ -61,10 +61,12 @@ function gradient(sol::Solver, idx::Int, x::Vector{Float64}, mission, con::Abstr
     @show p[idx]
     res = propagate(mission)
     val = evaluate(con, res)
+    @show val
     if sol.differences == :central
         push!(p[idx], x[idx] - 2dx)
         res = propagate(mission)
         bval = evaluate(con, res)
+        @show bval
         val = (val - bval) / 2dx
     end
     push!(p[idx], x[idx])
