@@ -72,11 +72,11 @@ end
 
 function nloptconstraint(x, grad, sol, mission, con)
     #= params = getparameters(mission) =#
-    params = parameters(mission)
     setparameters!(mission, x)
     res = propagate(mission)
     val = evaluate(con, res)
     if length(grad) > 0
+        params = parameters(mission)
         dx = sol.dx * (1.0 + abs(x))
         g(p, Δx) = gradient(p, Δx, sol.differences, val, mission, con)
         grad[:] = pmap(g, params, dx)
