@@ -3,7 +3,7 @@ import Roots: fzero
 
 export ODE
 
-immutable ODE{F<:Frame,C<:CelestialBody,E<:Event} <: Propagator
+type ODE{F<:Frame,C<:CelestialBody,E<:Event} <: Propagator
     bodies::Vector{DataType}
     center::Type{C}
     frame::Type{F}
@@ -67,9 +67,9 @@ function propagate(s0::State, tend, propagator::ODE, output::Symbol)
     times = [t0]
     states = Vector{Vector{Float64}}()
     push!(states, copy(y))
-    rhs(f, t, y) = rhs!(f, t, y, params, propagator)
-    detect_discontinuities(told, t, y, contd) = detect_discontinuities!(told, t, y, contd, params, propagator)
-    handle_events(told, t, y, contd) = handle_events!(told, t, y, contd, params, propagator)
+    rhs(f::Vector{Float64}, t::Float64, y::Vector{Float64}) = rhs!(f, t, y, params, propagator)
+    detect_discontinuities(told::Float64, t::Float64, y::Vector{Float64}, contd::Function) = detect_discontinuities!(told, t, y, contd, params, propagator)
+    handle_events(told::Float64, t::Float64, y::Vector{Float64}, contd::Function) = handle_events!(told, t, y, contd, params, propagator)
     for (i, t) in enumerate(params.dindex)
         # Detect discontinuity
         if isnull(t)
@@ -153,7 +153,7 @@ end
 trajectory(s0::State, tend::EpochDelta, p::ODE) = trajectory(s0, seconds(tend), p)
 trajectory(s0::State, p::ODE) = trajectory(s0, period(s0), p)
 
-function rhs!(f::Vector{Float64}, t::Float64, y::Vector{Float64}, params, propagator)
+function rhs!(f::Vector{Float64}, t::Float64, y::Vector{Float64}, params::ODEParameters, propagator::ODE)
     fill!(f, 0.0)
     gravity!(f, y, propagator.gravity)
     if !isempty(propagator.bodies)
@@ -161,7 +161,7 @@ function rhs!(f::Vector{Float64}, t::Float64, y::Vector{Float64}, params, propag
     end
 end
 
-function detect_abort(told::Float64, t::Float64, yold::Vector{Float64}, y::Vector{Float64}, params, propagator)
+function detect_abort(told::Float64, t::Float64, yold::Vector{Float64}, y::Vector{Float64}, params::ODEParameters, propagator::ODE)
     for discontinuity in propagator.abort
         if haspassed(discontinuity.event, told, t, yold, y, propagator)
             apply!(discontinuity.update, t, y, params, propagator)
@@ -169,19 +169,16 @@ function detect_abort(told::Float64, t::Float64, yold::Vector{Float64}, y::Vecto
     end
 end
 
-function detect_discontinuities!(told::Float64, t::Float64, y::Vector{Float64}, contd, params, propagator)
+function detect_discontinuities!(told::Float64, t::Float64, y::Vector{Float64}, contd::Function, params::ODEParameters, propagator::ODE)
     firststep = t == told
     if !firststep
-        yold = similar(y)
-        for i in eachindex(y)
-            yold[i] = contd(i, told)
-        end
+        yold = state(told, length(y), contd)
         detect_abort(told, t, yold, y, params, propagator)
         if params.current != 0
             td = params.dindex[params.current]
             discontinuity = propagator.discontinuities[params.current]
             if isnull(td) && haspassed(discontinuity.event, told, t, yold, y, propagator)
-                f(t) = detect(t, contd, propagator, discontinuity.event)
+                f(t::Float64) = detect(t, contd, propagator, discontinuity.event)
                 params.dindex[params.current] = Nullable(fzero(f, told, t))
                 return dopricode[:abort]
             end
@@ -190,13 +187,10 @@ function detect_discontinuities!(told::Float64, t::Float64, y::Vector{Float64}, 
     dopricode[:nominal]
 end
 
-function handle_events!(told::Float64, t::Float64, y::Vector{Float64}, contd, params, propagator)
+function handle_events!(told::Float64, t::Float64, y::Vector{Float64}, contd::Function, params::ODEParameters, propagator::ODE)
     firststep = t == told
     if !firststep
-        yold = similar(y)
-        for i in eachindex(y)
-            yold[i] = contd(i, told)
-        end
+        yold = state(told, length(y), contd)
         detect_abort(told, t, yold, y, params, propagator)
         # Detect transient events
         for event in propagator.events
@@ -221,4 +215,12 @@ function handle_events!(told::Float64, t::Float64, y::Vector{Float64}, contd, pa
         end
     end
     dopricode[code]
+end
+
+function state(t::Float64, n::Int, contd::Function)
+    y = Array(Float64, n)
+    for i in eachindex(y)
+        y[i] = contd(i, t)
+    end
+    return y
 end

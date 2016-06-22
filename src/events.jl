@@ -35,7 +35,7 @@ function haspassed(::PericenterEvent, told, t, yold, y, p)
 end
 
 function detect(t, contd, p, ::PericenterEvent)
-    y = Float64[contd(i, t) for i = 1:6]
+    y = state(t, 6, contd)
     ano = keplerian(y, μ(p.center))[6]
     ano = ano > π ? ano - 2π : ano
     return ano
@@ -50,7 +50,7 @@ function haspassed(::ApocenterEvent, told, t, yold, y, p)
 end
 
 function detect(t, contd, p, ::ApocenterEvent)
-    y = Float64[contd(i, t) for i = 1:6]
+    y = state(t, 6, contd)
     ano = keplerian(y, μ(p.center))[6]
     return ano - π
 end
@@ -63,7 +63,7 @@ function haspassed(::ImpactEvent, told, t, yold, y, p)
 end
 
 function detect(t, contd, p, ::ImpactEvent)
-    y = Float64[contd(i, t) for i = 1:3]
+    y = state(t, 3, contd)
     norm(y[1:3]) - mean_radius(p.center)
 end
 
