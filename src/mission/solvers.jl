@@ -31,7 +31,9 @@ function optimize(optfun, mission, objective::AbstractConstraint, sol::NLoptSolv
     optfun(opt, (x, g) -> nloptconstraint(x, g, sol, output, objective))
     addconstraints!(opt, output.stop, sol, output)
     val, x, code = optimize(opt, initial)
-    return output, val, code
+    setparameters!(output, x)
+    res = propagate(output)
+    return res, val, code
 end
 
 function addconstraints!(opt, t::TargetOrbit, sol, mission)
@@ -47,40 +49,63 @@ end
 minimize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(min_objective!, mission, objective, sol)
 maximize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(max_objective!, mission, objective, sol)
 
-function gradient(sol::Solver, idx::Int, x::Vector{Float64}, mission, con::AbstractConstraint)
-    p = parameters(mission)
-    dx = sol.dx * (1.0 + abs(x[idx]))
-    if sol.differences == :backward
-        push!(p[idx], x[idx] - dx)
+function gradient(idx, x, dx, diff, val, mission, con)
+    #= println(typeof(con)) =#
+
+    #= mission.parameters = getparameters(mission) =#
+    #= a = mission.propagator.discontinuities[1].update.Δv[2] =#
+    #= @show a =#
+    #= setparameters!(mission, x) =#
+    #= b = mission.propagator.discontinuities[idx].update.Δv[2] =#
+    #= @show b =#
+    #= @show idx =#
+    #= p = parameters(mission)[idx] =#
+    # Solution:
+    p = getparameters(mission.propagator)[idx]
+    #= @show pointer_from_objref(b) =#
+    #= @show pointer_from_objref(p) =#
+    #= #= p = mission.propagator.discontinuities[idx].update.Δv[2] =# =#
+    Δx = dx[idx]
+    #= @show Δx =#
+    #= @show p =#
+    if diff == :backward
+        push!(p, p - Δx)
     else
-        push!(p[idx], x[idx] + dx)
+        push!(p, p + Δx)
     end
+    #= c = mission.propagator.discontinuities[1].update.Δv[2] =#
+    #= @show c =#
+    #= @show p =#
+    #= @assert b === p =#
     res = propagate(mission)
-    val = evaluate(con, res)
-    if sol.differences == :central
-        push!(p[idx], x[idx] - 2dx)
+    dval = evaluate(con, res)
+    if diff == :central
+        push!(p, p - 2Δx)
         res = propagate(mission)
         bval = evaluate(con, res)
-        val = (val - bval) / 2dx
+        val = (dval - bval) / 2Δx
+        push!(p, p + Δx)
+    elseif diff == :forward
+        val = (dval - val) / Δx
+        push!(p, p - Δx)
+    elseif diff == :backward
+        val = (val - dval) / Δx
+        push!(p, p + Δx)
     end
-    push!(p[idx], x[idx])
+    #= d = mission.propagator.discontinuities[1].update.Δv[2] =#
+    #= @show d =#
     return val
 end
 
 function nloptconstraint(x, grad, sol, mission, con)
     setparameters!(mission, x)
-    g(idx) = gradient(sol, idx, x, mission, con)
-    if length(grad) > 0
-        grad[:] = pmap(g, 1:length(grad), err_stop=true)
-        #= g = Vector{Any}(length(grad)) =#
-        #= @sync for i in eachindex(grad) =#
-        #=     g[i] = @spawn gradient(sol, i, x, mission, con) =#
-        #= end =#
-        #= for i in eachindex(grad) =#
-        #=     grad[i] = fetch(g[i]) =#
-        #= end =#
-    end
     res = propagate(mission)
     val = evaluate(con, res)
+    if length(grad) > 0
+        dx = sol.dx * (1.0 + abs(x))
+        gradient(1, x, dx, sol.differences, val, mission, con)
+        g(idx) = gradient(idx, x, dx, sol.differences, val, mission, con)
+        grad[:] = pmap(g, 1:length(grad), err_stop=true)
+    end
     return val
 end

@@ -3,7 +3,7 @@ import Roots: fzero
 
 export ODE
 
-type ODE{F<:Frame,C<:CelestialBody,E<:Event} <: Propagator
+immutable ODE{F<:Frame,C<:CelestialBody,E<:Event} <: Propagator
     bodies::Vector{DataType}
     center::Type{C}
     frame::Type{F}
@@ -67,12 +67,15 @@ function propagate(s0::State, tend, propagator::ODE, output::Symbol)
     times = [t0]
     states = Vector{Vector{Float64}}()
     push!(states, copy(y))
+    rhs(f, t, y) = rhs!(f, t, y, params, propagator)
+    detect_discontinuities(told, t, y, contd) = detect_discontinuities!(told, t, y, contd, params, propagator)
+    handle_events(told, t, y, contd) = handle_events!(told, t, y, contd, params, propagator)
     for (i, t) in enumerate(params.dindex)
         # Detect discontinuity
         if isnull(t)
             params.current = i
-            tout, yout = integrator((f, t, y) -> rhs!(f, t, y, params, propagator), y, [t0, tend],
-                solout=(told, t, y, contd) -> detect_discontinuities!(told, t, y, contd, params, propagator),
+            tout, yout = integrator(rhs, y, [t0, tend],
+                solout=detect_discontinuities,
                 points=:last,
                 maxstep=propagator.maxstep,
                 numstep=propagator.numstep,
@@ -88,8 +91,8 @@ function propagate(s0::State, tend, propagator::ODE, output::Symbol)
 
         t1 = get(t)
         if t1 != 0.0
-            tout, yout = integrator((f, t, y) -> rhs!(f, t, y, params, propagator), y, [t0, t1],
-                solout=(told, t, y, contd) -> handle_events!(told, t, y, contd, params, propagator),
+            tout, yout = integrator(rhs, y, [t0, t1],
+                solout=handle_events,
                 points=output,
                 maxstep=propagator.maxstep,
                 numstep=propagator.numstep,
@@ -103,8 +106,8 @@ function propagate(s0::State, tend, propagator::ODE, output::Symbol)
         end
     end
     if !params.stop && t0 != tend
-        tout, yout = integrator((f, t, y) -> rhs!(f, t, y, params, propagator), y, [t0, tend],
-            solout=(told, t, y, contd) -> handle_events!(told, t, y, contd, params, propagator),
+        tout, yout = integrator(rhs, y, [t0, tend],
+            solout=handle_events,
             points=output,
             maxstep=propagator.maxstep,
             numstep=propagator.numstep,
@@ -169,7 +172,10 @@ end
 function detect_discontinuities!(told::Float64, t::Float64, y::Vector{Float64}, contd, params, propagator)
     firststep = t == told
     if !firststep
-        yold = Float64[contd(i, told) for i = 1:length(y)]
+        yold = similar(y)
+        for i in eachindex(y)
+            yold[i] = contd(i, told)
+        end
         detect_abort(told, t, yold, y, params, propagator)
         if params.current != 0
             td = params.dindex[params.current]
@@ -187,7 +193,10 @@ end
 function handle_events!(told::Float64, t::Float64, y::Vector{Float64}, contd, params, propagator)
     firststep = t == told
     if !firststep
-        yold = Float64[contd(i, told) for i = 1:length(y)]
+        yold = similar(y)
+        for i in eachindex(y)
+            yold[i] = contd(i, told)
+        end
         detect_abort(told, t, yold, y, params, propagator)
         # Detect transient events
         for event in propagator.events
