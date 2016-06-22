@@ -49,34 +49,12 @@ end
 minimize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(min_objective!, mission, objective, sol)
 maximize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(max_objective!, mission, objective, sol)
 
-function gradient(idx, x, dx, diff, val, mission, con)
-    #= println(typeof(con)) =#
-
-    #= mission.parameters = getparameters(mission) =#
-    #= a = mission.propagator.discontinuities[1].update.Δv[2] =#
-    #= @show a =#
-    #= setparameters!(mission, x) =#
-    #= b = mission.propagator.discontinuities[idx].update.Δv[2] =#
-    #= @show b =#
-    #= @show idx =#
-    #= p = parameters(mission)[idx] =#
-    # Solution:
-    p = getparameters(mission.propagator)[idx]
-    #= @show pointer_from_objref(b) =#
-    #= @show pointer_from_objref(p) =#
-    #= #= p = mission.propagator.discontinuities[idx].update.Δv[2] =# =#
-    Δx = dx[idx]
-    #= @show Δx =#
-    #= @show p =#
+function gradient(p, Δx, diff, val, mission, con)
     if diff == :backward
         push!(p, p - Δx)
     else
         push!(p, p + Δx)
     end
-    #= c = mission.propagator.discontinuities[1].update.Δv[2] =#
-    #= @show c =#
-    #= @show p =#
-    #= @assert b === p =#
     res = propagate(mission)
     dval = evaluate(con, res)
     if diff == :central
@@ -84,28 +62,24 @@ function gradient(idx, x, dx, diff, val, mission, con)
         res = propagate(mission)
         bval = evaluate(con, res)
         val = (dval - bval) / 2Δx
-        push!(p, p + Δx)
     elseif diff == :forward
         val = (dval - val) / Δx
-        push!(p, p - Δx)
     elseif diff == :backward
         val = (val - dval) / Δx
-        push!(p, p + Δx)
     end
-    #= d = mission.propagator.discontinuities[1].update.Δv[2] =#
-    #= @show d =#
     return val
 end
 
 function nloptconstraint(x, grad, sol, mission, con)
+    #= params = getparameters(mission) =#
+    params = parameters(mission)
     setparameters!(mission, x)
     res = propagate(mission)
     val = evaluate(con, res)
     if length(grad) > 0
         dx = sol.dx * (1.0 + abs(x))
-        gradient(1, x, dx, sol.differences, val, mission, con)
-        g(idx) = gradient(idx, x, dx, sol.differences, val, mission, con)
-        grad[:] = pmap(g, 1:length(grad), err_stop=true)
+        g(p, Δx) = gradient(p, Δx, sol.differences, val, mission, con)
+        grad[:] = pmap(g, params, dx)
     end
     return val
 end
