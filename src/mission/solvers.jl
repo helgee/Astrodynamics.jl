@@ -61,15 +61,20 @@ function gradient(p, Δx, diff, val, mission, con)
     @show p
     res = propagate(mission)
     dval = evaluate(con, res)
+    @show dval
     if diff == :central
         push!(p, p - 2Δx)
         res = propagate(mission)
         bval = evaluate(con, res)
+        @show bval
         val = (dval - bval) / 2Δx
+        push!(p, p + Δx)
     elseif diff == :forward
         val = (dval - val) / Δx
+        push!(p, p - Δx)
     elseif diff == :backward
         val = (val - dval) / Δx
+        push!(p, p + Δx)
     end
     @show p
     @show val
