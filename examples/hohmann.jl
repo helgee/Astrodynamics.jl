@@ -9,13 +9,13 @@ s0 = State(
 toi = @vary(
     toi = 1e-4,
     toi >= 0.0,
-    toi <= 4.0,
+    toi <= pi,
     ImpulsiveManeuver(along=toi)
 )
 goi = @vary(
     goi = 0,
     goi >= 0.0,
-    goi <= 4.0,
+    goi <= pi,
     ImpulsiveManeuver(along=goi)
 )
 

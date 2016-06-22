@@ -50,11 +50,15 @@ minimize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(mi
 maximize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(max_objective!, mission, objective, sol)
 
 function gradient(p, Δx, diff, val, mission, con)
+    @show con
+    @show p
+    @show Δx
     if diff == :backward
         push!(p, p - Δx)
     else
         push!(p, p + Δx)
     end
+    @show p
     res = propagate(mission)
     dval = evaluate(con, res)
     if diff == :central
@@ -67,6 +71,8 @@ function gradient(p, Δx, diff, val, mission, con)
     elseif diff == :backward
         val = (val - dval) / Δx
     end
+    @show p
+    @show val
     return val
 end
 
