@@ -9,13 +9,13 @@ s0 = State(
 toi = @vary(
     toi = 1e-4,
     toi >= 0.0,
-    toi <= pi,
+    toi <= 4.0,
     ImpulsiveManeuver(along=toi)
 )
 goi = @vary(
     goi = 0,
     goi >= 0.0,
-    goi <= pi,
+    goi <= 4.0,
     ImpulsiveManeuver(along=goi)
 )
 
@@ -38,4 +38,5 @@ seg = Segment(
     propagator = ode,
 )
 
-minimize(seg, DeltaV(), NLoptSolver())
+blob = minimize(seg, DeltaV(), NLoptSolver())
+println(blob[end])
