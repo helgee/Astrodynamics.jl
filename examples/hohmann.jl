@@ -38,5 +38,4 @@ seg = Segment(
     propagator = ode,
 )
 
-blob = minimize(seg, DeltaV(), NLoptSolver())
-println(blob[end])
+minimize(seg, DeltaV(), NLoptSolver())
