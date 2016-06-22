@@ -64,6 +64,8 @@ function gradient(sol::Solver, idx::Int, x::Vector{Float64}, mission, con::Abstr
         val = (val - bval) / 2dx
     end
     push!(p[idx], x[idx])
+    println(con)
+    println(val)
     return val
 end
 
