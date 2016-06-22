@@ -73,7 +73,7 @@ function nloptconstraint(x, grad, sol, mission, con)
     setparameters!(mission, x)
     g(idx) = gradient(sol, idx, x, mission, con)
     if length(grad) > 0
-        grad[:] = pmap(g, 1:length(grad), err_stop=true)
+        grad[:] = pmap(g, 1:length(grad))
         #= g = Vector{Any}(length(grad)) =#
         #= @sync for i in eachindex(grad) =#
         #=     g[i] = @spawn gradient(sol, i, x, mission, con) =#
