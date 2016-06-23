@@ -58,7 +58,9 @@ end
 minimize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(min_objective!, mission, objective, sol)
 maximize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(max_objective!, mission, objective, sol)
 
-function gradient(idx, Δx, diff, val, mission, con)
+function gradient(idx, x, dx, diff, val, mission, con)
+    @show con
+    Δx = dx * (1.0 + abs(x[idx]))
     p = parameters(mission)[idx]
     if diff == :backward
         push!(p, p - Δx)
@@ -67,11 +69,14 @@ function gradient(idx, Δx, diff, val, mission, con)
     end
     res = propagate(mission)
     dval = evaluate(con, res)
+    @show dval
     if diff == :central
         push!(p, p - 2Δx)
         res = propagate(mission)
         bval = evaluate(con, res)
+        @show bval
         val = (dval - bval) / 2Δx
+        @show val
         push!(p, p + Δx)
     elseif diff == :forward
         val = (dval - val) / Δx
@@ -89,9 +94,8 @@ function nloptconstraint(x, grad, sol, mission, con)
     val = evaluate(con, res)
     if length(grad) > 0
         params = parameters(mission)
-        dx = sol.dx * (1.0 + abs(x))
-        g(idx, Δx) = gradient(idx, Δx, sol.differences, val, mission, con)
-        grad[:] = pmap(g, 1:length(params), dx)
+        g(idx) = gradient(idx, x, sol.dx, sol.differences, val, mission, con)
+        grad[:] = pmap(g, 1:length(params))
         @show grad
     end
     return val
