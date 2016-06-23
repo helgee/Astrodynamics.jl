@@ -75,6 +75,7 @@ end
 function nloptconstraint(x, grad, sol, mission, con)
     setparameters!(mission, x)
     g(idx) = gradient(sol, idx, x, mission, con)
+    @show parameters(mission)
     if length(grad) > 0
         grad[:] = pmap(g, 1:length(grad), err_stop=true)
         #= g = Vector{Any}(length(grad)) =#
