@@ -49,6 +49,7 @@ minimize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(mi
 maximize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(max_objective!, mission, objective, sol)
 
 function gradient(sol::Solver, idx::Int, x::Vector{Float64}, mission, con::AbstractConstraint)
+    @show con
     p = parameters(mission)
     dx = sol.dx * (1.0 + abs(x[idx]))
     if sol.differences == :backward
@@ -58,11 +59,14 @@ function gradient(sol::Solver, idx::Int, x::Vector{Float64}, mission, con::Abstr
     end
     res = propagate(mission)
     val = evaluate(con, res)
+    @show val
     if sol.differences == :central
         push!(p[idx], x[idx] - 2dx)
         res = propagate(mission)
         bval = evaluate(con, res)
+        @show bval
         val = (val - bval) / 2dx
+        @show val
     end
     push!(p[idx], x[idx])
     return val
