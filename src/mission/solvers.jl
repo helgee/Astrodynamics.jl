@@ -31,7 +31,8 @@ function optimize(optfun, mission, objective::AbstractConstraint, sol::NLoptSolv
     optfun(opt, (x, g) -> nloptconstraint(x, g, sol, output, objective))
     addconstraints!(opt, output.stop, sol, output)
     val, x, code = optimize(opt, initial)
-    return output, val, code
+    res = propagate(output)
+    return res, val, code
 end
 
 function addconstraints!(opt, t::TargetOrbit, sol, mission)
@@ -49,29 +50,21 @@ maximize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(ma
 
 function gradient(sol::Solver, idx::Int, x::Vector{Float64}, mission, con::AbstractConstraint)
     p = parameters(mission)
-    @show con
-    @show p[idx]
     dx = sol.dx * (1.0 + abs(x[idx]))
-    @show dx
     if sol.differences == :backward
         push!(p[idx], x[idx] - dx)
     else
         push!(p[idx], x[idx] + dx)
     end
-    @show p[idx]
     res = propagate(mission)
     val = evaluate(con, res)
-    @show val
     if sol.differences == :central
         push!(p[idx], x[idx] - 2dx)
         res = propagate(mission)
         bval = evaluate(con, res)
-        @show bval
         val = (val - bval) / 2dx
     end
     push!(p[idx], x[idx])
-    @show p[idx]
-    @show val
     return val
 end
 
@@ -87,6 +80,7 @@ function nloptconstraint(x, grad, sol, mission, con)
         #= for i in eachindex(grad) =#
         #=     grad[i] = fetch(g[i]) =#
         #= end =#
+        @show grad
     end
     res = propagate(mission)
     val = evaluate(con, res)

@@ -38,4 +38,5 @@ seg = Segment(
     propagator = ode,
 )
 
-minimize(seg, DeltaV(), NLoptSolver())
+res = minimize(seg, DeltaV(), NLoptSolver())
+println(res[1].trajectory.s1)
