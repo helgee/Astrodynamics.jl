@@ -1,8 +1,8 @@
 using Dierckx
-using PyPlot
+using PlotlyJS
 
 import Base: getindex, endof, show
-#= import PlotlyJS: plot =#
+import PlotlyJS: plot
 
 export Trajectory, plot
 
@@ -12,9 +12,7 @@ type Trajectory{
         F<:Frame,
         T<:Timescale,
         C<:CelestialBody,
-        P<:Propagator,
     } <: AbstractTrajectory
-    propagator::Type{P}
     s0::State{F,T,C}
     s1::State{F,T,C}
     t::Vector{Float64}
@@ -36,13 +34,10 @@ function Trajectory{
         F<:Frame,
         T<:Timescale,
         C<:CelestialBody,
-        P<:Propagator,
-    }(p::Type{P},
-    s0::State{F,T,C},
+    }( s0::State{F,T,C},
     s1::State{F,T,C},
     t, x, y, z, vx, vy, vz)
     Trajectory(
-        p,
         s0,
         s1,
         collect(t),
@@ -60,14 +55,12 @@ function show{
         F<:Frame,
         T<:Timescale,
         C<:CelestialBody,
-        P<:Propagator,
-    }(io::IO, tra::Trajectory{F,T,C,P})
-    println(io, "Trajectory{$F, $T, $C, $P}")
+    }(io::IO, tra::Trajectory{F,T,C})
+    println(io, "Trajectory{$F, $T, $C}")
     println(io, " Start date: $(tra.s0.epoch)")
     println(io, " End date:   $(tra.s1.epoch)")
     println(io, " Frame: $F")
     println(io, " Body: $C")
-    println(io, " Propagator: $P")
 end
 
 function interpolate(tra::Trajectory, time)
@@ -108,9 +101,8 @@ function plot{F<:Frame, T<:Timescale, C<:CelestialBody}(tra::Trajectory{F,T,C})
     x = [re * cos(i) * cos(j) for i in θ, j in ϕ]
     y = [re * cos(i) * sin(j) for i in θ, j in ϕ]
     z = [rp * sin(i) for i in θ, j in ϕ];
-    plot_surface(x, y, z, cmap="Blues")
-    times = linspace(tra.t[1], tra.t[end], length(tra.t)*10)
-    plot3D(evaluate(tra.xspl, times), evaluate(tra.yspl, times), evaluate(tra.zspl, times), color="red")
-    #= p = scatter3d(;x=tra.x, y=tra.y, z=tra.z, mode="lines", line=attr(color="rgb(255,0,0)")) =#
-    #= plot([s, p]) =#
+    s = surface(x=x, y=y, z=z, colorscale="Blues", showlegend=false)
+    times = linspace(tra.t[1], tra.t[end], length(tra.t)*100)
+    p = scatter3d(;x=evaluate(tra.xspl, times), y=evaluate(tra.yspl, times), z=evaluate(tra.zspl, times), mode="lines", line=attr(color="rgb(255,0,0)"))
+    plot([s, p])
 end

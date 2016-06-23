@@ -24,7 +24,7 @@ end
 SemiMajorAxis() = SemiMajorAxis(0.0)
 
 function evaluate(con::SemiMajorAxis, r::SegmentResult)
-    semimajoraxis(r.trajectory.s1) - con.target
+    semimajoraxis(r.propagation.trajectory.s1) - con.target
 end
 
 type Eccentricity <: AbstractConstraint
@@ -33,7 +33,7 @@ end
 Eccentricity() = Eccentricity(0.0)
 
 function evaluate(con::Eccentricity, r::SegmentResult)
-    eccentricity(r.trajectory.s1) - con.target
+    eccentricity(r.propagation.trajectory.s1) - con.target
 end
 
 type Inclination <: AbstractConstraint
@@ -42,7 +42,7 @@ end
 Inclination() = Inclination(0.0)
 
 function evaluate(con::Inclination, r::SegmentResult)
-    inclination(r.trajectory.s1) - con.target
+    inclination(r.propagation.trajectory.s1) - con.target
 end
 
 type AscendingNode <: AbstractConstraint
@@ -51,7 +51,7 @@ end
 AscendingNode() = AscendingNode(0.0)
 
 function evaluate(con::AscendingNode, r::SegmentResult)
-    ascendingnode(r.trajectory.s1) - con.target
+    ascendingnode(r.propagation.trajectory.s1) - con.target
 end
 
 type ArgumentOfPericenter <: AbstractConstraint
@@ -60,7 +60,7 @@ end
 ArgumentOfPericenter() = ArgumentOfPericenter(0.0)
 
 function evaluate(con::ArgumentOfPericenter, r::SegmentResult)
-    argumentofpericenter(r.trajectory.s1) - con.target
+    argumentofpericenter(r.propagation.trajectory.s1) - con.target
 end
 
 type TrueAnomaly <: AbstractConstraint
@@ -69,7 +69,7 @@ end
 TrueAnomaly() = TrueAnomaly(0.0)
 
 function evaluate(con::TrueAnomaly, r::SegmentResult)
-    trueanomaly(r.trajectory.s1) - con.target
+    trueanomaly(r.propagation.trajectory.s1) - con.target
 end
 
 const KEPLERIAN_CONSTRAINTS = Dict(

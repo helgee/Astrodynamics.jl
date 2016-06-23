@@ -42,7 +42,7 @@ function trajectory(s0::State, tend, p::Kepler)
     s1 = State(s0.epoch + EpochDelta(seconds=times[end]),
         x[end], y[end], z[end], vx[end], vy[end], vz[end],
         s0.frame, s0.body)
-    Trajectory(typeof(p), s0, s1, times, x, y, z, vx, vy, vz)
+    Trajectory(s0, s1, times, x, y, z, vx, vy, vz)
 end
 
 trajectory(s0::State, tend::EpochDelta, p::Kepler) = trajectory(s0, seconds(tend), p::Kepler)

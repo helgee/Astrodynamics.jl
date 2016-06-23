@@ -14,9 +14,7 @@ end
 
 type SegmentResult
     segment::Segment
-    trajectory::Trajectory
-    discontinuities::Dict{Symbol,Any}
-    events::Dict{Symbol,Any}
+    propagation::PropagationResult
 end
 
 function Segment(; kwargs...)
@@ -39,8 +37,8 @@ function Segment(params::ParameterArray;
 end
 
 function setparameters!(seg::Segment, x)
-    for (par, val) in zip(parameters(seg), x)
-        push!(par, val)
+    for i in eachindex(seg.parameters)
+        push!(seg.parameters[i], x[i])
     end
     return seg
 end
@@ -65,5 +63,5 @@ parameters(seg::Segment) = seg.parameters
 
 function propagate(seg::Segment)
     s0 = seg.start.state
-    SegmentResult(seg, trajectory(s0, seg.dt, seg.propagator)...)
+    SegmentResult(seg, trajectory(s0, seg.dt, seg.propagator))
 end

@@ -3,6 +3,12 @@ import Roots: fzero
 
 export ODE
 
+immutable PropagationResult
+    trajectory::Trajectory
+    discontinuities::Dict{Symbol,Any}
+    events::Dict{Symbol,Any}
+end
+
 type ODE{F<:Frame,C<:CelestialBody,E<:Event} <: Propagator
     bodies::Vector{DataType}
     center::Type{C}
@@ -131,7 +137,7 @@ end
 function state(s0::State, tend, p::ODE)
     s0 = State(s0, frame=p.frame, body=p.center)
     tout, yout, discontinuities, events = propagate(s0, tend, p, :last)
-    State(s0.epoch + EpochDelta(seconds=tout[end]), yout[end], p.frame, p.center), discontinuities, events
+    State(s0.epoch + EpochDelta(seconds=tout[end]), yout[end], p.frame, p.center)
 end
 
 state(s0::State, tend::EpochDelta, p::ODE) = state(s0, seconds(tend), p)
@@ -147,7 +153,7 @@ function trajectory(s0::State, tend, p::ODE)
     vy = map(v -> v[5], yout)
     vz = map(v -> v[6], yout)
     s1 = State(s0.epoch + EpochDelta(seconds=tout[end]), yout[end], p.frame, p.center)
-    Trajectory(typeof(p), s0, s1, tout, x, y, z, vx, vy, vz), discontinuities, events
+    PropagationResult(Trajectory(s0, s1, tout, x, y, z, vx, vy, vz), discontinuities, events)
 end
 
 trajectory(s0::State, tend::EpochDelta, p::ODE) = trajectory(s0, seconds(tend), p)

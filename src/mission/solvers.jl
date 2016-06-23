@@ -7,6 +7,14 @@ export minimize, maximize
 
 abstract Solver
 
+type OptimizationResult
+    before::SegmentResult
+    after::SegmentResult
+    objective::Float64
+    values::Vector{Float64}
+    code::Symbol
+end
+
 type NLoptSolver <: Solver
     algorithm::Symbol
     differences::Symbol
@@ -25,15 +33,16 @@ function optimize(optfun, mission, objective::AbstractConstraint, sol::NLoptSolv
     output = deepcopy(mission)
     initial = values(output)
     opt = Opt(sol.algorithm, length(initial))
-    xtol_rel!(opt, 1e-4)
+    #= ftol_rel!(opt, 1e-6) =#
     lower_bounds!(opt, lowerbounds(output))
     upper_bounds!(opt, upperbounds(output))
     optfun(opt, (x, g) -> nloptconstraint(x, g, sol, output, objective))
     addconstraints!(opt, output.stop, sol, output)
     val, x, code = optimize(opt, initial)
     setparameters!(output, x)
-    res = propagate(output)
-    return res, val, code
+    before = propagate(mission)
+    after = propagate(output)
+    OptimizationResult(before, after, val, x, code)
 end
 
 function addconstraints!(opt, t::TargetOrbit, sol, mission)
@@ -49,24 +58,19 @@ end
 minimize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(min_objective!, mission, objective, sol)
 maximize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(max_objective!, mission, objective, sol)
 
-function gradient(p, Δx, diff, val, mission, con)
-    @show con
-    @show p
-    @show Δx
+function gradient(idx, Δx, diff, val, mission, con)
+    p = parameters(mission)[idx]
     if diff == :backward
         push!(p, p - Δx)
     else
         push!(p, p + Δx)
     end
-    @show p
     res = propagate(mission)
     dval = evaluate(con, res)
-    @show dval
     if diff == :central
         push!(p, p - 2Δx)
         res = propagate(mission)
         bval = evaluate(con, res)
-        @show bval
         val = (dval - bval) / 2Δx
         push!(p, p + Δx)
     elseif diff == :forward
@@ -76,21 +80,22 @@ function gradient(p, Δx, diff, val, mission, con)
         val = (val - dval) / Δx
         push!(p, p + Δx)
     end
-    @show p
-    @show val
     return val
 end
 
 function nloptconstraint(x, grad, sol, mission, con)
-    #= params = getparameters(mission) =#
     setparameters!(mission, x)
     res = propagate(mission)
     val = evaluate(con, res)
     if length(grad) > 0
         params = parameters(mission)
         dx = sol.dx * (1.0 + abs(x))
-        g(p, Δx) = gradient(p, Δx, sol.differences, val, mission, con)
-        grad[:] = pmap(g, params, dx)
+        g(idx, Δx) = gradient(idx, Δx, sol.differences, val, mission, con)
+        grad[:] = pmap(g, 1:length(params), dx)
+    end
+    if typeof(con) == Eccentricity
+        @show con.target
+        @show val
     end
     return val
 end
