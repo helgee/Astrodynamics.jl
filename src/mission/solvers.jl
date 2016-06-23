@@ -61,6 +61,7 @@ maximize(mission, objective::AbstractConstraint, sol::NLoptSolver) = optimize(ma
 function gradient(idx, x, dx, diff, val, mission, con)
     @show con
     Δx = dx * (1.0 + abs(x[idx]))
+    @show Δx
     p = parameters(mission)[idx]
     if diff == :backward
         push!(p, p - Δx)
@@ -90,6 +91,7 @@ end
 
 function nloptconstraint(x, grad, sol, mission, con)
     setparameters!(mission, x)
+    @show parameters(mission)
     res = propagate(mission)
     val = evaluate(con, res)
     if length(grad) > 0
