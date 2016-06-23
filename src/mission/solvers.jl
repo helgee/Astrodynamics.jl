@@ -52,6 +52,7 @@ function gradient(sol::Solver, idx::Int, x::Vector{Float64}, mission, con::Abstr
     @show con
     p = parameters(mission)
     dx = sol.dx * (1.0 + abs(x[idx]))
+    @show dx
     if sol.differences == :backward
         push!(p[idx], x[idx] - dx)
     else
