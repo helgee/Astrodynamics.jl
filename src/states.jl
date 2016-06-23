@@ -129,10 +129,12 @@ end
 
 # C1 -> C2
 function convert{F<:Frame, T<:Timescale, C1<:CelestialBody, C2<:CelestialBody}(::Type{State{F, T, C2}}, s::State{F, T, C1})
-    M = rotation_matrix(F, GCRF, s.epoch)
+    M1 = rotation_matrix(GCRF, F, s.epoch)
+    M2 = rotation_matrix(F, GCRF, s.epoch)
+    rv = M1*s.rv
     body1 = state(C1, s.epoch)
     body2 = state(C2, s.epoch)
-    State(s.epoch, s.rv + M*body1 - M*body2, F, C2)
+    State(s.epoch, M2*(rv + body1 - body2), F, C2)
 end
 
 # F1 -> F2, T1 -> T2
@@ -143,11 +145,12 @@ end
 
 # F1 -> F2, C1 -> C2
 function convert{F1<:Frame, F2<:Frame, T<:Timescale, C1<:CelestialBody, C2<:CelestialBody}(::Type{State{F2, T, C2}}, s::State{F1, T, C1})
-    M1 = rotation_matrix(F2, F1, s.epoch)
+    M1 = rotation_matrix(GCRF, F1, s.epoch)
     M2 = rotation_matrix(F2, GCRF, s.epoch)
+    rv = M1*s.rv
     body1 = state(C1, s.epoch)
     body2 = state(C2, s.epoch)
-    State(s.epoch, M1*s.rv + M2*body1 - M2*body2, F2, C2)
+    State(s.epoch, M2*(rv + body1 - body2), F2, C2)
 end
 
 # T1 -> T2, C1 -> C2
@@ -160,11 +163,12 @@ end
 
 # F1 -> F2, T1 -> T2, C1 -> C2
 function convert{F1<:Frame, F2<:Frame, T1<:Timescale, T2<:Timescale, C1<:CelestialBody, C2<:CelestialBody}(::Type{State{F2,T2,C2}}, s::State{F1,T1,C1})
-    M1 = rotation_matrix(F2, F1, s.epoch)
+    M1 = rotation_matrix(GCRF, F1, s.epoch)
     M2 = rotation_matrix(F2, GCRF, s.epoch)
+    rv = M1*s.rv
     body1 = state(C1, s.epoch)
     body2 = state(C2, s.epoch)
-    State(Epoch(T2, s.epoch), M1*s.rv + M2*body1 - M2*body1, F2, C2)
+    State(Epoch(T2, s.epoch), M2*(rv + body1 - body2), F2, C2)
 end
 
 rotation_matrix{F<:Frame}(::Type{F}, ::Type{F}, ep::Epoch) = eye(6, 6)
