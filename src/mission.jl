@@ -19,7 +19,16 @@ macro vary(args...)
              || ex.head == :call && ex.args[1] in (:(<=), :(>=)))
             throw(ArgumentError("Expression '$ex' is neither a comparison nor an assignment."))
         end
-        if length(ex.args) == 3
+        if ex.head == :call
+            op, sym, value = ex.args
+            if op in (:(<=), :(<))
+                key = :upper
+            elseif op in (:(>=), :(>))
+                key = :lower
+            end
+        elseif length(ex.args) == 3
+            println(ex.head)
+            println(ex.args)
             sym, op, value = ex.args
             if op in (:(<=), :(<))
                 key = :upper
