@@ -7,4 +7,5 @@ ERFA
 JPLEphemeris
 Roots
 NLopt
+NLsolve
 PyPlot
