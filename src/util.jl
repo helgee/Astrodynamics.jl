@@ -45,3 +45,5 @@ function findpath(origin, target, root=Any)
 end
 
 message(str) = println("[Astrodynamics.jl] $str")
+
+magnitude(x) = x ≈ 0.0 ? 1.0 : floor(log10(abs(x))) + 1.0
