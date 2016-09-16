@@ -1,8 +1,8 @@
-using Base.Dates
 using Compat
 using ERFA
 
 import Base: convert, -, +, ==, isless, isapprox, show, string
+import Base.Dates: year, month, day, hour, minute, second, millisecond
 
 export Epoch, Timescale
 export EpochDelta
@@ -47,7 +47,7 @@ type EpochDelta
 end
 
 function show{T}(io::IO, ep::Epoch{T})
-    print(io, "$(Dates.format(DateTime(ep), "yyyy-mm-ddTHH:MM:SS.sss")) $T")
+    print(io, "$(Dates.format(DateTime(ep), "yyyy-mm-ddTHH:MM:SS.sss")) $(Base.datatype_name(T))")
 end
 
 EpochDelta(;days::Int=0, seconds::Real=0) = EpochDelta(days, seconds/SEC_PER_DAY)
@@ -105,7 +105,7 @@ for scale in scales
     @eval begin
         typealias $sym Epoch{$scale}
         export $sym, $scale
-        show(io::IO, ::Type{$scale}) = print(io, $name)
+        #= show(io::IO, ::Type{$scale}) = print(io, $name) =#
         #= string(::Type{$scale}) = $name =#
     end
 end
