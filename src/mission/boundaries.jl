@@ -1,31 +1,31 @@
-export Boundary, Pass, Launch, Rendezvous, Departure, InitialOrbit, TargetOrbit
+export Node, Pass, Launch, Rendezvous, Separation, InitialOrbit, TargetOrbit
 
-abstract Boundary
+abstract Node
 
-type Pass <: Boundary
+type Pass <: Node
 end
 
-type Launch <: Boundary
+type Launch <: Node
     lat::Float64
     lon::Float64
     alt::Float64
 end
 
-type Rendezvous <: Boundary
+type Rendezvous <: Node
     target::Symbol
     segment::Int
 end
 
-type Departure <: Boundary
+type Separation <: Node
     parent::Symbol
     segment::Int
 end
 
-type InitialOrbit <: Boundary
+type InitialOrbit <: Node
     state::State
 end
 
-type TargetOrbit <: Boundary
+type TargetOrbit <: Node
     sma::Nullable{Float64}
     ecc::Nullable{Float64}
     inc::Nullable{Float64}

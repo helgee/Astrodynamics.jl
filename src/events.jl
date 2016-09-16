@@ -13,7 +13,7 @@ type PropagatorAbort <: Exception
 end
 Base.show(io::IO, err::PropagatorAbort) = print(io, err.msg)
 
-immutable Discontinuity
+type Discontinuity
     event::Event
     update::Update
 end

@@ -5,8 +5,8 @@ export Segment, resetparameters!, setparameters!, parameters, copy
 type Segment
     parameters::ParameterArray
     dt::Parameter
-    start::Boundary
-    stop::Boundary
+    start::Node
+    stop::Node
     arc::Arc
     propagator::Propagator
     constraints::Vector{AbstractConstraint}
@@ -36,9 +36,16 @@ function Segment(params::ParameterArray;
     Segment(params, dt, start, stop, arc, propagator, constraints)
 end
 
+#= function setparameters!(seg::Segment, x) =#
+#=     for i in eachindex(seg.parameters) =#
+#=         push!(seg.parameters[i], x[i]) =#
+#=     end =#
+#=     return seg =#
+#= end =#
+
 function setparameters!(seg::Segment, x)
-    for i in eachindex(seg.parameters)
-        push!(seg.parameters[i], x[i])
+    for (par, val) in zip(seg.parameters, x)
+        push!(par, val)
     end
     return seg
 end
