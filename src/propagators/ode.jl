@@ -110,6 +110,7 @@ function propagate(s0::State, tend, propagator::ODE, output::Symbol)
                 append!(states, yout[2:end])
             end
         end
+        apply!(propagator.discontinuities[i].update, t, y, params, propagator)
     end
     if !params.stop && t0 != tend
         tout, yout = integrator(rhs, y, [t0, tend],
@@ -207,20 +208,7 @@ function handle_events!(told::Float64, t::Float64, y::Vector{Float64}, contd::Fu
             end
         end
     end
-    code = :nominal
-    for (tdisc, discontinuity) in zip(params.dindex, propagator.discontinuities)
-        if !isnull(tdisc) && get(tdisc) == t
-            apply!(discontinuity.update, t, y, params, propagator)
-            code = :altered
-            if params.stop
-                code = :abort
-            end
-        # Handle EndEvents
-        elseif !isnull(tdisc) && get(tdisc) == -1 && (params.stop || t == params.tend)
-            apply!(discontinuity.update, t, y, params, propagator)
-        end
-    end
-    dopricode[code]
+    dopricode[:nominal]
 end
 
 function state(t::Float64, n::Int, contd::Function)
