@@ -52,7 +52,7 @@ function libration_norm_to_gcrf(rv_lib, epoch, primary, secondary, point)
 
     M, rm, Ω = rotation_params(rv_sec)
     rv_eci = rv_lib
-    rv_eci[4:6] += [-1.0*rv_lib[2], 1.0*rv_lib[1], 0.0]
+    rv_eci[4:6] += [-rv_lib[2], rv_lib[1], 0.0]
     rv_eci[1:3] = M*rv_eci[1:3]
     rv_eci[4:6] = M*rv_eci[4:6]
     rv_eci[1:3] *= rm
