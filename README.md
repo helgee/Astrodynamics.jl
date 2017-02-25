@@ -1,7 +1,6 @@
 ![Astrodynamics.jl](docs/logo/Astrodynamics-jl-logo.png)
 
 [![Travis](https://img.shields.io/travis/JuliaAstrodynamics/Astrodynamics.jl/master.svg?style=flat)](https://travis-ci.org/JuliaAstrodynamics/Astrodynamics.jl)
-[![Coveralls](https://img.shields.io/coveralls/JuliaAstrodynamics/Astrodynamics.jl/master.svg?style=flat)](https://coveralls.io/github/JuliaAstrodynamics/Astrodynamics.jl?branch=master)
 [![Codecov](https://img.shields.io/codecov/c/github/JuliaAstrodynamics/Astrodynamics.jl/master.svg?style=flat&label=Codecov)](https://codecov.io/gh/JuliaAstrodynamics/Astrodynamics.jl)
 
 Astrodynamics.jl is an MPLv2-licensed toolbox for the development of astrodynamics software in Julia.
