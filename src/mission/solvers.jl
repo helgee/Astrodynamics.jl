@@ -1,6 +1,5 @@
 using NLopt
 
-import BlackBoxOptim: bboptimize, best_candidate
 import NLsolve: nlsolve
 import NLopt: optimize
 
@@ -23,7 +22,6 @@ type NLoptSolver <: Solver
     dx::Float64
 end
 
-type BBOptim <: Solver end
 type NLsolveSolver <: Solver end
 
 function NLoptSolver(;
@@ -32,37 +30,6 @@ function NLoptSolver(;
     dx=1e-6,
 )
     NLoptSolver(algorithm, differences, dx)
-end
-
-function minimize(mission, objective, sol::BBOptim)
-    output = deepcopy(mission)
-    cons = AbstractConstraint[objective]
-    #= cons = AbstractConstraint[] =#
-    for element in fieldnames(mission.stop)
-        if !isnull(getfield(mission.stop, element))
-            val = get(getfield(mission.stop, element))
-            con = KEPLERIAN_CONSTRAINTS[element]
-            push!(cons, con(val))
-        end
-    end
-    ranges = [(lower, upper) for (lower, upper) in zip(lowerbounds(output), upperbounds(output))]
-    res = bboptimize(x -> fitness(x, output, cons), SearchRange=ranges,
-        method=:separable_nes)
-    init = best_candidate(res)
-    setparameters!(output, init)
-    minimize(output, objective, NLoptSolver())
-end
-
-function fitness(x, mission, cons)
-    setparameters!(mission, x)
-    res = propagate(mission)
-    values = Float64[]
-    for con in cons
-        push!(values, evaluate(con, res))
-        #= push!(values, scale(evaluate(con, res))) =#
-        #= println(scale(evaluate(con, res))) =#
-    end
-    return sumabs2(values)
 end
 
 function minimize(mission, objective, sol::NLsolveSolver)
