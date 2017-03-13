@@ -1,5 +1,7 @@
 ![Astrodynamics.jl](docs/src/assets/banner.png)
 
+*A Fresh Approach to Astrodynamics...*
+
 [![Travis][travis-badge]][travis-url] [![AppVeyor][appveyor-badge]][appveyor-url] [![Docs (latest)][docs-badge-latest]][docs-url-latest]
 
 
