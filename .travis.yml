@@ -18,6 +18,7 @@ script:
  - julia -e 'Pkg.clone("https://github.com/helgee/Convertible.jl.git")'
  - julia -e 'Pkg.clone("https://github.com/helgee/RemoteFiles.jl.git")'
  - julia -e 'Pkg.clone("https://github.com/helgee/EarthOrientation.jl.git")'
+ - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstronomicalTime.jl.git")'
  - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynBase.jl.git")'
  - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynIO.jl.git")'
  - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynModels.jl.git")'
