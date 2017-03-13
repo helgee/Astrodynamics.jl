@@ -4,8 +4,7 @@ os:
   - linux
   - osx
 julia:
-  - release
-  - nightly
+  - 0.6
 notifications:
   email: false
 sudo: false
@@ -16,7 +15,14 @@ addons:
 # uncomment the following lines to override the default test script
 script:
  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
- - julia -e 'Pkg.clone(pwd()); Pkg.build("Astrodynamics"); Pkg.checkout("Dopri"); Pkg.checkout("JPLEphemeris"); Pkg.test("Astrodynamics"; coverage=true)'
+ - julia -e 'Pkg.clone("https://github.com/helgee/Convertible.jl.git")'
+ - julia -e 'Pkg.clone("https://github.com/helgee/RemoteFiles.jl.git")'
+ - julia -e 'Pkg.clone("https://github.com/helgee/EarthOrientation.jl.git")'
+ - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynBase.jl.git")'
+ - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynIO.jl.git")'
+ - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynModels.jl.git")'
+ - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynPlots.jl.git")'
+ - julia -e 'Pkg.clone(pwd()); Pkg.build("Astrodynamics"); Pkg.checkout("JPLEphemeris"); Pkg.test("Astrodynamics"; coverage=true)'
 
 after_success:
   - julia -e 'cd(Pkg.dir("Astrodynamics")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())

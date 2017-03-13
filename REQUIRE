@@ -1,10 +1,6 @@
-julia 0.4
-BaseTestNext
-Compat
-Dierckx
-Dopri
-ERFA
-JPLEphemeris
-NLopt
-Parameters
-Roots
+julia 0.6-
+Reexport
+AstroDynBase
+AstroDynIO
+AstroDynPlots
+AstroDynModels
