@@ -10,14 +10,13 @@ This package and most of its dependencies are not yet registered.
 To use it you will need to clone the following packages:
 
 ```julia
+Pkg.clone("https://github.com/helgee/Convertible.jl.git")
+Pkg.clone("https://github.com/helgee/RemoteFiles.jl.git")
+Pkg.clone("https://github.com/helgee/EarthOrientation.jl.git")
 Pkg.clone("https://github.com/JuliaAstrodynamics/AstronomicalTime.jl.git")
-Pkg.clone("https://github.com/JuliaAstrodynamics/SPICE.jl.git")
-Pkg.clone("https://github.com/JuliaAstrodynamics/AstrodynamicsBase.jl.git")
-Pkg.clone("https://github.com/JuliaAstrodynamics/AstrodynamicsIO.jl.git")
-Pkg.clone("https://github.com/JuliaAstrodynamics/AstrodynamicsPlots.jl.git")
-Pkg.clone("https://github.com/JuliaAstrodynamics/AstrodynamicsModels.jl.git")
+Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynBase.jl.git")
+Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynIO.jl.git")
+Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynModels.jl.git")
+Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynPlots.jl.git")
 Pkg.clone("https://github.com/JuliaAstrodynamics/Astrodynamics.jl.git")
-
-Pkg.checkout("Dopri")
-Pkg.checkout("JPLEphemeris")
 ```
