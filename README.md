@@ -20,3 +20,6 @@ Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynModels.jl.git")
 Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynPlots.jl.git")
 Pkg.clone("https://github.com/JuliaAstrodynamics/Astrodynamics.jl.git")
 ```
+
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliaastrodynamics.github.io/Astrodynamics.jl/stable)
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliaastrodynamics.github.io/Astrodynamics.jl/latest)
