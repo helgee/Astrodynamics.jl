@@ -6,6 +6,11 @@ makedocs(
     authors = "Helge Eichhorn",
     pages = [
         "Home" => "index.md",
+        "Tutorial" => Any[
+            "Epochs and Timescales" => "time.md",
+        ],
+        "API" => Any[
+        ],
     ],
 )
 
