@@ -10,6 +10,7 @@ makedocs(
             "Epochs and Timescales" => "time.md",
         ],
         "API" => Any[
+            "Time" => "api/time.md",
         ],
     ],
 )
