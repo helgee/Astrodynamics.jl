@@ -16,4 +16,12 @@ var documenterSearchIndex = {"docs": [
     "text": ""
 },
 
+{
+    "location": "api/time.html#",
+    "page": "Time",
+    "title": "Time",
+    "category": "page",
+    "text": ""
+},
+
 ]}
