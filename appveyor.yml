@@ -30,6 +30,7 @@ build_script:
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/helgee/EarthOrientation.jl.git\")"
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/AstronomicalTime.jl.git\")"
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/AstroDynBase.jl.git\")"
+  - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/JPLEphemeris.jl.git\")"
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/AstroDynIO.jl.git\")"
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/AstroDynModels.jl.git\")"
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/AstroDynPlots.jl.git\")"
