@@ -11,6 +11,8 @@ makedocs(
         "Home" => "index.md",
         "Tutorial" => Any[
             "Epochs and Timescales" => "time.md",
+            "State Vectors and Reference Frame Transformations" => "state.md",
+            "Propagators and Events" => "propagators.md",
         ],
         "API" => Any[
             "Time" => "api/time.md",
