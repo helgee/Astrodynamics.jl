@@ -174,8 +174,7 @@ function solout!(told, t, y, contd, params)
         if params.detect
             for event in params.propagator.events
                 if haspassed(event, told, t, yold, y, params.propagator)
-                    f(t) = detect(t, contd, params.propagator, event)
-                    push!(params.eindex, fzero(f, told, t))
+                    push!(params.eindex, fzero(t->detect(t, contd, params.propagator, event), told, t))
                     push!(params.events, event)
                 end
             end
@@ -184,8 +183,7 @@ function solout!(told, t, y, contd, params)
             td = params.dindex[params.current]
             discontinuity = params.propagator.discontinuities[params.current]
             if isnull(td) && haspassed(discontinuity.event, told, t, yold, y, params.propagator)
-                f(t) = detect(t, contd, params.propagator, discontinuity.event)
-                params.dindex[params.current] = Nullable(fzero(f, told, t))
+                params.dindex[params.current] = Nullable(fzero(t->detect(t, contd, params.propagator, discontinuity.event), told, t))
                 return dopricode[:abort]
             end
         end
