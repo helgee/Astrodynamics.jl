@@ -36,7 +36,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api/time.html#AstronomicalTime.Epoch",
     "page": "Time",
     "title": "AstronomicalTime.Epoch",
-    "category": "Constant",
+    "category": "Type",
     "text": "Epoch{T}(timestamp::AbstractString) where T<:Timescale\n\nConstruct an Epoch with timescale T from a timestamp.\n\nExample\n\njulia> Epoch{TT}(\"2017-03-14T07:18:20.325\")\n2017-03-14T07:18:20.325 TT\n\n\n\n"
 },
 
