@@ -14,6 +14,7 @@ To use it you will need to clone the following packages:
 ```julia
 Pkg.clone("https://github.com/helgee/Convertible.jl.git")
 Pkg.clone("https://github.com/helgee/RemoteFiles.jl.git")
+Pkg.clone("https://github.com/helgee/OptionalData.jl.git")
 Pkg.clone("https://github.com/helgee/EarthOrientation.jl.git")
 Pkg.clone("https://github.com/JuliaAstrodynamics/AstronomicalTime.jl.git")
 Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynBase.jl.git")
