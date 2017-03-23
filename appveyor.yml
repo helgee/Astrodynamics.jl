@@ -27,6 +27,7 @@ build_script:
   - IF EXIST .git\shallow (git fetch --unshallow)
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/helgee/Convertible.jl.git\")"
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/helgee/RemoteFiles.jl.git\")"
+  - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/helgee/OptionalData.jl.git\")"
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/helgee/EarthOrientation.jl.git\")"
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/AstronomicalTime.jl.git\")"
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/AstroDynBase.jl.git\")"
