@@ -33,11 +33,43 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api/time.html#AstronomicalTime.Epoch",
+    "location": "api/time.html#AstronomicalTime.Epoch-Union{NTuple{4,Any}, NTuple{5,Any}, NTuple{6,Any}, NTuple{7,Any}, Tuple{Any,Any,Any}, Tuple{T}} where T<:Timescale",
     "page": "Time",
     "title": "AstronomicalTime.Epoch",
-    "category": "Type",
+    "category": "Method",
+    "text": "Epoch{T}(year, month, day,\n    hour=0, minute=0, seconds=0, milliseconds=0) where T<:Timescale\n\nConstruct an Epoch with timescale T at the given date and time.\n\nExample\n\njulia> Epoch{TT}(2017, 3, 14, 7, 18, 20, 325)\n2017-03-14T07:18:20.325 TT\n\n\n\n"
+},
+
+{
+    "location": "api/time.html#AstronomicalTime.Epoch-Union{Tuple{AbstractString}, Tuple{T}} where T<:Timescale",
+    "page": "Time",
+    "title": "AstronomicalTime.Epoch",
+    "category": "Method",
     "text": "Epoch{T}(timestamp::AbstractString) where T<:Timescale\n\nConstruct an Epoch with timescale T from a timestamp.\n\nExample\n\njulia> Epoch{TT}(\"2017-03-14T07:18:20.325\")\n2017-03-14T07:18:20.325 TT\n\n\n\n"
+},
+
+{
+    "location": "api/time.html#AstronomicalTime.Epoch-Union{Tuple{AstronomicalTime.Epoch{S}}, Tuple{S}, Tuple{T}} where S<:Timescale where T<:Timescale",
+    "page": "Time",
+    "title": "AstronomicalTime.Epoch",
+    "category": "Method",
+    "text": "Epoch{T}(ep::Epoch{S}) where {T<:Timescale, S<:Timescale}\n\nConvert an Epoch with timescale S to an Epoch with timescale T.\n\nExample\n\njulia> Epoch{TT}(Epoch{TAI}(2000, 1, 1))\n2000-01-01T00:00:32.184 TT\n\n\n\n"
+},
+
+{
+    "location": "api/time.html#AstronomicalTime.Epoch-Union{Tuple{DateTime}, Tuple{T}} where T<:Timescale",
+    "page": "Time",
+    "title": "AstronomicalTime.Epoch",
+    "category": "Method",
+    "text": "Epoch{T}(dt::DateTime) where T<:Timescale\n\nConvert a DateTime object to an Epoch with timescale T.\n\nExample\n\njulia> Epoch{TT}(DateTime(2017, 3, 14, 7, 18, 20, 325))\n2017-03-14T07:18:20.325 TT\n\n\n\n"
+},
+
+{
+    "location": "api/time.html#AstronomicalTime.Epoch-Union{Tuple{Float64,Float64}, Tuple{Float64}, Tuple{T}} where T<:Timescale",
+    "page": "Time",
+    "title": "AstronomicalTime.Epoch",
+    "category": "Method",
+    "text": "Epoch{T}(jd1, jd2=0.0) where T<:Timescale\n\nConstruct an Epoch with timescale T from a two-part Julian date.\n\nExample\n\njulia> Epoch{TT}(2.4578265e6, 0.30440190993249416)\n2017-03-14T07:18:20.325 TT\n\n\n\n"
 },
 
 {
@@ -57,7 +89,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api/time.html#Base.Dates.DateTime-Tuple{AstronomicalTime.Epoch{T}} where T<:Timescale",
+    "location": "api/time.html#Base.Dates.DateTime-Union{Tuple{AstronomicalTime.Epoch{T}}, Tuple{T}} where T<:Timescale",
     "page": "Time",
     "title": "Base.Dates.DateTime",
     "category": "Method",
