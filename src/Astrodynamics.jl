@@ -12,7 +12,7 @@ using RemoteFiles
 @reexport using AstroDynModels
 @reexport using JPLEphemeris
 
-const ephemerides = @RemoteFileSet "Ephemerides" begin
+@RemoteFileSet ephemerides "JPL Ephemerides" begin
     de430 = @RemoteFile "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de430.bsp"
     de405 = @RemoteFile "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/a_old_versions/de405.bsp"
 end
