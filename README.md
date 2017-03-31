@@ -23,6 +23,8 @@ Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynIO.jl.git")
 Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynModels.jl.git")
 Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynPlots.jl.git")
 Pkg.clone("https://github.com/JuliaAstrodynamics/Astrodynamics.jl.git")
+Pkg.checkout("Dopri")
+Pkg.checkout("JPLEphemeris")
 ```
 
 
