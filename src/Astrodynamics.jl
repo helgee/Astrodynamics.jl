@@ -9,7 +9,7 @@ using RemoteFiles
 @reexport using AstroDynCoordinates
 @reexport using AstroDynIO
 @reexport using AstroDynPlots
-@reexport using AstroDynModels
+@reexport using AstroDynPropagators
 @reexport using JPLEphemeris
 
 @RemoteFileSet ephemerides "JPL Ephemerides" begin

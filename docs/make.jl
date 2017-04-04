@@ -1,9 +1,9 @@
 using Documenter, Astrodynamics, AstronomicalTime, AstroDynBase,
-    AstroDynIO, AstroDynPlots, AstroDynModels, JPLEphemeris
+    AstroDynIO, AstroDynPlots, AstroDynPropagators, JPLEphemeris
 
 makedocs(
     modules = [AstronomicalTime, AstroDynBase, AstroDynIO, AstroDynPlots,
-               AstroDynModels, JPLEphemeris],
+               AstroDynPropagators, JPLEphemeris],
     format = :html,
     sitename = "Astrodynamics.jl",
     authors = "Helge Eichhorn",

@@ -34,7 +34,7 @@ build_script:
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/AstroDynCoordinates.jl.git\")"
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/JPLEphemeris.jl.git\")"
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/AstroDynIO.jl.git\")"
-  - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/AstroDynModels.jl.git\")"
+  - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/AstroDynPropagators.jl.git\")"
   - C:\projects\julia\bin\julia -e "Pkg.clone(\"https://github.com/JuliaAstrodynamics/AstroDynPlots.jl.git\")"
   - C:\projects\julia\bin\julia -e "versioninfo();
       Pkg.clone(pwd(), \"Astrodynamics\"); Pkg.build(\"Astrodynamics\")"
