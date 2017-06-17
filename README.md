@@ -9,22 +9,13 @@
 
 ## Installation
 This package and most of its dependencies are not yet registered.
-To use it you will need to clone the following packages:
+You can install all required packages via the `AstroDynDev` package:
 
 ```julia
-Pkg.clone("https://github.com/helgee/Convertible.jl.git")
-Pkg.clone("https://github.com/helgee/RemoteFiles.jl.git")
-Pkg.clone("https://github.com/helgee/OptionalData.jl.git")
-Pkg.clone("https://github.com/helgee/EarthOrientation.jl.git")
-Pkg.clone("https://github.com/JuliaAstrodynamics/AstronomicalTime.jl.git")
-Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynBase.jl.git")
-Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynCoordinates.jl.git")
-Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynIO.jl.git")
-Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynPropagators.jl.git")
-Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynPlots.jl.git")
-Pkg.clone("https://github.com/JuliaAstrodynamics/Astrodynamics.jl.git")
-Pkg.checkout("Dopri")
-Pkg.checkout("JPLEphemeris")
+Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynDev.jl.git")
+
+using AstroDynDev
+AstroDynDev.install()
 ```
 
 
