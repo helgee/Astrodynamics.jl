@@ -1,4 +1,5 @@
 # Documentation: http://docs.travis-ci.com/user/languages/julia/
+dist: trusty
 language: julia
 os:
   - linux
@@ -6,30 +7,17 @@ os:
 julia:
   - 0.6
   - nightly
+matrix:
+  allow_failures:
+    - julia: nightly
 notifications:
   email: false
-addons:
-  apt:
-    packages:
-      - gfortran
-before_install:
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew update; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew install gcc; fi
+# uncomment the following lines to override the default test script
 script:
- - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
- - julia -e 'Pkg.clone("https://github.com/helgee/Convertible.jl.git")'
- - julia -e 'Pkg.clone("https://github.com/helgee/RemoteFiles.jl.git")'
- - julia -e 'Pkg.clone("https://github.com/helgee/OptionalData.jl.git")'
- - julia -e 'Pkg.clone("https://github.com/helgee/EarthOrientation.jl.git")'
- - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstronomicalTime.jl.git")'
- - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynBase.jl.git")'
- - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynCoordinates.jl.git")'
- - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/JPLEphemeris.jl.git")'
- - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynIO.jl.git")'
- - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynPropagators.jl.git")'
- - julia -e 'Pkg.clone("https://github.com/JuliaAstrodynamics/AstroDynPlots.jl.git")'
- - julia -e 'Pkg.clone(pwd()); Pkg.build("Astrodynamics"); Pkg.test("Astrodynamics"; coverage=true)'
-
+   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+   - julia -e 'Pkg.clone(pwd()); Pkg.build("Astrodynamics"); Pkg.test("Astrodynamics"; coverage=true)'
 after_success:
-  - julia -e 'Pkg.add("Documenter")'
-  - julia -e 'cd(Pkg.dir("Astrodynamics")); include(joinpath("docs", "make.jl"))'
+  # push coverage results to Coveralls
+  - julia -e 'cd(Pkg.dir("Astrodynamics")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  # push coverage results to Codecov
+  - julia -e 'cd(Pkg.dir("Astrodynamics")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
