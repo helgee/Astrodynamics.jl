@@ -1,7 +1,7 @@
 using Astrodynamics
 
 s0 = State(
-    Epoch(TAI, 2000, 1, 1, 12),
+    TAIEpoch(2000, 1, 1, 12),
     [7100, 0, 1300],
     [0, 7.35, 1],
 )
@@ -20,23 +20,21 @@ goi = @vary(
 )
 
 ode = ODE(
-    gravity=J2Gravity(Earth),
-    maxstep=2700,
-    discontinuities = [
-        Discontinuity(PericenterEvent(), toi),
-        Discontinuity(ApocenterEvent(), goi),
+    gravity=J2Gravity(),
+    events=[
+        Event(detector=Pericenter(), updater=toi),
+        Event(detector=Apocenter(), updater=goi),
     ],
 )
 
 seg = Segment(
-    dt=86400,
-    start = InitialOrbit(s0),
-    stop = TargetOrbit(
+    InitialOrbit(s0),
+    KeplerianTargetOrbit(
         sma = 42165.0,
         ecc = 0.0,
     ),
-    propagator = ode,
+    dt=86400,
+    propagator=ode,
 )
 
 res = minimize(seg, DeltaV(), NLoptSolver())
-println(res.after.propagation.trajectory.s1)
