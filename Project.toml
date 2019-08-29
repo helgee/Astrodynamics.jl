@@ -1,0 +1,13 @@
+name = "Astrodynamics"
+uuid = "86bc25c2-2b4f-5207-ad2c-dc9c0df46653"
+
+[deps]
+AstroBase = "e1773a3a-3ab2-51da-b25a-65b4161c689f"
+AstroDynPlots = "7ae2ffc7-f934-5fbe-aef9-7bec57bd794e"
+AstroDynPropagators = "0e0ca0a0-362b-5be1-9d42-a069d454749e"
+JPLEphemeris = "30a7bc16-7fba-505b-b600-cae92896a3fe"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+RemoteFiles = "cbe49d4c-5af1-5b60-bb70-0a60aa018e1b"
+
+[compat]
+julia = "≥ 0.7.0"
