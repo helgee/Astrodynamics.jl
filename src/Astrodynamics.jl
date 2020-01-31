@@ -25,6 +25,7 @@ function __init__()
     AstroTime.update()
     download(ephemerides)
     EPHEMERIS[] = SPK(path(ephemerides, :de430))
+    nothing
 end
 
 end
